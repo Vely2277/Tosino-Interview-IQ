@@ -78,8 +78,3 @@ uploads/
 
 # PM2 ecosystem file
 ecosystem.config.js
-
-# Docker
-Dockerfile
-docker-compose.yml
-.dockerignore
