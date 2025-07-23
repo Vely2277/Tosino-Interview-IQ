@@ -125,29 +125,4 @@ router.post("/update", (req, res) => {
   }
 })
 
-// Get detailed session analytics
-router.get("/analytics", (req, res) => {
-  try {
-    const analytics = {
-      performanceByRole: userProgress.jobHistory.map((job) => ({
-        role: job.title,
-        averageScore: job.averageScore,
-        sessions: job.sessions,
-      })),
-      weeklyProgress: [
-        { week: "Week 1", sessions: 1, avgScore: 65 },
-        { week: "Week 2", sessions: 2, avgScore: 72 },
-        { week: "Week 3", sessions: 1, avgScore: 78 },
-      ],
-      topSkillsNeeded: ["Communication", "Technical Knowledge", "Problem Solving", "Leadership", "Teamwork"],
-      improvementAreas: ["Behavioral Questions", "Technical Deep Dive", "Company Research"],
-    }
-
-    res.json(analytics)
-  } catch (error) {
-    console.error("Get analytics error:", error)
-    res.status(500).json({ error: "Failed to retrieve analytics" })
-  }
-})
-
 module.exports = router
