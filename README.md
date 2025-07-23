@@ -85,17 +85,21 @@ Visit `http://localhost:3001/health` - you should see:
 
 - `POST /optimize` - Optimize CV with AI suggestions
 - `POST /generate` - Generate CV from user input
+- `POST /upload` - Upload and analyze CV file
 
 ### 📊 Progress Routes (`/api/progress`)
 
 - `GET /stats` - Get user progress statistics
 - `GET /history` - Get interview history
 - `POST /update` - Update progress after session
+- `GET /analytics` - Get detailed analytics
 
 ### 🌐 Hub Routes (`/api/hub`)
 
 - `GET /insights?role=<role>` - Get career insights for role
 - `GET /search?q=<query>` - Search job opportunities
+- `GET /trends?industry=<industry>` - Get industry trends
+- `GET /interview-prep/:role` - Get interview prep guide
 
 ## 🔧 Configuration
 

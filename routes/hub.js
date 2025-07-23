@@ -163,4 +163,107 @@ router.get("/search", async (req, res) => {
   }
 })
 
+// Get industry trends
+router.get("/trends", async (req, res) => {
+  try {
+    const { industry } = req.query
+
+    const trendsPrompt = `Analyze current trends in ${industry || "the job market"}. Include:
+    1. Emerging roles and skills
+    2. Technology disruptions
+    3. Remote work impact
+    4. Salary trends
+    5. Future predictions
+    6. Skills in high demand
+    7. Declining roles to avoid
+
+    Provide actionable insights for career planning.`
+
+    const trends = await generateAIResponse(
+      [
+        {
+          role: "system",
+          content: "You are an industry analyst and futurist specializing in workforce trends and career development.",
+        },
+        { role: "user", content: trendsPrompt },
+      ],
+      {
+        maxTokens: 700,
+        temperature: 0.6,
+      },
+    )
+
+    res.json({
+      industry: industry || "General Market",
+      trends,
+      emergingSkills: ["AI/Machine Learning", "Cloud Computing", "Data Analysis", "Digital Marketing", "Cybersecurity"],
+      hotRoles: ["AI Engineer", "Data Scientist", "Cloud Architect", "UX Designer", "DevOps Engineer"],
+      lastUpdated: new Date().toISOString(),
+    })
+  } catch (error) {
+    console.error("Get trends error:", error)
+    res.status(500).json({ error: "Failed to retrieve industry trends" })
+  }
+})
+
+// Get interview preparation tips for specific role
+router.get("/interview-prep/:role", async (req, res) => {
+  try {
+    const { role } = req.params
+
+    const prepPrompt = `Create a comprehensive interview preparation guide for the role: "${role}". Include:
+    1. Common interview questions (5-7 questions)
+    2. Technical topics to review
+    3. Behavioral questions to expect
+    4. What to research about companies
+    5. Questions to ask the interviewer
+    6. Red flags to watch for
+    7. Salary negotiation tips
+
+    Make it practical and actionable.`
+
+    const prepGuide = await generateAIResponse(
+      [
+        {
+          role: "system",
+          content:
+            "You are an experienced interview coach and career advisor who has helped hundreds of candidates succeed in interviews.",
+        },
+        { role: "user", content: prepPrompt },
+      ],
+      {
+        maxTokens: 900,
+        temperature: 0.7,
+      },
+    )
+
+    res.json({
+      role,
+      preparationGuide: prepGuide,
+      commonQuestions: [
+        "Tell me about yourself",
+        "Why are you interested in this role?",
+        "What are your greatest strengths?",
+        "Describe a challenging project you worked on",
+        "Where do you see yourself in 5 years?",
+      ],
+      technicalTopics: [
+        "Core skills for the role",
+        "Industry best practices",
+        "Common tools and technologies",
+        "Problem-solving approaches",
+      ],
+      researchAreas: [
+        "Company mission and values",
+        "Recent news and developments",
+        "Team structure",
+        "Growth opportunities",
+      ],
+    })
+  } catch (error) {
+    console.error("Get interview prep error:", error)
+    res.status(500).json({ error: "Failed to generate interview preparation guide" })
+  }
+})
+
 module.exports = router
