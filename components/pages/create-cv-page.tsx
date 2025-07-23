@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { ArrowLeft, Download, Sparkles } from "lucide-react"
+import { cvAPI } from "@/lib/api"
 
 interface CreateCvPageProps {
   onNavigate: (page: string) => void
@@ -36,14 +37,26 @@ export default function CreateCvPage({ onNavigate }: CreateCvPageProps) {
     }
 
     setIsGenerating(true)
-    // Simulate API call
-    setTimeout(() => {
-      const cv = `
+    try {
+      // Use centralized API instead of mock setTimeout
+      const result = await cvAPI.generateCV({
+        name: formData.name,
+        role: formData.role,
+        workExperience: formData.workExperience,
+        skills: formData.skills,
+        education: formData.education,
+        previousCompanies: formData.previousCompanies,
+        achievements: formData.achievements,
+      })
+
+      setGeneratedCV(
+        result.generatedCV ||
+          `
 ${formData.name}
 ${formData.role}
 
 PROFESSIONAL SUMMARY
-Experienced ${formData.role} with a proven track record of delivering high-quality solutions.
+${result.summary || `Experienced ${formData.role} with a proven track record of delivering high-quality solutions.`}
 
 WORK EXPERIENCE
 ${formData.workExperience || "Professional experience in various roles"}
@@ -59,10 +72,14 @@ ${formData.previousCompanies || "Experience with leading organizations"}
 
 KEY ACHIEVEMENTS
 ${formData.achievements || "Notable accomplishments and contributions"}
-      `
-      setGeneratedCV(cv)
+    `,
+      )
+    } catch (error) {
+      console.error("CV generation error:", error)
+      alert("Sorry, there was an error generating your CV. Please try again.")
+    } finally {
       setIsGenerating(false)
-    }, 3000)
+    }
   }
 
   const handleDownloadPDF = () => {

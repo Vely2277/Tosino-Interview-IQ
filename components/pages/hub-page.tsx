@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Search, TrendingUp, Users, DollarSign } from "lucide-react"
+import { hubAPI } from "@/lib/api"
 
 export default function HubPage() {
   const [searchQuery, setSearchQuery] = useState("")
@@ -17,23 +18,37 @@ export default function HubPage() {
     if (!searchQuery.trim()) return
 
     setIsLoading(true)
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // Use centralized API instead of mock setTimeout
+      const result = await hubAPI.getInsights(searchQuery.trim())
+
       setInsights({
         role: searchQuery,
-        marketDemand: "High",
-        averageSalary: "$75,000 - $120,000",
-        commonRequirements: [
+        marketDemand: result.marketDemand || "High",
+        averageSalary: result.averageSalary || "$75,000 - $120,000",
+        commonRequirements: result.commonRequirements || [
           "JavaScript/TypeScript",
           "React or Vue.js",
           "HTML/CSS",
           "Git version control",
           "Problem-solving skills",
         ],
-        summary: `${searchQuery} roles are in high demand across the tech industry. Companies are looking for candidates with strong technical skills and the ability to work in collaborative environments.`,
+        summary:
+          result.summary ||
+          `${searchQuery} roles are in high demand across the tech industry. Companies are looking for candidates with strong technical skills and the ability to work in collaborative environments.`,
       })
+    } catch (error) {
+      console.error("Hub insights error:", error)
+      setInsights({
+        role: searchQuery,
+        marketDemand: "Data unavailable",
+        averageSalary: "Contact for details",
+        commonRequirements: ["Unable to fetch requirements"],
+        summary: "Sorry, we couldn't fetch insights for this role. Please try again later.",
+      })
+    } finally {
       setIsLoading(false)
-    }, 2000)
+    }
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {

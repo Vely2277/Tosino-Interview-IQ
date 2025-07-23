@@ -6,23 +6,45 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { CheckCircle } from "lucide-react"
+import { interviewAPI } from "@/lib/api"
 
 interface PracticePageProps {
   onNavigate: (page: string) => void
-  setInterviewData: (data: { jobTitle: string; company: string }) => void
+  setInterviewData: (data: { jobTitle: string; company: string; sessionId?: string }) => void
 }
 
 export default function PracticePage({ onNavigate, setInterviewData }: PracticePageProps) {
   const [jobTitle, setJobTitle] = useState("")
   const [company, setCompany] = useState("")
 
-  const handleStartInterview = () => {
+  const handleStartInterview = async () => {
     if (!jobTitle.trim()) {
       alert("Please enter a job title")
       return
     }
-    setInterviewData({ jobTitle, company })
-    onNavigate("interview-mode")
+
+    try {
+      // Initialize interview session with backend
+      const sessionData = await interviewAPI.startInterview({
+        jobTitle,
+        company,
+        mode: "text", // Default mode, will be updated in interview-mode page
+      })
+
+      // Store session data for use in interview components
+      setInterviewData({
+        jobTitle,
+        company,
+        sessionId: sessionData.sessionId, // Add session ID for API calls
+      })
+
+      onNavigate("interview-mode")
+    } catch (error) {
+      console.error("Failed to start interview session:", error)
+      // Fallback to original behavior if API fails
+      setInterviewData({ jobTitle, company })
+      onNavigate("interview-mode")
+    }
   }
 
   return (

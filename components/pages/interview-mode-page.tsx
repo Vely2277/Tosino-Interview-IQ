@@ -6,7 +6,7 @@ import { Mic, MessageCircle, ArrowLeft } from "lucide-react"
 
 interface InterviewModePageProps {
   onNavigate: (page: string) => void
-  interviewData: { jobTitle: string; company: string }
+  interviewData: { jobTitle: string; company: string; sessionId?: string }
 }
 
 export default function InterviewModePage({ onNavigate, interviewData }: InterviewModePageProps) {

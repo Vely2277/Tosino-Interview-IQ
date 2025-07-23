@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { FileText, Upload, Wrench, Sparkles } from "lucide-react"
+import { cvAPI } from "@/lib/api"
 
 interface CvPageProps {
   onNavigate: (page: string) => void
@@ -33,11 +34,20 @@ export default function CvPage({ onNavigate }: CvPageProps) {
     }
 
     setIsOptimizing(true)
-    // Simulate API call
-    setTimeout(() => {
-      alert("CV optimization complete! Check your email for the improved version.")
+    try {
+      // Use centralized API instead of mock setTimeout
+      const result = await cvAPI.optimizeCV({
+        cvText: cvText.trim() || undefined,
+        file: selectedFile || undefined,
+      })
+
+      alert(`CV optimization complete! ${result.message || "Check your email for the improved version."}`)
+    } catch (error) {
+      console.error("CV optimization error:", error)
+      alert("Sorry, there was an error optimizing your CV. Please try again.")
+    } finally {
       setIsOptimizing(false)
-    }, 3000)
+    }
   }
 
   return (

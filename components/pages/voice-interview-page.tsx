@@ -4,10 +4,11 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Mic, MicOff, ArrowLeft, Volume2 } from "lucide-react"
+import { interviewAPI } from "@/lib/api"
 
 interface VoiceInterviewPageProps {
   onNavigate: (page: string) => void
-  interviewData: { jobTitle: string; company: string }
+  interviewData: { jobTitle: string; company: string; sessionId?: string }
 }
 
 export default function VoiceInterviewPage({ onNavigate, interviewData }: VoiceInterviewPageProps) {
@@ -36,12 +37,22 @@ export default function VoiceInterviewPage({ onNavigate, interviewData }: VoiceI
 
   const handleSendResponse = async (response: string) => {
     setIsLoading(true)
-    // Simulate API call
-    setTimeout(() => {
-      setAiResponse("That's great! Can you tell me about a challenging project you've worked on recently?")
-      setIsLoading(false)
+    try {
+      // Use centralized API instead of mock setTimeout
+      const result = await interviewAPI.sendResponse({
+        sessionId: interviewData.sessionId || "fallback-session-id",
+        userResponse: response,
+        mode: "voice",
+      })
+
+      setAiResponse(result.aiResponse)
       setTranscript("")
-    }, 2000)
+    } catch (error) {
+      console.error("Interview API error:", error)
+      setAiResponse("Sorry, there was an error processing your response. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const speakResponse = () => {

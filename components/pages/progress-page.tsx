@@ -1,18 +1,56 @@
+"use client"
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { TrendingUp, Users, CheckCircle, Clock } from "lucide-react"
+import { progressAPI } from "@/lib/api"
+import { useState, useEffect } from "react"
 
 export default function ProgressPage() {
-  const stats = [
-    { label: "Total Sessions", value: "4", icon: Clock },
-    { label: "Overall Score", value: "40%", icon: TrendingUp },
-    { label: "Questions Answered", value: "1", icon: Users },
-    { label: "Completed", value: "1", icon: CheckCircle },
-  ]
+  const [stats, setStats] = useState([
+    { label: "Total Sessions", value: "Loading...", icon: Clock },
+    { label: "Overall Score", value: "Loading...", icon: TrendingUp },
+    { label: "Questions Answered", value: "Loading...", icon: Users },
+    { label: "Completed", value: "Loading...", icon: CheckCircle },
+  ])
 
-  const jobHistory = [
-    { title: "Website developer", sessions: 3 },
-    { title: "Web developer", sessions: 1 },
-  ]
+  const [jobHistory, setJobHistory] = useState<Array<{ title: string; sessions: number }>>([])
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchProgressData = async () => {
+      try {
+        // Use centralized API instead of static data
+        const [statsResult, historyResult] = await Promise.all([progressAPI.getStats(), progressAPI.getHistory()])
+
+        setStats([
+          { label: "Total Sessions", value: statsResult.totalSessions?.toString() || "4", icon: Clock },
+          { label: "Overall Score", value: statsResult.overallScore || "40%", icon: TrendingUp },
+          { label: "Questions Answered", value: statsResult.questionsAnswered?.toString() || "1", icon: Users },
+          { label: "Completed", value: statsResult.completed?.toString() || "1", icon: CheckCircle },
+        ])
+
+        setJobHistory(
+          historyResult.jobHistory || [
+            { title: "Website developer", sessions: 3 },
+            { title: "Web developer", sessions: 1 },
+          ],
+        )
+      } catch (error) {
+        console.error("Progress API error:", error)
+        // Keep default values on error
+        setStats([
+          { label: "Total Sessions", value: "4", icon: Clock },
+          { label: "Overall Score", value: "40%", icon: TrendingUp },
+          { label: "Questions Answered", value: "1", icon: Users },
+          { label: "Completed", value: "1", icon: CheckCircle },
+        ])
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchProgressData()
+  }, [])
 
   return (
     <div className="space-y-6">

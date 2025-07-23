@@ -15,7 +15,11 @@ import TextInterviewPage from "@/components/pages/text-interview-page"
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState("home")
-  const [interviewData, setInterviewData] = useState({ jobTitle: "", company: "" })
+  const [interviewData, setInterviewData] = useState({
+    jobTitle: "",
+    company: "",
+    sessionId: undefined as string | undefined,
+  })
 
   const renderPage = () => {
     switch (currentPage) {

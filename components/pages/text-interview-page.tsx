@@ -7,10 +7,11 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { ArrowLeft, Send } from "lucide-react"
+import { interviewAPI } from "@/lib/api"
 
 interface TextInterviewPageProps {
   onNavigate: (page: string) => void
-  interviewData: { jobTitle: string; company: string }
+  interviewData: { jobTitle: string; company: string; sessionId?: string }
 }
 
 interface Message {
@@ -43,17 +44,32 @@ export default function TextInterviewPage({ onNavigate, interviewData }: TextInt
     setCurrentMessage("")
     setIsLoading(true)
 
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      // Use centralized API instead of mock setTimeout
+      const result = await interviewAPI.sendResponse({
+        sessionId: interviewData.sessionId || "fallback-session-id",
+        userResponse: currentMessage,
+        mode: "text",
+      })
+
       const aiMessage: Message = {
         type: "ai",
         content:
-          "That's great! Can you tell me about a challenging project you've worked on recently and how you overcame the obstacles?",
+          result.aiResponse || "Thank you for your response. Can you tell me more about your experience with teamwork?",
         timestamp: new Date(),
       }
       setMessages((prev) => [...prev, aiMessage])
+    } catch (error) {
+      console.error("Interview API error:", error)
+      const errorMessage: Message = {
+        type: "ai",
+        content: "Sorry, there was an error processing your response. Please try again.",
+        timestamp: new Date(),
+      }
+      setMessages((prev) => [...prev, errorMessage])
+    } finally {
       setIsLoading(false)
-    }, 2000)
+    }
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
