@@ -52,8 +52,6 @@ export default function TextInterviewPage() {
       setSessionId(data.sessionId);
       sessionIdRef.current = data.sessionId;
       console.log("Log session id:", data.sessionId);
-      const id = data.sessionId;
-      setSessionId(id);
       setAiResponse(data.initialMessage); // Set the initial AI message
       setChatHistory((prev) => [
         ...prev,
@@ -121,18 +119,7 @@ export default function TextInterviewPage() {
 
     setIsLoading(true);
     try {
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL; // Access backend URL from .env
-      const response = await fetch(`${backendUrl}/api/interview/end`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sessionId }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to end interview session");
-      }
-
-      const data = await response.json();
+      const data = await interviewAPI.end(sessionId);
       console.log("Interview Summary:", data.summary); // Handle the summary data
       setSummary(data.summary); // Store the summary in state
     } catch (error) {
