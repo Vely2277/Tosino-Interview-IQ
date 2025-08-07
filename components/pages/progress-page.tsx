@@ -20,6 +20,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import Image from "next/image";
+import { progressAPI } from "@/lib/api";
 
 export default function ProgressPage() {
   const router = useRouter();
@@ -69,30 +70,12 @@ export default function ProgressPage() {
         setError('');
 
         // Fetch user statistics
-        const statsResponse = await fetch('/api/progress/stats', {
-          headers: {
-            'Authorization': `Bearer ${user.id}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (statsResponse.ok) {
-          const stats = await statsResponse.json();
-          setUserStats(stats);
-        }
+        const stats = await progressAPI.getStats();
+        setUserStats(stats);
 
         // Fetch interview history
-        const historyResponse = await fetch('/api/progress/history', {
-          headers: {
-            'Authorization': `Bearer ${user.id}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (historyResponse.ok) {
-          const history = await historyResponse.json();
-          setInterviewHistory(history);
-        }
+        const history = await progressAPI.getHistory();
+        setInterviewHistory(history);
 
         // Generate performance data based on history
         const performanceChartData = generatePerformanceData(Array.isArray(history) ? history : []);
