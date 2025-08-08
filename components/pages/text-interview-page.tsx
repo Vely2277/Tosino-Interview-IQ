@@ -137,7 +137,7 @@ export default function TextInterviewPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#f0efe1] w-full">
+    <div className="min-h-screen bg-[#f0efe1]">
       {/* Header Navigation */}
       <header className="bg-blue-900 text-white sticky top-0 z-50 w-full">
         <div className="w-full px-4 sm:px-6 lg:px-8">
@@ -319,15 +319,15 @@ export default function TextInterviewPage() {
 
       {/* Main Content */}
       <section className="py-12 bg-[#f0efe1] w-full">
-        <div className="w-full px-4 sm:px-6 lg:px-8">
-          <Card className="w-full shadow-lg border-0 bg-white">
-            <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-t-lg">
-              <CardTitle className="flex items-center space-x-2">
+        <div className="w-full">
+          <Card className="shadow-lg border-0 bg-white w-full">
+            <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-t-lg w-full">
+              <CardTitle className="flex items-center space-x-2 w-full">
                 <MessageSquare className="h-5 w-5" />
                 <span>Interview Conversation</span>
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-6 space-y-4">
+            <CardContent className="p-6 space-y-4 w-full">
               {chatHistory.map((msg, idx) => {
                 const isLastAI =
                   msg.from === "ai" && idx === chatHistory.length - 1;

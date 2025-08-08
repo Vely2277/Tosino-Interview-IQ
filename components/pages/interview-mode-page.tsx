@@ -185,26 +185,25 @@ export default function InterviewModePage() {
       </section>
 
       {/* Main Content */}
-      <section className="py-12 bg-[#f0efe1]">
-        <div className="w-full px-4 sm:px-6 lg:px-8">
-          <div className="space-y-8">
+      <section className="py-12 bg-[#f0efe1] w-full">
+        <div className="w-full">
+          <div className="flex flex-row gap-8 w-full">
             {/* Voice Interview Card */}
             <Card
-              className="cursor-pointer hover:shadow-xl transition-all transform hover:scale-105 bg-white shadow-lg border-0"
+              className="w-full cursor-pointer hover:shadow-xl transition-all transform hover:scale-105 bg-white shadow-lg border-0"
               onClick={() => router.push("/voice-interview")}
             >
-              <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
-                <CardTitle className="flex items-center space-x-3 text-2xl">
+              <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white w-full">
+                <CardTitle className="flex items-center space-x-3 text-2xl w-full">
                   <div className="bg-blue-500 p-3 rounded-full">
                     <Mic className="h-8 w-8 text-white" />
                   </div>
                   <span>Start Interview with Voice</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-8 bg-gradient-to-br from-white to-blue-50">
+              <CardContent className="p-8 bg-gradient-to-br from-white to-blue-50 w-full">
                 <p className="text-gray-700 text-lg mb-4">
-                  Mic-enabled interaction with voice responses from AI
-                  interviewer
+                  Mic-enabled interaction with voice responses from AI interviewer
                 </p>
                 <ul className="space-y-2 text-gray-600">
                   <li className="flex items-center space-x-2">
@@ -225,18 +224,18 @@ export default function InterviewModePage() {
 
             {/* Text Interview Card */}
             <Card
-              className="cursor-pointer hover:shadow-xl transition-all transform hover:scale-105 bg-white shadow-lg border-0"
+              className="w-full cursor-pointer hover:shadow-xl transition-all transform hover:scale-105 bg-white shadow-lg border-0"
               onClick={() => router.push("/text-interview")}
             >
-              <CardHeader className="bg-gradient-to-r from-green-600 to-green-700 text-white">
-                <CardTitle className="flex items-center space-x-3 text-2xl">
+              <CardHeader className="bg-gradient-to-r from-green-600 to-green-700 text-white w-full">
+                <CardTitle className="flex items-center space-x-3 text-2xl w-full">
                   <div className="bg-green-500 p-3 rounded-full">
                     <MessageCircle className="h-8 w-8 text-white" />
                   </div>
                   <span>Start Interview with Text</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-8 bg-gradient-to-br from-white to-green-50">
+              <CardContent className="p-8 bg-gradient-to-br from-white to-green-50 w-full">
                 <p className="text-gray-700 text-lg mb-4">
                   Chat interface with text-based responses
                 </p>

@@ -232,7 +232,7 @@ export default function VoiceInterviewPage() {
   }, []);
 
   return (
-    <div className="min-h-screen w-full" style={{ backgroundColor: "#f5f5dc" }}>
+    <div className="min-h-screen" style={{ backgroundColor: "#f5f5dc" }}>
       {/* Header Navigation */}
       <header className="bg-blue-900 text-white sticky top-0 z-50 w-full">
         <div className="w-full px-4 sm:px-6 lg:px-8">
@@ -400,7 +400,7 @@ export default function VoiceInterviewPage() {
       </section>
 
       {/* Main Content */}
-      <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
+      <div className="w-full py-8">
         <div className="space-y-6 w-full">
           {/* Voice Controls Card */}
           <Card className="border-gray-200 shadow-sm">
