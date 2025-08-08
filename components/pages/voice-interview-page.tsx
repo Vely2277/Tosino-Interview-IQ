@@ -1,3 +1,5 @@
+// Guard to ensure only one response per listening session
+let hasRespondedThisTurn = false;
 "use client";
 
 import { useState, useEffect } from "react";
@@ -36,6 +38,7 @@ export default function VoiceInterviewPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState("");
+  const [micDisabled, setMicDisabled] = useState(false); // disables mic during AI speech
   const transcriptRef = useRef("");
   const [aiResponse, setAiResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -145,24 +148,64 @@ const toggleListening = async () => {
 
   if (isListening) {
     if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
-    recognition.stop();
-    setIsListening(false); // update UI immediately
+    setMicDisabled(true);
+    setIsListening(false);
+    // Stop recognition and send response if transcript exists
+    const sr = recognition;
+    sr.stop();
+    if (transcriptRef.current && transcriptRef.current.trim() && !hasRespondedThisTurn) {
+      hasRespondedThisTurn = true;
+      setIsLoading(true);
+      handleRespond(transcriptRef.current.trim()).finally(() => {
+        setTranscript("");
+        transcriptRef.current = "";
+        setIsLoading(false);
+        setMicDisabled(false);
+      });
+    } else {
+      setMicDisabled(false);
+    }
   } else {
     try {
       if (!micPermissionGranted) {
         await navigator.mediaDevices.getUserMedia({ audio: true });
       }
       setTranscript("");
+      transcriptRef.current = "";
+      hasRespondedThisTurn = false;
       try {
         recognition.start();
         micPermissionGranted = true;
         setIsListening(true);
+        // Start 3-second silence timer
+        if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
+        silenceTimeoutRef.current = setTimeout(() => {
+          if (!hasRespondedThisTurn) {
+            hasRespondedThisTurn = true;
+            setIsListening(false);
+            setMicDisabled(true);
+            const sr = recognition;
+            sr.stop();
+            if (transcriptRef.current && transcriptRef.current.trim()) {
+              setIsLoading(true);
+              handleRespond(transcriptRef.current.trim()).finally(() => {
+                setTranscript("");
+                transcriptRef.current = "";
+                setIsLoading(false);
+                setMicDisabled(false);
+              });
+            } else {
+              setTranscript("");
+              transcriptRef.current = "";
+              setMicDisabled(false);
+            }
+          }
+        }, 3000);
       } catch (recErr) {
         micPermissionGranted = false;
         alert("Microphone access is required. Please allow microphone permission in your browser settings.");
         setIsListening(false);
       }
-      // Silence timeout will be handled in onresult
     } catch (err) {
       micPermissionGranted = false;
       alert("Microphone access is required. Please allow microphone permission in your browser settings.");
@@ -197,6 +240,13 @@ const toggleListening = async () => {
     utterance.rate = rate;
     utterance.volume = volume;
 
+    utterance.onstart = () => {
+      setMicDisabled(true);
+    };
+    utterance.onend = () => {
+      setMicDisabled(false);
+    };
+
     speechSynthesis.cancel();
     speechSynthesis.speak(utterance);
   };
@@ -219,32 +269,60 @@ const toggleListening = async () => {
     const sr = getSpeechRecognition();
     if (!sr) return;
 
-  sr.lang = "en-US";
-  sr.continuous = true; // Allow continuous listening until user stops
-  sr.interimResults = false;
+    sr.lang = "en-US";
+    sr.continuous = true;
+    sr.interimResults = false;
 
-sr.onresult = async (event: any) => {
-  const userResponse = event.results[0][0].transcript;
-  console.log("Recognized speech:", userResponse);
+    sr.onspeechstart = () => {
+      // Reset silence timer on speech
+      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
+      silenceTimeoutRef.current = setTimeout(() => {
+        if (!hasRespondedThisTurn) {
+          hasRespondedThisTurn = true;
+          setIsListening(false);
+          setMicDisabled(true);
+          sr.stop();
+          if (transcriptRef.current && transcriptRef.current.trim()) {
+            setIsLoading(true);
+            handleRespond(transcriptRef.current.trim()).finally(() => {
+              setTranscript("");
+              transcriptRef.current = "";
+              setIsLoading(false);
+              setMicDisabled(false);
+            });
+          } else {
+            setTranscript("");
+            transcriptRef.current = "";
+            setMicDisabled(false);
+          }
+        }
+      }, 3000);
+    };
 
-  setTranscript(userResponse);
-  transcriptRef.current = userResponse;
-  if (recognition) {
-    recognition.stop();
-  }
-  setIsListening(false);
-  // Only send if user actually spoke (not silence or repeat)
-  if (userResponse && userResponse.trim()) {
-    await handleRespond(userResponse.trim());
-    setTranscript("");
-    transcriptRef.current = "";
-  }
-};
-
+    sr.onresult = async (event: any) => {
+      if (hasRespondedThisTurn) return;
+      hasRespondedThisTurn = true;
+      // Store transcript, clear immediately, then send
+      const userResponse = event.results[0][0].transcript;
+      setTranscript("");
+      transcriptRef.current = "";
+      setIsListening(false);
+      setMicDisabled(true);
+      sr.stop();
+      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
+      if (userResponse && userResponse.trim()) {
+        setIsLoading(true);
+        await handleRespond(userResponse.trim());
+        setIsLoading(false);
+      }
+      setMicDisabled(false);
+    };
 
     sr.onerror = (error: any) => {
-      console.error("Speech recognition error:", error);
       setIsListening(false);
+      setMicDisabled(false);
+      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
+      console.error("Speech recognition error:", error);
       if (error.error === "not-allowed" || error.error === "denied") {
         alert("Microphone access denied. Please allow microphone permission in your browser settings.");
       } else if (error.error === "no-speech") {
@@ -253,11 +331,11 @@ sr.onresult = async (event: any) => {
     };
 
     sr.onend = () => {
-  if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
-  setIsListening(false);
-  // Only clear transcript, do not send or reuse
-  setTranscript("");
-  transcriptRef.current = "";
+      setIsListening(false);
+      setMicDisabled(false);
+      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
+      setTranscript("");
+      transcriptRef.current = "";
     };
 
     setRecognition(sr);
@@ -618,11 +696,11 @@ sr.onresult = async (event: any) => {
                   className={`w-20 h-20 rounded-full ${
                     isListening
                       ? "bg-red-500 hover:bg-red-600 animate-pulse"
-                      : isLoading
+                      : isLoading || micDisabled
                       ? "bg-gray-400 cursor-not-allowed"
                       : "bg-blue-500 hover:bg-blue-600"
                   }`}
-                  disabled={isLoading}
+                  disabled={isLoading || micDisabled}
                 >
                   {isListening ? (
                     <MicOff className="h-8 w-8" />
