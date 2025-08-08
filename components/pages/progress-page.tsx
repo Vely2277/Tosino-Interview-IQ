@@ -152,8 +152,8 @@ export default function ProgressPage() {
   ];
 
   // Dynamic job history data (will be replaced with interview history)
-  const jobHistory = interviewHistory.map((interview: any, index: number) => ({
-    title: interview.job_title || `Interview Session ${index + 1}`,
+  const jobHistory = interviewHistory.map((interview: any) => ({
+    title: interview.job_title && interview.job_title.trim() !== '' ? interview.job_title : 'Interview Session',
     sessions: 1,
     date: new Date(interview.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
     score: interview.score ? `${interview.score}%` : "In Progress",
