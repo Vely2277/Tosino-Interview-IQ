@@ -137,7 +137,6 @@ export default function VoiceInterviewPage() {
   // Silence timeout ref
   const silenceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-let micPermissionGranted = false;
 const toggleListening = async () => {
   if (!recognition) {
     alert("Speech Recognition not supported on this browser.");
