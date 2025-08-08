@@ -151,13 +151,20 @@ const toggleListening = async () => {
     try {
       if (!micPermissionGranted) {
         await navigator.mediaDevices.getUserMedia({ audio: true });
-        micPermissionGranted = true;
       }
       setTranscript("");
-      recognition.start();
-      setIsListening(true);
+      try {
+        recognition.start();
+        micPermissionGranted = true;
+        setIsListening(true);
+      } catch (recErr) {
+        micPermissionGranted = false;
+        alert("Microphone access is required. Please allow microphone permission in your browser settings.");
+        setIsListening(false);
+      }
       // Silence timeout will be handled in onresult
     } catch (err) {
+      micPermissionGranted = false;
       alert("Microphone access is required. Please allow microphone permission in your browser settings.");
       setIsListening(false);
     }
