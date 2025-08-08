@@ -140,11 +140,11 @@ const toggleListening = async () => {
     return;
   }
 
-  if (isListening) {
-    if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
-    recognition.stop();
-    setIsListening(false);
-  } else {
+    if (isListening) {
+      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
+      recognition.stop();
+      // setIsListening(false) will be called in onend
+    } else {
     try {
       await navigator.mediaDevices.getUserMedia({ audio: true });
       setTranscript("");
@@ -235,15 +235,15 @@ sr.onresult = async (event: any) => {
       }
     };
 
-sr.onend = () => {
-  if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
-  setIsListening(false);
-  // Always send the transcript if it exists
-  if (transcript && transcript.trim()) {
-    handleRespond(transcript.trim());
-    setTranscript("");
-  }
-};
+    sr.onend = () => {
+      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
+      setIsListening(false);
+      // Always send the transcript if it exists
+      if (transcript && transcript.trim()) {
+        handleRespond(transcript.trim());
+        setTranscript("");
+      }
+    };
 
     setRecognition(sr);
   }, []);
@@ -603,6 +603,8 @@ sr.onend = () => {
                   className={`w-20 h-20 rounded-full ${
                     isListening
                       ? "bg-red-500 hover:bg-red-600 animate-pulse"
+                      : isLoading
+                      ? "bg-gray-400 cursor-not-allowed"
                       : "bg-blue-500 hover:bg-blue-600"
                   }`}
                   disabled={isLoading}
@@ -616,14 +618,12 @@ sr.onend = () => {
               </div>
 
               <p className="text-center text-sm text-gray-600">
-                {isListening ? "Listening... Tap to stop" : "Tap to speak"}
+                {isListening
+                  ? "Listening... Tap to stop"
+                  : isLoading
+                  ? "AI is thinking..."
+                  : "Tap to speak"}
               </p>
-
-              {isLoading && (
-                <p className="text-center text-sm text-blue-600">
-                  AI is thinking...
-                </p>
-              )}
             </CardContent>
           </Card>
 
