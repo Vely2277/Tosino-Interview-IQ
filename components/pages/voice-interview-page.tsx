@@ -214,17 +214,21 @@ const toggleListening = async () => {
 sr.onresult = async (event: any) => {
   const userResponse = event.results[0][0].transcript;
   console.log("Recognized speech:", userResponse);
+
+  // Store immediately
   setTranscript(userResponse);
   transcriptRef.current = userResponse;
 
-  // ✅ Immediately stop listening
+  // Stop listening immediately
   if (recognition && isListening) {
-    recognition.stop();             // stop speech recognition
-    setIsListening(false);          // update UI right away
+    recognition.stop();
+    setIsListening(false);
   }
 
-  // ✅ Send to AI instantly
+  // Send to AI using a fresh variable (avoids stale transcript)
   await handleRespond(userResponse.trim());
+
+  // Clear transcript so it won’t leak into next run
   setTranscript("");
   transcriptRef.current = "";
 };
