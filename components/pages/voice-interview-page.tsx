@@ -134,18 +134,40 @@ export default function VoiceInterviewPage() {
   };
 
   // Handle microphone toggle (start/stop listening)
-  const toggleListening = () => {
+  // Handle microphone toggle (start/stop listening) with permission request
+  // Silence timeout ref
+  const silenceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const toggleListening = async () => {
     if (!recognition) {
       alert("Speech Recognition not supported on this browser.");
       return;
     }
 
     if (isListening) {
+      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
       recognition.stop();
       setIsListening(false);
     } else {
-      recognition.start();
-      setIsListening(true);
+      try {
+        await navigator.mediaDevices.getUserMedia({ audio: true });
+        recognition.start();
+        setIsListening(true);
+        // Start silence timeout
+        if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
+        silenceTimeoutRef.current = setTimeout(() => {
+          if (isListening) {
+            recognition.stop();
+            setIsListening(false);
+            if (transcript.trim()) {
+              handleRespond(transcript.trim());
+            }
+          }
+        }, 3000);
+      } catch (err) {
+        alert("Microphone access is required. Please allow microphone permission in your browser settings.");
+        setIsListening(false);
+      }
     }
   };
 
@@ -197,30 +219,43 @@ export default function VoiceInterviewPage() {
     const sr = getSpeechRecognition();
     if (!sr) return;
 
-    sr.lang = "en-US";
-    sr.continuous = false;
-    sr.interimResults = false;
+  sr.lang = "en-US";
+  sr.continuous = true; // Allow continuous listening until user stops
+  sr.interimResults = false;
 
     sr.onresult = async (event: any) => {
       const userResponse = event.results[0][0].transcript;
       console.log("Recognized speech:", userResponse);
       setTranscript(userResponse);
-
-      try {
-        await handleRespond(userResponse); // Use the decoupled logic
-      } catch (error) {
-        console.error("Speech to backend failed:", error);
-        setAiResponse("Hmm... I couldn't process that. Try again?");
-      }
+      // Reset silence timeout on speech
+      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
+      silenceTimeoutRef.current = setTimeout(() => {
+        if (isListening) {
+          recognition.stop();
+          setIsListening(false);
+          if (userResponse.trim()) {
+            handleRespond(userResponse.trim());
+          }
+        }
+      }, 3000);
     };
 
     sr.onerror = (error: any) => {
       console.error("Speech recognition error:", error);
       setIsListening(false);
+      if (error.error === "not-allowed" || error.error === "denied") {
+        alert("Microphone access denied. Please allow microphone permission in your browser settings.");
+      } else if (error.error === "no-speech") {
+        alert("No speech detected. Please try again and speak clearly.");
+      }
     };
 
     sr.onend = () => {
+      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
       setIsListening(false);
+      if (transcript.trim()) {
+        handleRespond(transcript.trim());
+      }
     };
 
     setRecognition(sr);
