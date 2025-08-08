@@ -95,28 +95,21 @@ export default function ProgressPage() {
   // Helper function to generate performance data for chart
   const generatePerformanceData = (history: any[]) => {
     if (!history || history.length === 0) return [];
-    
-    // Group interviews by month and calculate average scores
-    const monthlyData: { [key: string]: { month: string; scores: number[]; total: number } } = {};
-    history.forEach(interview => {
-      const date = new Date(interview.created_at);
+    // Group scores by month and calculate average
+    const monthlyData: { [key: string]: { month: string; scores: number[] } } = {};
+    history.forEach(entry => {
+      const date = new Date(entry.created_at);
       const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
-      
       if (!monthlyData[monthKey]) {
         monthlyData[monthKey] = {
           month: date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
           scores: [],
-          total: 0
         };
       }
-      
-      if (interview.score !== null && interview.score !== undefined) {
-        monthlyData[monthKey].scores.push(interview.score);
-        monthlyData[monthKey].total++;
+      if (entry.score !== null && entry.score !== undefined) {
+        monthlyData[monthKey].scores.push(entry.score);
       }
     });
-
-    // Calculate averages and return chart data
     return Object.values(monthlyData)
       .map(month => ({
         month: month.month,
@@ -125,7 +118,7 @@ export default function ProgressPage() {
           : 0
       }))
       .sort((a, b) => new Date(a.month).getTime() - new Date(b.month).getTime())
-      .slice(-6); // Last 6 months
+      .slice(-6);
   };
 
   // Helper function to format user join date
