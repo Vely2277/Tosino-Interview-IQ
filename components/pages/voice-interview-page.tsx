@@ -216,16 +216,19 @@ sr.onresult = async (event: any) => {
   console.log("Recognized speech:", userResponse);
   setTranscript(userResponse);
   transcriptRef.current = userResponse;
-  // Reset silence timeout on speech
-  if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
-  // Start a new silence timeout that only stops recognition
-  silenceTimeoutRef.current = setTimeout(() => {
-    if (isListening) {
-      recognition.stop();
-      setIsListening(false); // update UI immediately
-    }
-  }, 3000);
+
+  // ✅ Immediately stop listening
+  if (recognition && isListening) {
+    recognition.stop();             // stop speech recognition
+    setIsListening(false);          // update UI right away
+  }
+
+  // ✅ Send to AI instantly
+  await handleRespond(userResponse.trim());
+  setTranscript("");
+  transcriptRef.current = "";
 };
+
 
     sr.onerror = (error: any) => {
       console.error("Speech recognition error:", error);
