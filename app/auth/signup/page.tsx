@@ -57,7 +57,7 @@ export default function SignUpPage() {
         // User confirmed and logged in immediately
         setSuccess(true);
         setTimeout(() => {
-          router.push('/hub');
+          router.push('/home');
         }, 2000);
       }
     } catch (err) {

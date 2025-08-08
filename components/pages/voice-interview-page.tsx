@@ -121,10 +121,6 @@ export default function VoiceInterviewPage() {
       setAiResponse(data.aiResponse);
       setTranscript("");
 
-      if (recognition && !isListening) {
-        recognition.start();
-        setIsListening(true);
-      }
     } catch (error) {
       console.error("Error in handleRespond:", error);
       setAiResponse("Hmm... I couldn't process that. Try again?");
@@ -138,38 +134,29 @@ export default function VoiceInterviewPage() {
   // Silence timeout ref
   const silenceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const toggleListening = async () => {
-    if (!recognition) {
-      alert("Speech Recognition not supported on this browser.");
-      return;
-    }
+const toggleListening = async () => {
+  if (!recognition) {
+    alert("Speech Recognition not supported on this browser.");
+    return;
+  }
 
-    if (isListening) {
-      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
-      recognition.stop();
+  if (isListening) {
+    if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
+    recognition.stop();
+    setIsListening(false);
+  } else {
+    try {
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+      setTranscript("");
+      recognition.start();
+      setIsListening(true);
+      // Silence timeout will be handled in onresult
+    } catch (err) {
+      alert("Microphone access is required. Please allow microphone permission in your browser settings.");
       setIsListening(false);
-    } else {
-      try {
-        await navigator.mediaDevices.getUserMedia({ audio: true });
-        recognition.start();
-        setIsListening(true);
-        // Start silence timeout
-        if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
-        silenceTimeoutRef.current = setTimeout(() => {
-          if (isListening) {
-            recognition.stop();
-            setIsListening(false);
-            if (transcript.trim()) {
-              handleRespond(transcript.trim());
-            }
-          }
-        }, 3000);
-      } catch (err) {
-        alert("Microphone access is required. Please allow microphone permission in your browser settings.");
-        setIsListening(false);
-      }
     }
-  };
+  }
+};
 
   // End the interview session
   const handleEndInterview = async () => {
@@ -223,22 +210,20 @@ export default function VoiceInterviewPage() {
   sr.continuous = true; // Allow continuous listening until user stops
   sr.interimResults = false;
 
-    sr.onresult = async (event: any) => {
-      const userResponse = event.results[0][0].transcript;
-      console.log("Recognized speech:", userResponse);
-      setTranscript(userResponse);
-      // Reset silence timeout on speech
-      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
-      silenceTimeoutRef.current = setTimeout(() => {
-        if (isListening) {
-          recognition.stop();
-          setIsListening(false);
-          if (userResponse.trim()) {
-            handleRespond(userResponse.trim());
-          }
-        }
-      }, 3000);
-    };
+sr.onresult = async (event: any) => {
+  const userResponse = event.results[0][0].transcript;
+  console.log("Recognized speech:", userResponse);
+  setTranscript(userResponse);
+  // Reset silence timeout on speech
+  if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
+  // Start a new silence timeout that only stops recognition
+  silenceTimeoutRef.current = setTimeout(() => {
+    if (isListening) {
+      recognition.stop();
+      // Do not setIsListening(false) here, let onend handle it
+    }
+  }, 3000);
+};
 
     sr.onerror = (error: any) => {
       console.error("Speech recognition error:", error);
@@ -250,13 +235,15 @@ export default function VoiceInterviewPage() {
       }
     };
 
-    sr.onend = () => {
-      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
-      setIsListening(false);
-      if (transcript.trim()) {
-        handleRespond(transcript.trim());
-      }
-    };
+sr.onend = () => {
+  if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
+  setIsListening(false);
+  // Always send the transcript if it exists
+  if (transcript && transcript.trim()) {
+    handleRespond(transcript.trim());
+    setTranscript("");
+  }
+};
 
     setRecognition(sr);
   }, []);
