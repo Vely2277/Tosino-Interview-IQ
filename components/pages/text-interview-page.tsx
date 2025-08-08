@@ -140,7 +140,7 @@ export default function TextInterviewPage() {
     <div className="min-h-screen bg-[#f0efe1]">
       {/* Header Navigation */}
       <header className="bg-blue-900 text-white sticky top-0 z-50 w-full">
-        <div className="container mx-auto w-full">
+  <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center space-x-3">
@@ -319,7 +319,7 @@ export default function TextInterviewPage() {
 
       {/* Main Content */}
       <section className="py-12 bg-[#f0efe1] w-full">
-        <div className="container mx-auto w-full">
+  <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <Card className="shadow-lg border-0 bg-white w-full">
             <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-t-lg w-full">
               <CardTitle className="flex items-center w-full">
@@ -460,7 +460,7 @@ export default function TextInterviewPage() {
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12">
-        <div className="w-full px-4 sm:px-6 lg:px-8">
+  <div className="w-full">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
