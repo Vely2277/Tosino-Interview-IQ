@@ -19,8 +19,8 @@ export default function InterviewModePage() {
   return (
     <div className="min-h-screen bg-[#f0efe1]">
       {/* Header Navigation */}
-      <header className="bg-blue-900 text-white sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <header className="bg-blue-900 text-white sticky top-0 z-50 w-full">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center space-x-3">
@@ -151,7 +151,7 @@ export default function InterviewModePage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative h-96 overflow-hidden">
+      <section className="relative h-96 overflow-hidden w-full">
         <Image
           src="/image2.jpg"
           alt="Interview Mode Background"
@@ -186,7 +186,7 @@ export default function InterviewModePage() {
 
       {/* Main Content */}
       <section className="py-12 bg-[#f0efe1]">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="space-y-8">
             {/* Voice Interview Card */}
             <Card
