@@ -176,7 +176,7 @@ export default function InterviewModePage() {
             <h1 className="text-4xl lg:text-5xl font-bold">
               Choose Interview <span className="text-blue-200">Mode</span>
             </h1>
-            <p className="text-xl text-blue-100 max-w-2xl mx-auto">
+            <p className="text-xl text-blue-100">
               {interviewData.jobTitle}{" "}
               {interviewData.company && `at ${interviewData.company}`}
             </p>

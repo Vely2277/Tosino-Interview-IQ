@@ -94,7 +94,7 @@ export default function CreateCvPage() {
     // Create a container for the PDF content
     const editableElement = document.getElementById("editable-cv");
     const element = document.createElement("div");
-    element.className = "prose dark:prose-invert max-w-none"; // Add the desired styles
+    element.className = "prose dark:prose-invert"; // Add the desired styles
     element.innerHTML = editableElement?.innerHTML || ""; // Use the edited content
 
     // PDF options
@@ -276,7 +276,7 @@ export default function CreateCvPage() {
             <h1 className="text-3xl lg:text-4xl font-bold">
               Create <span className="text-blue-200">Professional CV</span>
             </h1>
-            <p className="text-lg text-blue-100 max-w-2xl mx-auto">
+            <p className="text-lg text-blue-100">
               AI-generated CV from your input
             </p>
           </div>
@@ -416,7 +416,7 @@ export default function CreateCvPage() {
                   <div className="bg-gray-50 p-4 rounded-lg">
                     <div
                       id="editable-cv"
-                      className="prose dark:prose-invert max-w-none"
+                      className="prose dark:prose-invert"
                       contentEditable={true} // Enables editing
                       suppressContentEditableWarning={true} // Suppresses React warning for contentEditable
                       dangerouslySetInnerHTML={{
@@ -452,7 +452,7 @@ export default function CreateCvPage() {
 
       {/* Footer */}
       <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="space-y-4">
               <div className="flex items-center space-x-3">
