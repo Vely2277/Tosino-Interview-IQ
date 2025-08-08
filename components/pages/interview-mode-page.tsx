@@ -17,10 +17,10 @@ export default function InterviewModePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#f0efe1]">
+    <div className="min-h-screen bg-[#f0efe1] w-screen overflow-x-hidden">
       {/* Header Navigation */}
-      <header className="bg-blue-900 text-white sticky top-0 z-50 w-full">
-        <div className="w-full px-4 sm:px-6 lg:px-8">
+      <header className="bg-blue-900 text-white sticky top-0 z-50 w-screen">
+        <div className="w-screen px-0">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center space-x-3">
@@ -151,7 +151,7 @@ export default function InterviewModePage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative h-96 overflow-hidden w-full">
+      <section className="relative h-96 overflow-hidden w-screen">
         <Image
           src="/image2.jpg"
           alt="Interview Mode Background"
@@ -185,12 +185,12 @@ export default function InterviewModePage() {
       </section>
 
       {/* Main Content */}
-      <section className="py-12 bg-[#f0efe1]">
-        <div className="w-full px-4 sm:px-6 lg:px-8">
-          <div className="space-y-8">
+      <section className="py-12 bg-[#f0efe1] w-screen">
+        <div className="w-screen px-0">
+          <div className="space-y-8 w-screen">
             {/* Voice Interview Card */}
             <Card
-              className="cursor-pointer hover:shadow-xl transition-all transform hover:scale-105 bg-white shadow-lg border-0"
+              className="w-full cursor-pointer hover:shadow-xl transition-all transform hover:scale-105 bg-white shadow-lg border-0"
               onClick={() => router.push("/voice-interview")}
             >
               <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white">
@@ -225,7 +225,7 @@ export default function InterviewModePage() {
 
             {/* Text Interview Card */}
             <Card
-              className="cursor-pointer hover:shadow-xl transition-all transform hover:scale-105 bg-white shadow-lg border-0"
+              className="w-full cursor-pointer hover:shadow-xl transition-all transform hover:scale-105 bg-white shadow-lg border-0"
               onClick={() => router.push("/text-interview")}
             >
               <CardHeader className="bg-gradient-to-r from-green-600 to-green-700 text-white">

@@ -289,7 +289,7 @@ export default function HomePage() {
                     <span className="animate-pulse text-blue-200">|</span>
                   )}
                 </h1>
-                <p className="text-xl text-blue-100 leading-relaxed max-w-lg">
+                <p className="text-xl text-blue-100 leading-relaxed">
                   Master every interview with AI-powered coaching, real-time
                   feedback, and personalized practice sessions tailored to your
                   career goals.
@@ -324,7 +324,7 @@ export default function HomePage() {
 
             {/* Image1.jpg moved to right side */}
             <div className="relative lg:pl-8">
-              <div className="relative w-full max-w-lg mx-auto">
+              <div className="relative w-full">
                 <Image
                   src="/image1.jpg"
                   alt="Interview Coaching Preview"
@@ -354,7 +354,7 @@ export default function HomePage() {
             </h2>
             <p
               data-animate="subtitle"
-              className={`text-xl text-gray-600 max-w-3xl mx-auto transition-all duration-1000 delay-200 ${
+              className={`text-xl text-gray-600 transition-all duration-1000 delay-200 ${
                 animatedElements.has("subtitle")
                   ? "opacity-100 transform translate-x-0"
                   : "opacity-0 transform translate-x-12"
@@ -375,7 +375,7 @@ export default function HomePage() {
               }`}
             >
               <CardContent className="space-y-4">
-                <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
+                <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center">
                   <Sparkles className="h-8 w-8 text-blue-600" />
                 </div>
                 <h3 className="text-xl font-semibold">AI-Powered Coaching</h3>
@@ -394,7 +394,7 @@ export default function HomePage() {
               }`}
             >
               <CardContent className="space-y-4">
-                <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
+                <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center">
                   <Users className="h-8 w-8 text-green-600" />
                 </div>
                 <h3 className="text-xl font-semibold">Expert Community</h3>
@@ -413,7 +413,7 @@ export default function HomePage() {
               }`}
             >
               <CardContent className="space-y-4">
-                <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
+                <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center">
                   <Award className="h-8 w-8 text-purple-600" />
                 </div>
                 <h3 className="text-xl font-semibold">Proven Results</h3>
@@ -432,7 +432,7 @@ export default function HomePage() {
               }`}
             >
               <CardContent className="space-y-4">
-                <div className="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
+                <div className="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center">
                   <Target className="h-8 w-8 text-orange-600" />
                 </div>
                 <h3 className="text-xl font-semibold">Targeted Practice</h3>
@@ -938,7 +938,7 @@ export default function HomePage() {
                   <div className="space-y-4 text-lg text-gray-700">
                     <div className="flex items-start space-x-3">
                       <span className="font-bold text-2xl text-teal-500 mt-1">•</span>
-                      <span>Sign up and be the first to know when our web app goes live</span>
+                      <span>Sign up today,  make a decision you will never regret</span>
                     </div>
                     
                     <div className="flex items-start space-x-3">
