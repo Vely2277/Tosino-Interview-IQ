@@ -95,8 +95,9 @@ export default function ProgressPage() {
   // Helper function to generate performance data for chart
   const generatePerformanceData = (history: any[]) => {
     if (!history || history.length === 0) return [];
-    // Each entry is a point, label as S1, S2, ...
-    return history.map((entry, idx) => ({
+    // Only show the last 10 points, label as S1, S2, ...
+    const last10 = history.slice(-10);
+    return last10.map((entry, idx) => ({
       label: `S${idx + 1}`,
       score: entry.score,
       created_at: entry.created_at
