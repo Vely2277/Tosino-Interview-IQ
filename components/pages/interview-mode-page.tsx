@@ -20,7 +20,7 @@ export default function InterviewModePage() {
     <div className="min-h-screen bg-[#f0efe1]">
       {/* Header Navigation */}
       <header className="bg-blue-900 text-white sticky top-0 z-50 w-full">
-        <div className="container mx-auto w-full">
+  <div className="w-full">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center space-x-3">
@@ -186,7 +186,7 @@ export default function InterviewModePage() {
 
       {/* Main Content */}
       <section className="py-12 bg-[#f0efe1] w-full">
-        <div className="container mx-auto w-full">
+  <div className="w-full">
           <div className="flex flex-row w-full">
             {/* Voice Interview Card */}
             <Card
