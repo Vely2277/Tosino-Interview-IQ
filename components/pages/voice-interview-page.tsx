@@ -217,17 +217,14 @@ sr.onresult = async (event: any) => {
 
   setTranscript(userResponse);
   transcriptRef.current = userResponse;
-
-  // ✅ Immediately stop listening and update UI
   if (recognition) {
     recognition.stop();
   }
-  setIsListening(false); // UI switches back to "Tap to start"
-
-  // ✅ Send to AI
-  await handleRespond(userResponse.trim());
-
-  // ✅ Clear stored text so it doesn’t carry over
+  setIsListening(false);
+  // Only call handleRespond if there is a transcript
+  if (userResponse && userResponse.trim()) {
+    await handleRespond(userResponse.trim());
+  }
   setTranscript("");
   transcriptRef.current = "";
 };
@@ -245,14 +242,10 @@ sr.onresult = async (event: any) => {
 
     sr.onend = () => {
       if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
-      setIsListening(false);
-      // Always send the transcript if it exists
-      const finalTranscript = transcriptRef.current;
-      if (finalTranscript && finalTranscript.trim()) {
-        handleRespond(finalTranscript.trim());
-        setTranscript("");
-        transcriptRef.current = "";
-      }
+  setIsListening(false);
+  // Only clear transcript, do not send again
+  setTranscript("");
+  transcriptRef.current = "";
     };
 
     setRecognition(sr);
