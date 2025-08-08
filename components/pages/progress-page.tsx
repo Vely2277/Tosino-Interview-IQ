@@ -73,9 +73,9 @@ export default function ProgressPage() {
         const stats = await progressAPI.getStats();
         setUserStats(stats);
 
-        // Fetch interview history
-        const history = await progressAPI.getHistory();
-        setInterviewHistory(history);
+        // Fetch interview history (jobHistory from backend stats)
+        const statsWithJobHistory = await progressAPI.getStats();
+        setInterviewHistory(statsWithJobHistory.jobHistory || []);
 
         // Generate performance data based on history
         const performanceChartData = generatePerformanceData(Array.isArray(history) ? history : []);
@@ -95,8 +95,9 @@ export default function ProgressPage() {
   // Helper function to generate performance data for chart
   const generatePerformanceData = (history: any[]) => {
     if (!history || history.length === 0) return [];
-    // Plot every score entry as a point, ordered by time
-    return history.map((entry, idx) => ({
+    // Only use the latest 10 scores
+    const last10 = history.slice(-10);
+    return last10.map((entry, idx) => ({
       session: idx + 1,
       score: entry.score,
       date: entry.created_at
@@ -152,9 +153,9 @@ export default function ProgressPage() {
 
   // Dynamic job history data (will be replaced with interview history)
   const jobHistory = interviewHistory.map((interview: any, index: number) => ({
-    title: interview.job_title || interview.title || '',
+    title: interview.title || '',
     sessions: 1,
-    date: new Date(interview.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+    date: interview.date ? new Date(interview.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '',
     score: interview.score ? `${interview.score}%` : "In Progress",
     id: interview.id,
     status: interview.status || 'completed'
@@ -585,29 +586,17 @@ export default function ProgressPage() {
                         />
                       )}
 
-                      {/* Data points */}
+                      {/* Data points: just dots, no labels */}
                       {chartData.map((point, index) => (
-                        <g key={index}>
-                          <circle
-                            cx={60 + index * (280 / Math.max(chartData.length - 1, 1))}
-                            cy={160 - point.score * 1.2}
-                            r="6"
-                            fill="#3b82f6"
-                            stroke="white"
-                            strokeWidth="3"
-                          />
-                          {/* Score label on hover */}
-                          <text
-                            x={60 + index * (280 / Math.max(chartData.length - 1, 1))}
-                            y={145 - point.score * 1.2}
-                            fontSize="10"
-                            fill="#374151"
-                            textAnchor="middle"
-                            className="opacity-75"
-                          >
-                            {point.score}%
-                          </text>
-                        </g>
+                        <circle
+                          key={index}
+                          cx={60 + index * (280 / Math.max(chartData.length - 1, 1))}
+                          cy={160 - point.score * 1.2}
+                          r="6"
+                          fill="#3b82f6"
+                          stroke="white"
+                          strokeWidth="2"
+                        />
                       ))}
 
                       {/* X-axis labels */}
