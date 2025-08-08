@@ -73,13 +73,12 @@ export default function ProgressPage() {
         const stats = await progressAPI.getStats();
         setUserStats(stats);
 
-        // Fetch interview history with job titles
-        const interviewHistory = await progressAPI.getInterviewHistory();
-        setInterviewHistory(interviewHistory);
+        // Fetch interview history
+        const history = await progressAPI.getHistory();
+        setInterviewHistory(history);
 
-        // Fetch score history for chart
-        const scoreHistory = await progressAPI.getHistory();
-        const performanceChartData = generatePerformanceData(Array.isArray(scoreHistory) ? scoreHistory : []);
+        // Generate performance data based on history
+        const performanceChartData = generatePerformanceData(Array.isArray(history) ? history : []);
         setPerformanceData(performanceChartData);
 
       } catch (error) {
@@ -96,30 +95,12 @@ export default function ProgressPage() {
   // Helper function to generate performance data for chart
   const generatePerformanceData = (history: any[]) => {
     if (!history || history.length === 0) return [];
-    // Group scores by month and calculate average
-    const monthlyData: { [key: string]: { month: string; scores: number[] } } = {};
-    history.forEach(entry => {
-      const date = new Date(entry.created_at);
-      const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
-      if (!monthlyData[monthKey]) {
-        monthlyData[monthKey] = {
-          month: date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
-          scores: [],
-        };
-      }
-      if (entry.score !== null && entry.score !== undefined) {
-        monthlyData[monthKey].scores.push(entry.score);
-      }
-    });
-    return Object.values(monthlyData)
-      .map(month => ({
-        month: month.month,
-        score: month.scores.length > 0 
-          ? Math.round(month.scores.reduce((a, b) => a + b, 0) / month.scores.length)
-          : 0
-      }))
-      .sort((a, b) => new Date(a.month).getTime() - new Date(b.month).getTime())
-      .slice(-6);
+    // Plot every score entry as a point, ordered by time
+    return history.map((entry, idx) => ({
+      session: idx + 1,
+      score: entry.score,
+      date: entry.created_at
+    }));
   };
 
   // Helper function to format user join date
@@ -171,7 +152,7 @@ export default function ProgressPage() {
 
   // Dynamic job history data (will be replaced with interview history)
   const jobHistory = interviewHistory.map((interview: any, index: number) => ({
-    title: interview.job_title || '',
+    title: interview.job_title || interview.title || '',
     sessions: 1,
     date: new Date(interview.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
     score: interview.score ? `${interview.score}%` : "In Progress",
