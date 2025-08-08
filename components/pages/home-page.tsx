@@ -137,7 +137,7 @@ export default function HomePage() {
     <div className="min-h-screen bg-[#f0efe1]">
       {/* Header Navigation */}
       <header className="bg-blue-900 text-white sticky top-0 z-50 w-full">
-        <div className="w-full px-4 sm:px-6 lg:px-8">
+        <div className="w-full">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center space-x-3">
@@ -279,24 +279,24 @@ export default function HomePage() {
       {/* Hero Section */}
       <section className="relative bg-gradient-to-br from-blue-500 via-blue-600 to-white text-white overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
-        <div className="relative w-full px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8 lg:pr-8">
-              <div className="space-y-6">
+        <div className="relative w-full py-16 lg:py-20">
+          <div className="flex flex-col lg:flex-row items-center w-full">
+            <div className="flex-1 flex flex-col justify-center items-start w-full pr-0">
+              <div className="w-full">
                 <h1 className="text-4xl lg:text-6xl font-bold leading-tight min-h-[80px]">
                   <span className="text-white">{typewriterText}</span>
                   {showCursor && (
                     <span className="animate-pulse text-blue-200">|</span>
                   )}
                 </h1>
-                <p className="text-xl text-blue-100 leading-relaxed">
+                <p className="text-xl text-blue-100 leading-relaxed w-full">
                   Master every interview with AI-powered coaching, real-time
                   feedback, and personalized practice sessions tailored to your
                   career goals.
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex flex-col sm:flex-row w-full">
                 <Button
                   onClick={() => router.push("/practice")}
                   className="bg-white text-blue-600 hover:bg-blue-50 px-8 py-4 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all"
@@ -324,7 +324,7 @@ export default function HomePage() {
 
             {/* Image1.jpg moved to right side */}
             <div className="relative lg:pl-8">
-              <div className="relative w-full">
+              <div className="relative w-full max-w-lg mx-auto">
                 <Image
                   src="/image1.jpg"
                   alt="Interview Coaching Preview"
@@ -354,7 +354,7 @@ export default function HomePage() {
             </h2>
             <p
               data-animate="subtitle"
-              className={`text-xl text-gray-600 transition-all duration-1000 delay-200 ${
+              className={`text-xl text-gray-600 max-w-3xl mx-auto transition-all duration-1000 delay-200 ${
                 animatedElements.has("subtitle")
                   ? "opacity-100 transform translate-x-0"
                   : "opacity-0 transform translate-x-12"
@@ -375,7 +375,7 @@ export default function HomePage() {
               }`}
             >
               <CardContent className="space-y-4">
-                <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center">
+                <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
                   <Sparkles className="h-8 w-8 text-blue-600" />
                 </div>
                 <h3 className="text-xl font-semibold">AI-Powered Coaching</h3>
@@ -394,7 +394,7 @@ export default function HomePage() {
               }`}
             >
               <CardContent className="space-y-4">
-                <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center">
+                <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
                   <Users className="h-8 w-8 text-green-600" />
                 </div>
                 <h3 className="text-xl font-semibold">Expert Community</h3>
@@ -413,7 +413,7 @@ export default function HomePage() {
               }`}
             >
               <CardContent className="space-y-4">
-                <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center">
+                <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
                   <Award className="h-8 w-8 text-purple-600" />
                 </div>
                 <h3 className="text-xl font-semibold">Proven Results</h3>
@@ -432,7 +432,7 @@ export default function HomePage() {
               }`}
             >
               <CardContent className="space-y-4">
-                <div className="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center">
+                <div className="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
                   <Target className="h-8 w-8 text-orange-600" />
                 </div>
                 <h3 className="text-xl font-semibold">Targeted Practice</h3>
