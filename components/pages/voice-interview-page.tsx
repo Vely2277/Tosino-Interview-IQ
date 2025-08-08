@@ -232,10 +232,10 @@ export default function VoiceInterviewPage() {
   }, []);
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#f5f5dc" }}>
+    <div className="min-h-screen w-screen overflow-x-hidden" style={{ backgroundColor: "#f5f5dc" }}>
       {/* Header Navigation */}
-      <header className="bg-blue-900 text-white sticky top-0 z-50 w-full">
-  <div className="w-full">
+      <header className="bg-blue-900 text-white sticky top-0 z-50 w-screen">
+        <div className="w-screen px-0">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center space-x-3">
@@ -366,7 +366,7 @@ export default function VoiceInterviewPage() {
       </header>
 
       {/* Hero Section - Editable Height */}
-      <section className="relative overflow-hidden w-full" style={{ height: "200px" }}>
+      <section className="relative overflow-hidden w-screen" style={{ height: "200px" }}>
         <Image
           src="/image2.jpg"
           alt="Voice Interview Background"
@@ -400,8 +400,8 @@ export default function VoiceInterviewPage() {
       </section>
 
       {/* Main Content */}
-  <div className="w-full py-8">
-        <div className="w-full">
+      <div className="w-screen px-0 py-8">
+        <div className="space-y-6 w-screen">
           {/* Voice Controls Card */}
           <Card className="border-gray-200 shadow-sm">
             <CardHeader className="bg-blue-50 border-b">
@@ -411,82 +411,146 @@ export default function VoiceInterviewPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-4">
-              <div className="flex items-center space-x-2">
-                <label className="text-sm w-16 font-medium">Pitch</label>
-                <input
-                  type="range"
-                  min="0"
-                  max="2"
-                  step="0.1"
-                  value={pitch}
-                  onChange={(e) => {
-                    const newPitch = parseFloat(e.target.value);
-                    setPitch(newPitch);
-                    speechSynthesis.cancel();
-                    speakText(aiResponse);
-                    setLastSpokenText(aiResponse);
-                  }}
-                  className="w-full h-1 appearance-none bg-blue-200 rounded-md [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-600"
-                />
-                <span className="text-xs w-8 text-right">
-                  {pitch.toFixed(1)}
-                </span>
+              <div className="space-y-3">
+                <div className="flex items-center space-x-2">
+                  <label className="text-sm w-16 font-medium">Pitch</label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="2"
+                    step="0.1"
+                    value={pitch}
+                    onChange={(e) => {
+                      const newPitch = parseFloat(e.target.value);
+                      setPitch(newPitch);
+                      speechSynthesis.cancel();
+                      speakText(aiResponse);
+                      setLastSpokenText(aiResponse);
+                    }}
+                    className="w-full h-1 appearance-none bg-blue-200 rounded-md [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-600"
+                  />
+                  <span className="text-xs w-8 text-right">
+                    {pitch.toFixed(1)}
+                  </span>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <label className="text-sm w-16 font-medium">Rate</label>
+                  <input
+                    type="range"
+                    min="0.5"
+                    max="2"
+                    step="0.1"
+                    value={rate}
+                    onChange={(e) => {
+                      const newRate = parseFloat(e.target.value);
+                      setRate(newRate);
+                      speechSynthesis.cancel();
+                      speakText(aiResponse);
+                      setLastSpokenText(aiResponse);
+                    }}
+                    className="w-full h-1 appearance-none bg-blue-200 rounded-md [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-600"
+                  />
+                  <span className="text-xs w-8 text-right">
+                    {rate.toFixed(1)}
+                  </span>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <label className="text-sm w-16 font-medium">Volume</label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.1"
+                    value={volume}
+                    onChange={(e) => {
+                      const newVolume = parseFloat(e.target.value);
+                      setVolume(newVolume);
+                      speechSynthesis.cancel();
+                      speakText(aiResponse);
+                      setLastSpokenText(aiResponse);
+                    }}
+                    className="w-full h-1 appearance-none bg-blue-200 rounded-md [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-600"
+                  />
+                  <span className="text-xs w-8 text-right">
+                    {volume.toFixed(1)}
+                  </span>
+                </div>
+                <p className="text-sm text-gray-500 text-center">
+                  Adjust voice settings to match your preference.
+                </p>
               </div>
-              {/* Chat bubbles and End Interview button */}
-              <div className="space-y-4 mt-6">
-                {chatHistory.map((msg, idx) => {
-                  const isLastAI =
-                    msg.from === "ai" && idx === chatHistory.length - 1;
-                  const isAI = msg.from === "ai";
-                  return (
-                    <div
-                      key={idx}
-                      className={`flex mb-2 ${
-                        isAI ? "justify-start" : "justify-end"
-                      } items-center gap-2`}
-                    >
-                      {!isAI && (
-                        <div className="relative mr-2 group">
-                          <span className="text-sm cursor-pointer">ℹ️</span>
-                          <div className="absolute bottom-full mb-2 left-0 w-52 bg-white border border-gray-300 text-gray-800 text-xs p-2 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20">
-                            {msg.grade == null ? (
-                              <p>NULL</p>
-                            ) : (
-                              <>
-                                <p>
-                                  <strong>Grade:</strong> {msg.grade}/10
-                                </p>
-                                <p>
-                                  <strong>Reason:</strong> {msg.reasoning}
-                                </p>
-                              </>
-                            )}
-                          </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardContent className="p-6 space-y-4">
+              {chatHistory.map((msg, idx) => {
+                const isLastAI =
+                  msg.from === "ai" && idx === chatHistory.length - 1;
+                const isAI = msg.from === "ai";
+
+                return (
+                  <div
+                    key={idx}
+                    className={`flex mb-2 ${
+                      isAI ? "justify-start" : "justify-end"
+                    } items-center gap-2`}
+                  >
+                    {!isAI && (
+                      <div className="relative mr-2 group">
+                        <span className="text-sm cursor-pointer">ℹ️</span>
+                        <div className="absolute bottom-full mb-2 left-0 w-52 bg-white border border-gray-300 text-gray-800 text-xs p-2 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20">
+                          {msg.grade == null ? (
+                            <p>NULL</p>
+                          ) : (
+                            <>
+                              <p>
+                                <strong>Grade:</strong> {msg.grade}/10
+                              </p>
+                              <p>
+                                <strong>Reason:</strong> {msg.reasoning}
+                              </p>
+                            </>
+                          )}
                         </div>
-                      )}
-                      <div
-                        className={`p-4 rounded-lg max-w-xl break-words ${
-                          isAI
-                            ? "bg-blue-50 text-blue-900"
-                            : msg.grade == null
-                            ? "bg-gray-100 text-gray-900"
-                            : msg.grade < 5
-                            ? "bg-red-100 text-red-900"
-                            : "bg-green-100 text-green-900"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-sm font-semibold">
-                            {isAI ? "AI Interviewer" : "You"}
-                          </span>
-                        </div>
-                        <p className="text-base leading-relaxed">{msg.text}</p>
                       </div>
+                    )}
+
+                    <div
+                      className={`p-4 rounded-lg ${
+                        isAI
+                          ? "bg-blue-50 text-blue-900"
+                          : msg.grade == null
+                          ? "bg-gray-100 text-gray-900"
+                          : msg.grade < 5
+                          ? "bg-red-100 text-red-900"
+                          : "bg-green-100 text-green-900"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-sm font-semibold">
+                          {isAI ? "AI Interviewer" : "You"}
+                        </span>
+
+                        {isLastAI && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={speakResponse}
+                            className="ml-2 p-1"
+                          >
+                            <Volume2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+
+                      <p className="text-sm">{msg.text}</p>
                     </div>
-                  );
-                })}
-                {/* End of chat bubbles and End Interview button */}
-              </div>
+                  </div>
+                );
+              })}
 
               {/*
           <div className="bg-blue-50 p-4 rounded-lg">
