@@ -69,16 +69,15 @@ export default function ProgressPage() {
         setLoading(true);
         setError('');
 
-        // Fetch user statistics
+
+        // Fetch user statistics and job history
         const stats = await progressAPI.getStats();
         setUserStats(stats);
+        setInterviewHistory(stats.jobHistory || []);
 
-        // Fetch interview history (jobHistory from backend stats)
-        const statsWithJobHistory = await progressAPI.getStats();
-        setInterviewHistory(statsWithJobHistory.jobHistory || []);
-
-        // Generate performance data based on history
-        const performanceChartData = generatePerformanceData(Array.isArray(history) ? history : []);
+        // Fetch score history for chart
+        const scoreHistory = await progressAPI.getHistory();
+        const performanceChartData = generatePerformanceData(Array.isArray(scoreHistory) ? scoreHistory : []);
         setPerformanceData(performanceChartData);
 
       } catch (error) {
