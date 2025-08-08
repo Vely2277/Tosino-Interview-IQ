@@ -158,7 +158,7 @@ export default function ProgressPage() {
     date: new Date(interview.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
     score: interview.score ? `${interview.score}%` : "In Progress",
     id: interview.id,
-    status: interview.status || 'completed'
+    status: 'completed'
   }));
 
   // Chart data for performance over time (dynamic)
