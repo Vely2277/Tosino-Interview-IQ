@@ -215,20 +215,19 @@ sr.onresult = async (event: any) => {
   const userResponse = event.results[0][0].transcript;
   console.log("Recognized speech:", userResponse);
 
-  // Store immediately
   setTranscript(userResponse);
   transcriptRef.current = userResponse;
 
-  // Stop listening immediately
-  if (recognition && isListening) {
+  // ✅ Immediately stop listening and update UI
+  if (recognition) {
     recognition.stop();
-    setIsListening(false);
   }
+  setIsListening(false); // UI switches back to "Tap to start"
 
-  // Send to AI using a fresh variable (avoids stale transcript)
+  // ✅ Send to AI
   await handleRespond(userResponse.trim());
 
-  // Clear transcript so it won’t leak into next run
+  // ✅ Clear stored text so it doesn’t carry over
   setTranscript("");
   transcriptRef.current = "";
 };
