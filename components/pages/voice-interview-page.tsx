@@ -144,7 +144,7 @@ const toggleListening = async () => {
     if (isListening) {
       if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
       recognition.stop();
-      // setIsListening(false) will be called in onend
+      setIsListening(false); // update UI immediately
     } else {
     try {
       await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -222,7 +222,7 @@ sr.onresult = async (event: any) => {
   silenceTimeoutRef.current = setTimeout(() => {
     if (isListening) {
       recognition.stop();
-      // Do not setIsListening(false) here, let onend handle it
+      setIsListening(false); // update UI immediately
     }
   }, 3000);
 };
