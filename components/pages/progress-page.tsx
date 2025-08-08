@@ -70,11 +70,10 @@ export default function ProgressPage() {
         setError('');
 
 
-        // Fetch user statistics and job history
+        // Fetch user statistics and interview history
         const stats = await progressAPI.getStats();
         setUserStats(stats);
-        console.log('[DEBUG] jobHistory from backend:', stats.jobHistory);
-        setInterviewHistory(stats.jobHistory || []);
+        setInterviewHistory(stats.interviewHistory || []);
 
         // Fetch score history for chart
         const scoreHistory = await progressAPI.getHistory();
@@ -152,7 +151,7 @@ export default function ProgressPage() {
   ];
 
   // Dynamic job history data (will be replaced with interview history)
-  const jobHistory = interviewHistory.map((interview: any, index: number) => ({
+  const interviewHistoryCards = interviewHistory.map((interview: any, index: number) => ({
     title: interview.title || `Session ${index + 1}`,
     sessions: 1,
     date: interview.date ? new Date(interview.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '',
@@ -641,7 +640,7 @@ export default function ProgressPage() {
                       </div>
                     ))}
                   </div>
-                ) : jobHistory.length === 0 ? (
+                ) : interviewHistoryCards.length === 0 ? (
                   <div className="text-center py-12">
                     <Clock className="h-16 w-16 text-gray-400 mx-auto mb-4" />
                     <h3 className="text-xl font-semibold text-gray-600 mb-2">No Interviews Yet</h3>
@@ -654,7 +653,7 @@ export default function ProgressPage() {
                     </Button>
                   </div>
                 ) : (
-                  jobHistory.map((job: any, index: number) => (
+                  interviewHistoryCards.map((job: any, index: number) => (
                     <div
                       key={job.id || index}
                       className="flex justify-between items-center p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border-l-4 border-blue-500 hover:shadow-lg transition-all cursor-pointer hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100"
