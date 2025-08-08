@@ -73,6 +73,7 @@ export default function ProgressPage() {
         // Fetch user statistics and job history
         const stats = await progressAPI.getStats();
         setUserStats(stats);
+        console.log('[DEBUG] jobHistory from backend:', stats.jobHistory);
         setInterviewHistory(stats.jobHistory || []);
 
         // Fetch score history for chart
