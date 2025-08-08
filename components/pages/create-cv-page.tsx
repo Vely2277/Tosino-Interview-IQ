@@ -117,7 +117,7 @@ export default function CreateCvPage() {
   };
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: "#f5f5dc" }}>
+    <div className="min-h-screen bg-[#f0efe1]">
       {/* Header Navigation */}
       <header className="bg-blue-900 text-white sticky top-0 z-50 w-full">
         <div className="w-full px-0">
