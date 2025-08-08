@@ -120,7 +120,7 @@ export default function CreateCvPage() {
     <div className="min-h-screen" style={{ backgroundColor: "#f5f5dc" }}>
       {/* Header Navigation */}
       <header className="bg-blue-900 text-white sticky top-0 z-50 w-full">
-        <div className="w-full px-2 sm:px-4 lg:px-6">
+        <div className="w-full px-0">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center space-x-3">
