@@ -672,12 +672,7 @@ export default function ProgressPage() {
                   jobHistory.map((job: any, index: number) => (
                     <div
                       key={job.id || index}
-                      className="flex justify-between items-center p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border-l-4 border-blue-500 hover:shadow-lg transition-all cursor-pointer hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100"
-                      onClick={() => {
-                        if (job.id) {
-                          router.push(`/interviews/${job.id}`);
-                        }
-                      }}
+                      className="flex justify-between items-center p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border-l-4 border-blue-500 hover:shadow-lg transition-all hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100"
                     >
                       <div className="space-y-1">
                         <span className="text-xl font-bold text-gray-900">
@@ -695,11 +690,7 @@ export default function ProgressPage() {
                         <div className="text-sm text-gray-600">
                           {job.sessions} session{job.sessions !== 1 ? 's' : ''}
                         </div>
-                        {job.id && (
-                          <div className="text-xs text-blue-500 hover:text-blue-700">
-                            Click to review →
-                          </div>
-                        )}
+                        {/* Removed review link and click functionality */}
                       </div>
                     </div>
                   ))
