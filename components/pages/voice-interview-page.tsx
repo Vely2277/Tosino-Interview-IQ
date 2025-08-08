@@ -178,30 +178,7 @@ const toggleListening = async () => {
         recognition.start();
         micPermissionGranted = true;
         setIsListening(true);
-        // Start 3-second silence timer
-        if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
-        silenceTimeoutRef.current = setTimeout(() => {
-          if (!hasRespondedThisTurn) {
-            hasRespondedThisTurn = true;
-            setIsListening(false);
-            setMicDisabled(true);
-            const sr = recognition;
-            sr.stop();
-            if (transcriptRef.current && transcriptRef.current.trim()) {
-              setIsLoading(true);
-              handleRespond(transcriptRef.current.trim()).finally(() => {
-                setTranscript("");
-                transcriptRef.current = "";
-                setIsLoading(false);
-                setMicDisabled(false);
-              });
-            } else {
-              setTranscript("");
-              transcriptRef.current = "";
-              setMicDisabled(false);
-            }
-          }
-        }, 3000);
+        // No initial silence timer here; timer is managed in onspeechstart/onresult
       } catch (recErr) {
         micPermissionGranted = false;
         alert("Microphone access is required. Please allow microphone permission in your browser settings.");
@@ -270,54 +247,48 @@ const toggleListening = async () => {
     const sr = getSpeechRecognition();
     if (!sr) return;
 
+
     sr.lang = "en-US";
     sr.continuous = true;
     sr.interimResults = false;
 
     sr.onspeechstart = () => {
-      // Reset silence timer on speech
+      // Only clear/reset any existing timer, do not schedule the finalizer here
+      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
+    };
+
+    sr.onresult = (event: any) => {
+      // Accumulate transcript, do not stop or finalize here
+      let result = "";
+      for (let i = 0; i < event.results.length; i++) {
+        result += event.results[i][0].transcript + " ";
+      }
+      result = result.trim();
+      transcriptRef.current = result;
+      setTranscript(result);
+      // Reset silence timer for 3s after last speech
       if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
       silenceTimeoutRef.current = setTimeout(() => {
-        if (!hasRespondedThisTurn) {
+        if (!hasRespondedThisTurn && transcriptRef.current.trim()) {
           hasRespondedThisTurn = true;
           setIsListening(false);
           setMicDisabled(true);
           sr.stop();
-          if (transcriptRef.current && transcriptRef.current.trim()) {
-            setIsLoading(true);
-            handleRespond(transcriptRef.current.trim()).finally(() => {
-              setTranscript("");
-              transcriptRef.current = "";
-              setIsLoading(false);
-              setMicDisabled(false);
-            });
-          } else {
+          setIsLoading(true);
+          handleRespond(transcriptRef.current.trim()).finally(() => {
             setTranscript("");
             transcriptRef.current = "";
+            setIsLoading(false);
             setMicDisabled(false);
-          }
+          });
+        } else {
+          setTranscript("");
+          transcriptRef.current = "";
+          setMicDisabled(false);
         }
       }, 3000);
     };
 
-    sr.onresult = async (event: any) => {
-      if (hasRespondedThisTurn) return;
-      hasRespondedThisTurn = true;
-      // Store transcript, clear immediately, then send
-      const userResponse = event.results[0][0].transcript;
-      setTranscript("");
-      transcriptRef.current = "";
-      setIsListening(false);
-      setMicDisabled(true);
-      sr.stop();
-      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
-      if (userResponse && userResponse.trim()) {
-        setIsLoading(true);
-        await handleRespond(userResponse.trim());
-        setIsLoading(false);
-      }
-      setMicDisabled(false);
-    };
 
     sr.onerror = (error: any) => {
       setIsListening(false);
@@ -329,6 +300,7 @@ const toggleListening = async () => {
       } else if (error.error === "no-speech") {
         alert("No speech detected. Please try again and speak clearly.");
       }
+      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
     };
 
     sr.onend = () => {
