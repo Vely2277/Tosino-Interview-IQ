@@ -1,4 +1,4 @@
-
+//interview-mode/page.tsx
 import BottomNav from "@/components/bottom-nav";
 import InterviewModePage from "@/components/pages/interview-mode-page";
 
