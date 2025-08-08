@@ -69,15 +69,16 @@ export default function ProgressPage() {
         setLoading(true);
         setError('');
 
-
-        // Fetch user statistics and interview history
+        // Fetch user statistics
         const stats = await progressAPI.getStats();
         setUserStats(stats);
-        setInterviewHistory(stats.interviewHistory || []);
 
-        // Fetch score history for chart
-        const scoreHistory = await progressAPI.getHistory();
-        const performanceChartData = generatePerformanceData(Array.isArray(scoreHistory) ? scoreHistory : []);
+        // Fetch interview history
+        const history = await progressAPI.getHistory();
+        setInterviewHistory(history);
+
+        // Generate performance data based on history
+        const performanceChartData = generatePerformanceData(Array.isArray(history) ? history : []);
         setPerformanceData(performanceChartData);
 
       } catch (error) {
@@ -94,12 +95,11 @@ export default function ProgressPage() {
   // Helper function to generate performance data for chart
   const generatePerformanceData = (history: any[]) => {
     if (!history || history.length === 0) return [];
-    // Only use the latest 10 scores
-    const last10 = history.slice(-10);
-    return last10.map((entry, idx) => ({
-      session: idx + 1,
+    // Each entry is a point, label as S1, S2, ...
+    return history.map((entry, idx) => ({
+      label: `S${idx + 1}`,
       score: entry.score,
-      date: entry.created_at
+      created_at: entry.created_at
     }));
   };
 
@@ -151,22 +151,25 @@ export default function ProgressPage() {
   ];
 
   // Dynamic job history data (will be replaced with interview history)
-  const interviewHistoryCards = interviewHistory.map((interview: any, index: number) => ({
-    title: interview.title || `Session ${index + 1}`,
+  const jobHistory = interviewHistory.map((interview: any, index: number) => ({
+    title: interview.job_title || `Interview Session ${index + 1}`,
     sessions: 1,
-    date: interview.date ? new Date(interview.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '',
-    score: (typeof interview.score === 'number') ? `${interview.score}%` : "In Progress",
+    date: new Date(interview.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
+    score: interview.score ? `${interview.score}%` : "In Progress",
     id: interview.id,
     status: interview.status || 'completed'
   }));
 
   // Chart data for performance over time (dynamic)
-  const chartData = performanceData.length > 0 ? performanceData.map((data, index) => ({
-    session: index + 1,
-    score: data.score
-  })) : [
-    { session: 1, score: 0 }
-  ];
+  const chartData = performanceData.length > 0
+    ? performanceData.map((data, index) => ({
+        session: index + 1,
+        score: data.score,
+        label: data.label
+      }))
+    : [
+        { session: 1, score: 0, label: 'S1' }
+      ];
 
   return (
     <div className="min-h-screen bg-[#f0efe1]">
@@ -585,20 +588,32 @@ export default function ProgressPage() {
                         />
                       )}
 
-                      {/* Data points: just dots, no labels */}
+                      {/* Data points */}
                       {chartData.map((point, index) => (
-                        <circle
-                          key={index}
-                          cx={60 + index * (280 / Math.max(chartData.length - 1, 1))}
-                          cy={160 - point.score * 1.2}
-                          r="6"
-                          fill="#3b82f6"
-                          stroke="white"
-                          strokeWidth="2"
-                        />
+                        <g key={index}>
+                          <circle
+                            cx={60 + index * (280 / Math.max(chartData.length - 1, 1))}
+                            cy={160 - point.score * 1.2}
+                            r="6"
+                            fill="#3b82f6"
+                            stroke="white"
+                            strokeWidth="3"
+                          />
+                          {/* Score label on hover */}
+                          <text
+                            x={60 + index * (280 / Math.max(chartData.length - 1, 1))}
+                            y={145 - point.score * 1.2}
+                            fontSize="10"
+                            fill="#374151"
+                            textAnchor="middle"
+                            className="opacity-75"
+                          >
+                            {point.score}%
+                          </text>
+                        </g>
                       ))}
 
-                      {/* X-axis labels: S1, S2, ... S10 */}
+                      {/* X-axis labels */}
                       {chartData.map((point, index) => (
                         <text
                           key={index}
@@ -608,7 +623,7 @@ export default function ProgressPage() {
                           fill="#6b7280"
                           textAnchor="middle"
                         >
-                          {`S${index + 1}`}
+                          {point.label}
                         </text>
                       ))}
                     </svg>
@@ -640,7 +655,7 @@ export default function ProgressPage() {
                       </div>
                     ))}
                   </div>
-                ) : interviewHistoryCards.length === 0 ? (
+                ) : jobHistory.length === 0 ? (
                   <div className="text-center py-12">
                     <Clock className="h-16 w-16 text-gray-400 mx-auto mb-4" />
                     <h3 className="text-xl font-semibold text-gray-600 mb-2">No Interviews Yet</h3>
@@ -653,7 +668,7 @@ export default function ProgressPage() {
                     </Button>
                   </div>
                 ) : (
-                  interviewHistoryCards.map((job: any, index: number) => (
+                  jobHistory.map((job: any, index: number) => (
                     <div
                       key={job.id || index}
                       className="flex justify-between items-center p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border-l-4 border-blue-500 hover:shadow-lg transition-all cursor-pointer hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100"
@@ -665,7 +680,7 @@ export default function ProgressPage() {
                     >
                       <div className="space-y-1">
                         <span className="text-xl font-bold text-gray-900">
-                          {job.title || `Session ${index + 1}`}
+                          {job.title}
                         </span>
                         <p className="text-sm text-gray-600">{job.date}</p>
                         <p className="text-xs text-blue-600 font-medium">
