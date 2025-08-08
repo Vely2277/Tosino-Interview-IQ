@@ -135,19 +135,23 @@ export default function VoiceInterviewPage() {
   // Silence timeout ref
   const silenceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+let micPermissionGranted = false;
 const toggleListening = async () => {
   if (!recognition) {
     alert("Speech Recognition not supported on this browser.");
     return;
   }
 
-    if (isListening) {
-      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
-      recognition.stop();
-      setIsListening(false); // update UI immediately
-    } else {
+  if (isListening) {
+    if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
+    recognition.stop();
+    setIsListening(false); // update UI immediately
+  } else {
     try {
-      await navigator.mediaDevices.getUserMedia({ audio: true });
+      if (!micPermissionGranted) {
+        await navigator.mediaDevices.getUserMedia({ audio: true });
+        micPermissionGranted = true;
+      }
       setTranscript("");
       recognition.start();
       setIsListening(true);
