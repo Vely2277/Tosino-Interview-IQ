@@ -95,30 +95,14 @@ export default function ProgressPage() {
   // Helper function to generate performance data for chart
   const generatePerformanceData = (history: any[]) => {
     if (!history || history.length === 0) return [];
-    // Group scores by month and calculate average
-    const monthlyData: { [key: string]: { month: string; scores: number[] } } = {};
-    history.forEach(entry => {
-      const date = new Date(entry.created_at);
-      const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
-      if (!monthlyData[monthKey]) {
-        monthlyData[monthKey] = {
-          month: date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
-          scores: [],
-        };
-      }
-      if (entry.score !== null && entry.score !== undefined) {
-        monthlyData[monthKey].scores.push(entry.score);
-      }
-    });
-    return Object.values(monthlyData)
-      .map(month => ({
-        month: month.month,
-        score: month.scores.length > 0 
-          ? Math.round(month.scores.reduce((a, b) => a + b, 0) / month.scores.length)
-          : 0
-      }))
-      .sort((a, b) => new Date(a.month).getTime() - new Date(b.month).getTime())
-      .slice(-6);
+    // Plot every score history entry as a point, ordered by time
+    return history
+      .filter(entry => entry.score !== null && entry.score !== undefined)
+      .map((entry, idx) => ({
+        session: idx + 1,
+        score: entry.score,
+        date: entry.created_at
+      }));
   };
 
   // Helper function to format user join date
@@ -170,7 +154,7 @@ export default function ProgressPage() {
 
   // Dynamic job history data (will be replaced with interview history)
   const jobHistory = interviewHistory.map((interview: any, index: number) => ({
-    title: interview.job_title || `Interview Session ${index + 1}`,
+    title: interview.job_title || '',
     sessions: 1,
     date: new Date(interview.created_at).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }),
     score: interview.score ? `${interview.score}%` : "In Progress",
