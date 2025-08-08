@@ -233,12 +233,12 @@ sr.onresult = async (event: any) => {
     recognition.stop();
   }
   setIsListening(false);
-  // Only call handleRespond if there is a transcript
+  // Only send if user actually spoke (not silence or repeat)
   if (userResponse && userResponse.trim()) {
     await handleRespond(userResponse.trim());
+    setTranscript("");
+    transcriptRef.current = "";
   }
-  setTranscript("");
-  transcriptRef.current = "";
 };
 
 
@@ -253,9 +253,9 @@ sr.onresult = async (event: any) => {
     };
 
     sr.onend = () => {
-      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
+  if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
   setIsListening(false);
-  // Only clear transcript, do not send again
+  // Only clear transcript, do not send or reuse
   setTranscript("");
   transcriptRef.current = "";
     };
