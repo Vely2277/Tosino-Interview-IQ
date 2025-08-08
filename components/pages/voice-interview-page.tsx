@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/auth-context";
 import { useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useInterview } from "@/contexts/interview-context";
@@ -27,6 +28,7 @@ const getSpeechRecognition = () => {
 };
 
 export default function VoiceInterviewPage() {
+  const { user, signOut } = useAuth();
   const router = useRouter();
   const { interviewData } = useInterview();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -38,6 +40,7 @@ export default function VoiceInterviewPage() {
   const [recognition, setRecognition] = useState<any>(null);
   const [lastSpokenText, setLastSpokenText] = useState("");
   const sessionIdRef = useRef<string | null>(null); // Declare a ref for sessionId
+  const [endDisabled, setEndDisabled] = useState(false);
   const [summary, setSummary] = useState("");
   const [chatHistory, setChatHistory] = useState<
     {
@@ -148,8 +151,8 @@ export default function VoiceInterviewPage() {
 
   // End the interview session
   const handleEndInterview = async () => {
-    if (!sessionId) return;
-
+    if (!sessionId || endDisabled) return;
+    setEndDisabled(true);
     setIsLoading(true);
     try {
       const data = await interviewAPI.end(sessionId);
@@ -157,6 +160,7 @@ export default function VoiceInterviewPage() {
       setSummary(data.summary); //store the summary in state
     } catch (error) {
       console.error("Error ending interview:", error);
+      setEndDisabled(false); // allow retry if error
     } finally {
       setIsLoading(false);
     }
@@ -272,21 +276,34 @@ export default function VoiceInterviewPage() {
 
             {/* Auth Buttons */}
             <div className="hidden md:flex items-center space-x-3">
-              <Button
-                variant="ghost"
-                className="text-white hover:bg-blue-800"
-                size="sm"
-                onClick={() => router.push("/auth/login")}
-              >
-                Sign In
-              </Button>
-              <Button
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-                size="sm"
-                onClick={() => router.push("/auth/signup")}
-              >
-                Sign Up
-              </Button>
+              {user ? (
+                <Button
+                  variant="ghost"
+                  className="bg-white text-blue-600 hover:bg-gray-100"
+                  size="sm"
+                  onClick={signOut}
+                >
+                  Sign Out
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    variant="ghost"
+                    className="text-white hover:bg-blue-800"
+                    size="sm"
+                    onClick={() => router.push("/auth/login")}
+                  >
+                    Sign In
+                  </Button>
+                  <Button
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    size="sm"
+                    onClick={() => router.push("/auth/signup")}
+                  >
+                    Sign Up
+                  </Button>
+                </>
+              )}
             </div>
 
             {/* Mobile menu button */}
@@ -612,6 +629,7 @@ export default function VoiceInterviewPage() {
             onClick={handleEndInterview}
             className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
             size="lg"
+            disabled={endDisabled || isLoading}
           >
             End Interview
           </Button>

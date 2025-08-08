@@ -283,7 +283,7 @@ export default function HomePage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8 lg:pr-8">
               <div className="space-y-6">
-                <h1 className="text-4xl lg:text-6xl font-bold leading-tight min-h-[80px] whitespace-nowrap">
+                <h1 className="text-4xl lg:text-6xl font-bold leading-tight min-h-[80px]">
                   <span className="text-white">{typewriterText}</span>
                   {showCursor && (
                     <span className="animate-pulse text-blue-200">|</span>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,6 +22,7 @@ import { renderMarkdownToHTML } from "@/lib/markdown";
 import Image from "next/image";
 
 export default function CreateCvPage() {
+  const { user, signOut } = useAuth();
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -159,21 +161,34 @@ export default function CreateCvPage() {
 
             {/* Auth Buttons */}
             <div className="hidden md:flex items-center space-x-3">
-              <Button
-                variant="ghost"
-                className="text-white hover:bg-blue-800"
-                size="sm"
-                onClick={() => router.push("/auth/login")}
-              >
-                Sign In
-              </Button>
-              <Button
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-                size="sm"
-                onClick={() => router.push("/auth/signup")}
-              >
-                Sign Up
-              </Button>
+              {user ? (
+                <Button
+                  variant="ghost"
+                  className="bg-white text-blue-600 hover:bg-gray-100"
+                  size="sm"
+                  onClick={signOut}
+                >
+                  Sign Out
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    variant="ghost"
+                    className="text-white hover:bg-blue-800"
+                    size="sm"
+                    onClick={() => router.push("/auth/login")}
+                  >
+                    Sign In
+                  </Button>
+                  <Button
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    size="sm"
+                    onClick={() => router.push("/auth/signup")}
+                  >
+                    Sign Up
+                  </Button>
+                </>
+              )}
             </div>
 
             {/* Mobile menu button */}
