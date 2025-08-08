@@ -137,10 +137,10 @@ export default function TextInterviewPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#f0efe1] w-screen overflow-x-hidden">
+    <div className="min-h-screen bg-[#f0efe1] w-full">
       {/* Header Navigation */}
-      <header className="bg-blue-900 text-white sticky top-0 z-50 w-screen">
-        <div className="w-screen px-0">
+      <header className="bg-blue-900 text-white sticky top-0 z-50 w-full">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center space-x-3">
@@ -271,7 +271,7 @@ export default function TextInterviewPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative h-96 overflow-hidden w-screen">
+      <section className="relative h-96 overflow-hidden w-full">
         <Image
           src="/image2.jpg"
           alt="Text Interview Background"
@@ -318,8 +318,8 @@ export default function TextInterviewPage() {
       </section>
 
       {/* Main Content */}
-      <section className="py-12 bg-[#f0efe1] w-screen">
-        <div className="w-screen px-0">
+      <section className="py-12 bg-[#f0efe1] w-full">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
           <Card className="w-full shadow-lg border-0 bg-white">
             <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-t-lg">
               <CardTitle className="flex items-center space-x-2">

@@ -232,10 +232,10 @@ export default function VoiceInterviewPage() {
   }, []);
 
   return (
-    <div className="min-h-screen w-screen overflow-x-hidden" style={{ backgroundColor: "#f5f5dc" }}>
+    <div className="min-h-screen w-full" style={{ backgroundColor: "#f5f5dc" }}>
       {/* Header Navigation */}
-      <header className="bg-blue-900 text-white sticky top-0 z-50 w-screen">
-        <div className="w-screen px-0">
+      <header className="bg-blue-900 text-white sticky top-0 z-50 w-full">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center space-x-3">
@@ -366,7 +366,7 @@ export default function VoiceInterviewPage() {
       </header>
 
       {/* Hero Section - Editable Height */}
-      <section className="relative overflow-hidden w-screen" style={{ height: "200px" }}>
+      <section className="relative overflow-hidden w-full" style={{ height: "200px" }}>
         <Image
           src="/image2.jpg"
           alt="Voice Interview Background"
@@ -400,8 +400,8 @@ export default function VoiceInterviewPage() {
       </section>
 
       {/* Main Content */}
-      <div className="w-screen px-0 py-8">
-        <div className="space-y-6 w-screen">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-8">
+        <div className="space-y-6 w-full">
           {/* Voice Controls Card */}
           <Card className="border-gray-200 shadow-sm">
             <CardHeader className="bg-blue-50 border-b">
