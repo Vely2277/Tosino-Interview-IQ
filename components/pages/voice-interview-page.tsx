@@ -1,6 +1,7 @@
+
+"use client";
 // Guard to ensure only one response per listening session
 let hasRespondedThisTurn = false;
-"use client";
 
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/auth-context";
