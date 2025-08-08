@@ -598,7 +598,7 @@ export default function ProgressPage() {
                         />
                       ))}
 
-                      {/* X-axis labels */}
+                      {/* X-axis labels: S1, S2, ... S10 */}
                       {chartData.map((point, index) => (
                         <text
                           key={index}
@@ -608,7 +608,7 @@ export default function ProgressPage() {
                           fill="#6b7280"
                           textAnchor="middle"
                         >
-                          {performanceData[index]?.month || `Session ${point.session}`}
+                          {`S${index + 1}`}
                         </text>
                       ))}
                     </svg>
@@ -665,7 +665,7 @@ export default function ProgressPage() {
                     >
                       <div className="space-y-1">
                         <span className="text-xl font-bold text-gray-900">
-                          {job.title}
+                          {job.title || `Session ${index + 1}`}
                         </span>
                         <p className="text-sm text-gray-600">{job.date}</p>
                         <p className="text-xs text-blue-600 font-medium">
