@@ -20,6 +20,8 @@ import { renderMarkdownToHTML } from "@/lib/markdown";
 import { interviewAPI } from "@/lib/api";
 import Image from "next/image";
 
+let micPermissionGranted = false;
+
 const getSpeechRecognition = () => {
   const SpeechRecognition =
     (window as any).SpeechRecognition ||
