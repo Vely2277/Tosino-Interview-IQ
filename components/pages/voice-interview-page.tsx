@@ -34,6 +34,7 @@ export default function VoiceInterviewPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState("");
+  const transcriptRef = useRef("");
   const [aiResponse, setAiResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
@@ -214,6 +215,7 @@ sr.onresult = async (event: any) => {
   const userResponse = event.results[0][0].transcript;
   console.log("Recognized speech:", userResponse);
   setTranscript(userResponse);
+  transcriptRef.current = userResponse;
   // Reset silence timeout on speech
   if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
   // Start a new silence timeout that only stops recognition
@@ -239,9 +241,11 @@ sr.onresult = async (event: any) => {
       if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
       setIsListening(false);
       // Always send the transcript if it exists
-      if (transcript && transcript.trim()) {
-        handleRespond(transcript.trim());
+      const finalTranscript = transcriptRef.current;
+      if (finalTranscript && finalTranscript.trim()) {
+        handleRespond(finalTranscript.trim());
         setTranscript("");
+        transcriptRef.current = "";
       }
     };
 
