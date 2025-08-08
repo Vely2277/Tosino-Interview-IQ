@@ -2,7 +2,7 @@ import { createSupabaseClient } from './supabase';
 
 // Get the backend URL from environment
 const getBackendUrl = () => {
-  return process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001';
+  return process.env.NEXT_PUBLIC_BACKEND_URL;
 };
 
 // Get the current session and access token
@@ -91,6 +91,12 @@ export const progressAPI = {
 
   getHistory: async () => {
     return apiCall('/api/progress/history', {
+      method: 'GET',
+    });
+  },
+
+  getInterviewHistory: async () => {
+    return apiCall('/api/progress/history/interview', {
       method: 'GET',
     });
   },
