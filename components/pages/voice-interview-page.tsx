@@ -307,11 +307,6 @@ const toggleListening = async () => {
 
     sr.onerror = (error: any) => {
       console.error("Speech recognition error (sr.onerror):", error);
-      // Show immediate alert to the user (so client on Android will see it)
-      try {
-        alert("SpeechRecognition error: " + (error && error.error ? error.error : JSON.stringify(error)));
-      } catch(e) { /* ignore if alert blocked */ }
-
       let userMsg = "";
       if (error && (error.error === "not-allowed" || error.error === "denied")) {
         userMsg = "Microphone access denied. Please allow microphone permission in your browser settings.";
@@ -724,7 +719,7 @@ const toggleListening = async () => {
                 </div>
               )}
 
-              <div className="flex justify-center">
+              <div className="flex flex-col items-center justify-center">
                 <Button
                   onClick={toggleListening}
                   className={`w-20 h-20 rounded-full ${
@@ -742,6 +737,10 @@ const toggleListening = async () => {
                     <Mic className="h-8 w-8" />
                   )}
                 </Button>
+                {/* Show error reason directly below the button if disabled */}
+                {(isLoading || micDisabled) && speechError && (
+                  <span className="mt-2 text-xs text-red-600 font-semibold text-center max-w-xs block">{speechError}</span>
+                )}
               </div>
 
               <p className="text-center text-sm text-gray-600">
@@ -749,6 +748,8 @@ const toggleListening = async () => {
                   ? "Listening... Tap to stop"
                   : isLoading
                   ? "AI is thinking..."
+                  : micDisabled && speechError
+                  ? speechError
                   : "Tap to speak"}
               </p>
             </CardContent>
