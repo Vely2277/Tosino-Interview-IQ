@@ -299,7 +299,7 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button
                   onClick={() => router.push("/practice")}
-                  className="bg-white text-blue-600 hover:bg-blue-50 px-8 py-4 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-all"
+                  className="bg-white text-blue-600 hover:bg-blue-50 px-8 py-4 text-lg font-semibold rounded-lg shadow-lg hover:shadow-xl transition-transform"
                   size="lg"
                 >
                   {user ? "Go to Interview" : "Get Started"}
@@ -344,7 +344,7 @@ export default function HomePage() {
           <div className="text-center mb-12">
             <h2
               data-animate="title"
-              className={`text-3xl lg:text-4xl font-bold text-gray-900 mb-4 transition-all duration-1000 ${
+              className={`text-3xl lg:text-4xl font-bold text-gray-900 mb-4 transition-transform duration-1000 ${
                 animatedElements.has("title")
                   ? "opacity-100 transform translate-x-0"
                   : "opacity-0 transform -translate-x-12"
@@ -354,7 +354,7 @@ export default function HomePage() {
             </h2>
             <p
               data-animate="subtitle"
-              className={`text-xl text-gray-600 transition-all duration-1000 delay-200 ${
+              className={`text-xl text-gray-600 transition-transform duration-1000 delay-200 ${
                 animatedElements.has("subtitle")
                   ? "opacity-100 transform translate-x-0"
                   : "opacity-0 transform translate-x-12"
@@ -368,7 +368,7 @@ export default function HomePage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <Card
               data-animate="card1"
-              className={`text-center p-6 hover:shadow-lg transition-all duration-1000 delay-300 ${
+              className={`text-center p-6 hover:shadow-lg transition-transform duration-1000 delay-300 ${
                 animatedElements.has("card1")
                   ? "opacity-100 transform translate-x-0"
                   : "opacity-0 transform -translate-x-12"
@@ -387,7 +387,7 @@ export default function HomePage() {
 
             <Card
               data-animate="card2"
-              className={`text-center p-6 hover:shadow-lg transition-all duration-1000 delay-400 ${
+              className={`text-center p-6 hover:shadow-lg transition-transform duration-1000 delay-400 ${
                 animatedElements.has("card2")
                   ? "opacity-100 transform translate-x-0"
                   : "opacity-0 transform translate-x-12"
@@ -406,7 +406,7 @@ export default function HomePage() {
 
             <Card
               data-animate="card3"
-              className={`text-center p-6 hover:shadow-lg transition-all duration-1000 delay-500 ${
+              className={`text-center p-6 hover:shadow-lg transition-transform duration-1000 delay-500 ${
                 animatedElements.has("card3")
                   ? "opacity-100 transform translate-x-0"
                   : "opacity-0 transform -translate-x-12"
@@ -425,7 +425,7 @@ export default function HomePage() {
 
             <Card
               data-animate="card4"
-              className={`text-center p-6 hover:shadow-lg transition-all duration-1000 delay-600 ${
+              className={`text-center p-6 hover:shadow-lg transition-transform duration-1000 delay-600 ${
                 animatedElements.has("card4")
                   ? "opacity-100 transform translate-x-0"
                   : "opacity-0 transform translate-x-12"
@@ -478,13 +478,13 @@ export default function HomePage() {
             {/* Navigation */}
             <button
               onClick={prevSlide}
-              className="absolute left-6 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-3 shadow-lg transition-all"
+              className="absolute left-6 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-3 shadow-lg transition-transform"
             >
               <ChevronLeft className="h-6 w-6 text-gray-800" />
             </button>
             <button
               onClick={nextSlide}
-              className="absolute right-6 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-3 shadow-lg transition-all"
+              className="absolute right-6 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-3 shadow-lg transition-transform"
             >
               <ChevronRight className="h-6 w-6 text-gray-800" />
             </button>
@@ -495,7 +495,7 @@ export default function HomePage() {
                 <button
                   key={index}
                   onClick={() => setCurrentSlide(index)}
-                  className={`w-3 h-3 rounded-full transition-all ${
+                  className={`w-3 h-3 rounded-full transition-transform ${
                     index === currentSlide
                       ? "bg-white scale-125"
                       : "bg-white/60"
@@ -571,7 +571,7 @@ export default function HomePage() {
                   {user ? (
                     <Button 
                       onClick={() => router.push("/practice")}
-                      className="bg-gradient-to-r from-purple-400 to-pink-500 hover:from-purple-500 hover:to-pink-600 text-white px-12 py-4 text-lg font-semibold rounded-full shadow-lg hover:shadow-xl transition-all"
+                      className="bg-gradient-to-r from-purple-400 to-pink-500 hover:from-purple-500 hover:to-pink-600 text-white px-12 py-4 text-lg font-semibold rounded-full shadow-lg hover:shadow-xl transition-transform"
                     >
                       Start Interview
                     </Button>
@@ -656,7 +656,7 @@ export default function HomePage() {
                     {user ? (
                       <Button 
                         onClick={() => router.push("/cv")}
-                        className="bg-gradient-to-r from-teal-400 to-blue-500 hover:from-teal-500 hover:to-blue-600 text-white px-12 py-4 text-lg font-semibold rounded-full shadow-lg hover:shadow-xl transition-all"
+                        className="bg-gradient-to-r from-teal-400 to-blue-500 hover:from-teal-500 hover:to-blue-600 text-white px-12 py-4 text-lg font-semibold rounded-full shadow-lg hover:shadow-xl transition-transform"
                       >
                         Optimize CV
                       </Button>
