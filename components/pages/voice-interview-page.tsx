@@ -439,19 +439,34 @@ const toggleListening = async () => {
                   Contact
                 </a>
                 <div className="flex space-x-3 px-3 pt-3 border-t border-blue-800">
-                  <Button
-                    variant="ghost"
-                    className="text-white hover:bg-blue-800"
-                    size="sm"
-                  >
-                    Sign In
-                  </Button>
-                  <Button
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                    size="sm"
-                  >
-                    Sign Up
-                  </Button>
+                  {user ? (
+                    <Button
+                      variant="ghost"
+                      className="bg-white text-blue-600 hover:bg-gray-100"
+                      size="sm"
+                      onClick={signOut}
+                    >
+                      Sign Out
+                    </Button>
+                  ) : (
+                    <>
+                      <Button
+                        variant="ghost"
+                        className="text-white hover:bg-blue-800"
+                        size="sm"
+                        onClick={() => router.push("/auth/login")}
+                      >
+                        Sign In
+                      </Button>
+                      <Button
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        size="sm"
+                        onClick={() => router.push("/auth/signup")}
+                      >
+                        Sign Up
+                      </Button>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
