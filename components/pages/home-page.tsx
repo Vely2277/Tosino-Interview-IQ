@@ -578,7 +578,7 @@ export default function HomePage() {
                   ) : (
                     <Button 
                       onClick={() => router.push("/auth/signup")}
-                      className="bg-gradient-to-r from-purple-400 to-pink-500 hover:from-purple-500 hover:to-pink-600 text-white px-12 py-4 text-lg font-semibold rounded-full shadow-lg hover:shadow-xl transition-all"
+                      className="bg-gradient-to-r from-purple-400 to-pink-500 hover:from-purple-500 hover:to-pink-600 text-white px-12 py-4 text-lg font-semibold rounded-full shadow-lg hover:shadow-xl transition-transform"
                     >
                       Sign up for early access
                     </Button>
@@ -663,7 +663,7 @@ export default function HomePage() {
                     ) : (
                       <Button 
                         onClick={() => router.push("/auth/signup")}
-                        className="bg-gradient-to-r from-teal-400 to-blue-500 hover:from-teal-500 hover:to-blue-600 text-white px-12 py-4 text-lg font-semibold rounded-full shadow-lg hover:shadow-xl transition-all"
+                        className="bg-gradient-to-r from-teal-400 to-blue-500 hover:from-teal-500 hover:to-blue-600 text-white px-12 py-4 text-lg font-semibold rounded-full shadow-lg hover:shadow-xl transition-transform"
                       >
                         Sign up for early access
                       </Button>
@@ -717,13 +717,13 @@ export default function HomePage() {
               {/* Navigation */}
               <button
                 onClick={prevImageSlide}
-                className="absolute left-6 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-3 shadow-lg transition-all"
+                className="absolute left-6 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-3 shadow-lg transition-transform"
               >
                 <ChevronLeft className="h-6 w-6 text-gray-800" />
               </button>
               <button
                 onClick={nextImageSlide}
-                className="absolute right-6 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-3 shadow-lg transition-all"
+                className="absolute right-6 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-3 shadow-lg transition-transform"
               >
                 <ChevronRight className="h-6 w-6 text-gray-800" />
               </button>
@@ -734,7 +734,7 @@ export default function HomePage() {
                   <button
                     key={index}
                     onClick={() => setCurrentImageSlide(index)}
-                    className={`w-3 h-3 rounded-full transition-all ${
+                    className={`w-3 h-3 rounded-full transition-transform ${
                       index === currentImageSlide
                         ? "bg-white scale-125"
                         : "bg-white/60"
@@ -956,7 +956,7 @@ export default function HomePage() {
                     <div className="pt-6">
                       <Button 
                         onClick={() => router.push("/hub")}
-                        className="bg-gradient-to-r from-teal-400 to-blue-500 hover:from-teal-500 hover:to-blue-600 text-white px-12 py-4 text-lg font-semibold rounded-full shadow-lg hover:shadow-xl transition-all"
+                        className="bg-gradient-to-r from-teal-400 to-blue-500 hover:from-teal-500 hover:to-blue-600 text-white px-12 py-4 text-lg font-semibold rounded-full shadow-lg hover:shadow-xl transition-transform"
                       >
                         Get Career Insights
                       </Button>
