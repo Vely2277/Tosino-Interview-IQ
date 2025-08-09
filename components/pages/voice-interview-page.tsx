@@ -267,7 +267,7 @@ const toggleListening = async () => {
       transcriptRef.current = result;
       setTranscript(result);
       // Reset silence timer for 3s after last speech
-      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
+      if (silenceTimeoutRef.current) { clearTimeout(silenceTimeoutRef.current); silenceTimeoutRef.current = null; }
       silenceTimeoutRef.current = setTimeout(() => {
         if (!hasRespondedThisTurn && transcriptRef.current.trim()) {
           hasRespondedThisTurn = true;
@@ -292,21 +292,23 @@ const toggleListening = async () => {
 
     sr.onerror = (error: any) => {
       setIsListening(false);
-      setMicDisabled(false);
-      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
+      // Only re-enable mic if not sending
+      if (!hasRespondedThisTurn && !isLoading) setMicDisabled(false);
+      if (silenceTimeoutRef.current) { clearTimeout(silenceTimeoutRef.current); silenceTimeoutRef.current = null; }
       console.error("Speech recognition error:", error);
       if (error.error === "not-allowed" || error.error === "denied") {
         alert("Microphone access denied. Please allow microphone permission in your browser settings.");
       } else if (error.error === "no-speech") {
         alert("No speech detected. Please try again and speak clearly.");
       }
-      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
+      if (silenceTimeoutRef.current) { clearTimeout(silenceTimeoutRef.current); silenceTimeoutRef.current = null; }
     };
 
     sr.onend = () => {
       setIsListening(false);
-      setMicDisabled(false);
-      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
+      // Only re-enable mic if not sending
+      if (!hasRespondedThisTurn && !isLoading) setMicDisabled(false);
+      if (silenceTimeoutRef.current) { clearTimeout(silenceTimeoutRef.current); silenceTimeoutRef.current = null; }
       setTranscript("");
       transcriptRef.current = "";
     };
