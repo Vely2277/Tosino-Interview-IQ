@@ -219,11 +219,14 @@ const toggleListening = async () => {
     utterance.rate = rate;
     utterance.volume = volume;
 
+
     utterance.onstart = () => {
       setMicDisabled(true);
     };
     utterance.onend = () => {
       setMicDisabled(false);
+      // Immediately start listening for the user's next response
+      toggleListening();
     };
 
     speechSynthesis.cancel();
