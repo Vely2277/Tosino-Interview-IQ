@@ -20,6 +20,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="w-full">
       <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <style>{`
 html, body {
   font-family: ${GeistSans.style.fontFamily};
