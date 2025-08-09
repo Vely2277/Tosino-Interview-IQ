@@ -65,55 +65,62 @@ export default function VoiceInterviewPage() {
 
   // Initialize the interview session STARTING THE INTERVIEW
   const initializeInterview = async () => {
-    setIsLoading(true);
+    console.log("[INIT] Initializing interview session");
+  setIsLoading(true);
+  console.log("[INIT] Loading state set to true");
     try {
-      const data = await interviewAPI.start(
+  console.log("[INIT] Calling interviewAPI.start with:", interviewData.jobTitle, interviewData.company, "voice");
+  const data = await interviewAPI.start(
         interviewData.jobTitle,
         interviewData.company,
         "voice"
       );
-      setSessionId(data.sessionId);
+  console.log("[INIT] Received session data:", data);
+  setSessionId(data.sessionId);
       sessionIdRef.current = data.sessionId;
       console.log("Log session id:", data.sessionId);
       const id = data.sessionId;
       setSessionId(id);
-      setAiResponse(data.initialMessage); // Set the initial AI message
+  setAiResponse(data.initialMessage); // Set the initial AI message
+  console.log("[INIT] Initial AI message:", data.initialMessage);
       setChatHistory((prev) => [
+        // ...existing code...
         ...prev,
         { from: "ai", text: data.initialMessage },
       ]);
     } catch (error) {
-      console.error("Error starting interview:", error);
+      console.error("[INIT] Error starting interview:", error);
     } finally {
       setIsLoading(false);
+      console.log("[INIT] Loading state set to false");
     }
   };
 
   const handleRespond = async (userResponse: string) => {
+    console.log("[RESPOND] handleRespond called with:", userResponse);
     console.log(
       " [handleRespond] preparing to send response to api:",
       userResponse
     );
     // if (!sessionId) return;
 
-    setIsLoading(true);
+  setIsLoading(true);
+  console.log("[RESPOND] Loading state set to true");
     console.log("Sending user response to backend:", userResponse);
 
     try {
-      console.log("session id ref:", sessionIdRef.current);
-      const data = await interviewAPI.respond(
+  console.log("[RESPOND] session id ref:", sessionIdRef.current);
+  const data = await interviewAPI.respond(
         sessionIdRef.current!,
         userResponse,
         "voice"
       );
 
-      console.log(
-        " [handleRespond] api call sent. we are waiting for response.."
-      );
-
-      console.log("Received response from backend:", data);
+  console.log("[RESPOND] api call sent. waiting for response...");
+  console.log("[RESPOND] Received response from backend:", data);
 
       setChatHistory((prev) => [
+        // ...existing code...
         ...prev,
         {
           from: "user",
@@ -127,14 +134,17 @@ export default function VoiceInterviewPage() {
         },
       ]);
 
-      setAiResponse(data.aiResponse);
-      setTranscript("");
+  setAiResponse(data.aiResponse);
+  console.log("[RESPOND] AI response set:", data.aiResponse);
+  setTranscript("");
+  console.log("[RESPOND] Transcript cleared");
 
     } catch (error) {
-      console.error("Error in handleRespond:", error);
+      console.error("[RESPOND] Error in handleRespond:", error);
       setAiResponse("Hmm... I couldn't process that. Try again?");
     } finally {
       setIsLoading(false);
+      console.log("[RESPOND] Loading state set to false");
     }
   };
 
@@ -152,51 +162,75 @@ export default function VoiceInterviewPage() {
   }, []);
 
 const toggleListening = async () => {
+  console.log("[TOGGLE] toggleListening called. isListening:", isListening, "micDisabled:", micDisabled);
   if (!recognition) {
+    console.log("[TOGGLE] Speech Recognition not supported on this browser.");
     alert("Speech Recognition not supported on this browser.");
     return;
   }
 
   if (isListening) {
-    if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
-    setMicDisabled(true);
-    setIsListening(false);
+    console.log("[TOGGLE] Stopping listening. Current transcript:", transcriptRef.current);
+    if (silenceTimeoutRef.current) {
+      clearTimeout(silenceTimeoutRef.current);
+      console.log("[TOGGLE] Cleared silence timeout");
+    }
+  setMicDisabled(true);
+  console.log("[TOGGLE] Mic disabled");
+  setIsListening(false);
+  console.log("[TOGGLE] isListening set to false");
     // Stop recognition and send response if transcript exists
     const sr = recognition;
-    setIsLoading(true); // FIX: set loading before stop so onend doesn't re-enable mic
-    sr.stop();
+  setIsLoading(true); // FIX: set loading before stop so onend doesn't re-enable mic
+  console.log("[TOGGLE] isLoading set to true before stop");
+  sr.stop();
+  console.log("[TOGGLE] recognition.stop() called");
     if (transcriptRef.current && transcriptRef.current.trim() && !hasRespondedThisTurn) {
-      hasRespondedThisTurn = true;
+      console.log("[TOGGLE] transcriptRef has value, sending response:", transcriptRef.current);
+  hasRespondedThisTurn = true;
+  console.log("[TOGGLE] hasRespondedThisTurn set to true");
       handleRespond(transcriptRef.current.trim()).finally(() => {
+        console.log("[TOGGLE] handleRespond finished in stop branch");
         setTranscript("");
         transcriptRef.current = "";
         setIsLoading(false);
         setMicDisabled(false);
       });
     } else {
-      setMicDisabled(false);
-      setIsLoading(false);
+  setMicDisabled(false);
+  setIsLoading(false);
+  console.log("[TOGGLE] No transcript, mic enabled, loading false");
     }
   } else {
+    console.log("[TOGGLE] Starting listening");
     try {
       if (!micPermissionGranted) {
+        console.log("[TOGGLE] Requesting mic permission");
         await navigator.mediaDevices.getUserMedia({ audio: true });
+        console.log("[TOGGLE] Mic permission granted");
       }
-      setTranscript("");
-      transcriptRef.current = "";
-      hasRespondedThisTurn = false;
+  setTranscript("");
+  console.log("[TOGGLE] Transcript cleared for new listening");
+  transcriptRef.current = "";
+  console.log("[TOGGLE] transcriptRef cleared for new listening");
+  hasRespondedThisTurn = false;
+  console.log("[TOGGLE] hasRespondedThisTurn set to false");
       try {
+        console.log("[TOGGLE] Starting recognition.start()");
         recognition.start();
         micPermissionGranted = true;
         setIsListening(true);
+        console.log("[TOGGLE] recognition started, isListening set to true");
         // No initial silence timer here; timer is managed in onspeechstart/onresult
       } catch (recErr) {
         micPermissionGranted = false;
+        console.log("[TOGGLE] recognition.start() failed:", recErr);
         alert("Microphone access is required. Please allow microphone permission in your browser settings.");
         setIsListening(false);
       }
     } catch (err) {
       micPermissionGranted = false;
+      console.log("[TOGGLE] getUserMedia failed:", err);
       alert("Microphone access is required. Please allow microphone permission in your browser settings.");
       setIsListening(false);
     }
@@ -205,24 +239,34 @@ const toggleListening = async () => {
 
   // End the interview session
   const handleEndInterview = async () => {
+    console.log("[END] handleEndInterview called. sessionId:", sessionId, "endDisabled:", endDisabled);
     if (!sessionId || endDisabled) return;
-    setEndDisabled(true);
-    setIsLoading(true);
+  setEndDisabled(true);
+  console.log("[END] endDisabled set to true");
+  setIsLoading(true);
+  console.log("[END] isLoading set to true");
     try {
-      const data = await interviewAPI.end(sessionId);
-      console.log("Interview Summary:", data.summary); // Handle the summary data
-      setSummary(data.summary); //store the summary in state
+  console.log("[END] Calling interviewAPI.end with sessionId:", sessionId);
+  const data = await interviewAPI.end(sessionId);
+  console.log("[END] Interview Summary:", data.summary); // Handle the summary data
+  setSummary(data.summary); //store the summary in state
+  console.log("[END] Summary set in state");
     } catch (error) {
-      console.error("Error ending interview:", error);
+      console.error("[END] Error ending interview:", error);
       setEndDisabled(false); // allow retry if error
     } finally {
       setIsLoading(false);
+      console.log("[END] isLoading set to false");
     }
   };
 
   // Speak out AI response
   const speakText = (text: string) => {
-    if (!text || "speechSynthesis" in window === false) return;
+    console.log("[SPEAK] speakText called with:", text);
+    if (!text || "speechSynthesis" in window === false) {
+      console.log("[SPEAK] No text or speechSynthesis not supported");
+      return;
+    }
 
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.pitch = pitch;
@@ -232,46 +276,65 @@ const toggleListening = async () => {
 
     utterance.onstart = () => {
       setMicDisabled(true);
+      console.log("[SPEAK] Speech synthesis started, mic disabled");
     };
     utterance.onend = () => {
       setMicDisabled(false);
+      console.log("[SPEAK] Speech synthesis ended, mic enabled");
       // Immediately start listening for the user's next response
       toggleListening();
+      console.log("[SPEAK] Called toggleListening after speech synthesis");
     };
 
-    speechSynthesis.cancel();
-    speechSynthesis.speak(utterance);
+  speechSynthesis.cancel();
+  console.log("[SPEAK] speechSynthesis.cancel() called");
+  speechSynthesis.speak(utterance);
+  console.log("[SPEAK] speechSynthesis.speak() called");
   };
 
   const speakResponse = () => {
-    speakText(aiResponse);
-    setLastSpokenText(aiResponse); // update last spoken manually
+    console.log("[SPEAK] speakResponse called");
+  speakText(aiResponse);
+  setLastSpokenText(aiResponse); // update last spoken manually
+  console.log("[SPEAK] lastSpokenText set to:", aiResponse);
   };
 
   // Initialize interview when the component mounts
   useEffect(() => {
-    if (!aiResponse || aiResponse === lastSpokenText) return;
-
+    if (!aiResponse || aiResponse === lastSpokenText) {
+      console.log("[EFFECT] aiResponse unchanged or already spoken");
+      return;
+    }
+    console.log("[EFFECT] New aiResponse detected, speaking:", aiResponse);
     speakText(aiResponse);
     setLastSpokenText(aiResponse);
+    console.log("[EFFECT] lastSpokenText updated");
   }, [aiResponse, lastSpokenText]);
 
   //same thing
   useEffect(() => {
     const sr = getSpeechRecognition();
-    if (!sr) return;
-
+    if (!sr) {
+      console.log("[EFFECT] getSpeechRecognition returned null");
+      return;
+    }
+    console.log("[EFFECT] getSpeechRecognition returned instance");
 
     sr.lang = "en-US";
     sr.continuous = true;
     sr.interimResults = false;
 
     sr.onspeechstart = () => {
+      console.log("[SR] onspeechstart fired");
       // Only clear/reset any existing timer, do not schedule the finalizer here
-      if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
+      if (silenceTimeoutRef.current) {
+        clearTimeout(silenceTimeoutRef.current);
+        console.log("[SR] Cleared silence timeout on speechstart");
+      }
     };
 
     sr.onresult = (event: any) => {
+      console.log("[SR] onresult fired. event:", event);
       // Accumulate transcript, do not stop or finalize here
       let result = "";
       for (let i = 0; i < event.results.length; i++) {
@@ -280,66 +343,83 @@ const toggleListening = async () => {
       result = result.trim();
       transcriptRef.current = result;
       setTranscript(result);
+      console.log("[SR] Transcript updated:", result);
       // Reset silence timer for 3s after last speech
-      if (silenceTimeoutRef.current) { clearTimeout(silenceTimeoutRef.current); silenceTimeoutRef.current = null; }
+      if (silenceTimeoutRef.current) {
+        clearTimeout(silenceTimeoutRef.current);
+        silenceTimeoutRef.current = null;
+        console.log("[SR] Cleared silence timeout before setting new");
+      }
       silenceTimeoutRef.current = setTimeout(() => {
+        console.log("[SR] Silence timeout fired. hasRespondedThisTurn:", hasRespondedThisTurn, "transcriptRef:", transcriptRef.current);
         if (!hasRespondedThisTurn && transcriptRef.current.trim()) {
           hasRespondedThisTurn = true;
           setIsListening(false);
           setMicDisabled(true);
           setIsLoading(true); // FIX: set loading before stop so onend doesn't re-enable mic
           sr.stop();
+          console.log("[SR] Stopping recognition and sending response:", transcriptRef.current);
           handleRespond(transcriptRef.current.trim()).finally(() => {
             setTranscript("");
             transcriptRef.current = "";
             setIsLoading(false);
             setMicDisabled(false);
+            console.log("[SR] handleRespond finished in silence timeout");
           });
         } else {
           setTranscript("");
           transcriptRef.current = "";
           setMicDisabled(false);
+          console.log("[SR] Silence timeout: no response sent, transcript cleared");
         }
       }, 3000);
     };
 
-
-
     sr.onerror = (error: any) => {
-      console.error("Speech recognition error (sr.onerror):", error);
+      setIsListening(false);
+      // Only re-enable mic if not sending
+      if (!hasRespondedThisTurn && !isLoading) setMicDisabled(false);
+      if (silenceTimeoutRef.current) {
+        clearTimeout(silenceTimeoutRef.current);
+        silenceTimeoutRef.current = null;
+        console.log("[SR] Cleared silence timeout on error");
+      }
+      console.error("[SR] Speech recognition error:", error);
       let userMsg = "";
-      if (error && (error.error === "not-allowed" || error.error === "denied")) {
+      if (error.error === "not-allowed" || error.error === "denied") {
         userMsg = "Microphone access denied. Please allow microphone permission in your browser settings.";
-      } else if (error && error.error === "no-speech") {
+      } else if (error.error === "no-speech") {
         userMsg = "No speech detected. Please try again and speak clearly.";
-      } else if (error && error.error === "audio-capture") {
+      } else if (error.error === "audio-capture") {
         userMsg = "No microphone was found. Please ensure a microphone is connected.";
-      } else if (error && error.error === "aborted") {
+      } else if (error.error === "aborted") {
         userMsg = "Speech recognition was aborted. Please try again.";
-      } else if (error && error.error === "language-not-supported") {
+      } else if (error.error === "language-not-supported") {
         userMsg = `Speech recognition language (${speechLang}) is not supported in your browser.`;
       } else {
-        userMsg = `Speech recognition error: ${error && error.error ? error.error : 'unknown'}`;
+        userMsg = `Speech recognition error: ${error.error}`;
       }
-
       setSpeechError(userMsg);
-      setIsListening(false);
-      if (!hasRespondedThisTurn && !isLoading) setMicDisabled(false);
-      if (silenceTimeoutRef.current) { clearTimeout(silenceTimeoutRef.current); silenceTimeoutRef.current = null; }
     };
 
     sr.onend = () => {
       setIsListening(false);
       // Only re-enable mic if not sending
       if (!hasRespondedThisTurn && !isLoading) setMicDisabled(false);
-      if (silenceTimeoutRef.current) { clearTimeout(silenceTimeoutRef.current); silenceTimeoutRef.current = null; }
+      if (silenceTimeoutRef.current) {
+        clearTimeout(silenceTimeoutRef.current);
+        silenceTimeoutRef.current = null;
+        console.log("[SR] Cleared silence timeout on end");
+      }
       setTranscript("");
       transcriptRef.current = "";
+      console.log("[SR] onend fired, transcript cleared");
     };
 
-  // Set language dynamically
-  sr.lang = speechLang;
-  setRecognition(sr);
+    // Set language dynamically
+    sr.lang = speechLang;
+    setRecognition(sr);
+    console.log("[EFFECT] SpeechRecognition instance set with lang:", speechLang);
   }, []);
 
   //use effect to start interview
@@ -719,7 +799,7 @@ const toggleListening = async () => {
                 </div>
               )}
 
-              <div className="flex flex-col items-center justify-center">
+              <div className="flex justify-center">
                 <Button
                   onClick={toggleListening}
                   className={`w-20 h-20 rounded-full ${
@@ -737,10 +817,6 @@ const toggleListening = async () => {
                     <Mic className="h-8 w-8" />
                   )}
                 </Button>
-                {/* Show error reason directly below the button if disabled */}
-                {(isLoading || micDisabled) && speechError && (
-                  <span className="mt-2 text-xs text-red-600 font-semibold text-center max-w-xs block">{speechError}</span>
-                )}
               </div>
 
               <p className="text-center text-sm text-gray-600">
@@ -748,8 +824,6 @@ const toggleListening = async () => {
                   ? "Listening... Tap to stop"
                   : isLoading
                   ? "AI is thinking..."
-                  : micDisabled && speechError
-                  ? speechError
                   : "Tap to speak"}
               </p>
             </CardContent>
