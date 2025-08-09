@@ -148,26 +148,24 @@ const toggleListening = async () => {
   }
 
   if (isListening) {
+    setIsListening(false); // Move to first line for immediate UI update
     if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
     setMicDisabled(true);
-    setIsListening(false);
     // Stop recognition and send response if transcript exists
     const sr = recognition;
+    setIsLoading(true);
+    sr.stop();
     if (transcriptRef.current && transcriptRef.current.trim() && !hasRespondedThisTurn) {
       hasRespondedThisTurn = true;
-      setIsLoading(true);
-      // Call handleRespond immediately, in parallel with sr.stop()
       handleRespond(transcriptRef.current.trim()).finally(() => {
         setTranscript("");
         transcriptRef.current = "";
         setIsLoading(false);
         setMicDisabled(false);
       });
-      sr.stop();
     } else {
       setMicDisabled(false);
       setIsLoading(false);
-      sr.stop();
     }
   } else {
     try {
@@ -273,23 +271,21 @@ const toggleListening = async () => {
       if (silenceTimeoutRef.current) { clearTimeout(silenceTimeoutRef.current); silenceTimeoutRef.current = null; }
       silenceTimeoutRef.current = setTimeout(() => {
         if (!hasRespondedThisTurn && transcriptRef.current.trim()) {
+          setIsListening(false); // Move to first line for immediate UI update
           hasRespondedThisTurn = true;
-          setIsListening(false);
           setMicDisabled(true);
           setIsLoading(true);
-          // Call handleRespond immediately, in parallel with sr.stop()
+          sr.stop();
           handleRespond(transcriptRef.current.trim()).finally(() => {
             setTranscript("");
             transcriptRef.current = "";
             setIsLoading(false);
             setMicDisabled(false);
           });
-          sr.stop();
         } else {
           setTranscript("");
           transcriptRef.current = "";
           setMicDisabled(false);
-          sr.stop();
         }
       }, 3000);
     };
