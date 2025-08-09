@@ -153,10 +153,10 @@ const toggleListening = async () => {
     setIsListening(false);
     // Stop recognition and send response if transcript exists
     const sr = recognition;
+    setIsLoading(true); // FIX: set loading before stop so onend doesn't re-enable mic
     sr.stop();
     if (transcriptRef.current && transcriptRef.current.trim() && !hasRespondedThisTurn) {
       hasRespondedThisTurn = true;
-      setIsLoading(true);
       handleRespond(transcriptRef.current.trim()).finally(() => {
         setTranscript("");
         transcriptRef.current = "";
@@ -165,6 +165,7 @@ const toggleListening = async () => {
       });
     } else {
       setMicDisabled(false);
+      setIsLoading(false);
     }
   } else {
     try {
@@ -273,8 +274,8 @@ const toggleListening = async () => {
           hasRespondedThisTurn = true;
           setIsListening(false);
           setMicDisabled(true);
+          setIsLoading(true); // FIX: set loading before stop so onend doesn't re-enable mic
           sr.stop();
-          setIsLoading(true);
           handleRespond(transcriptRef.current.trim()).finally(() => {
             setTranscript("");
             transcriptRef.current = "";
