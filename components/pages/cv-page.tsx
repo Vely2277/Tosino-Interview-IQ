@@ -58,7 +58,8 @@ export default function CvPage() {
         cvText.trim() || undefined,
         selectedFile || undefined
       );
-      setOptimizationResult(data.optimization);
+setOptimizationResult(data.optimization);
+console.log("Optimized CV:", data.optimization);
     } catch (err) {
       console.error(err);
       setError(
