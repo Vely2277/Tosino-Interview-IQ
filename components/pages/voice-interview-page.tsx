@@ -39,12 +39,14 @@ export default function VoiceInterviewPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [transcript, setTranscript] = useState("");
+  const [speechError, setSpeechError] = useState("");
   const [micDisabled, setMicDisabled] = useState(false); // disables mic during AI speech
   const transcriptRef = useRef("");
   const [aiResponse, setAiResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [recognition, setRecognition] = useState<any>(null);
+  const [speechLang, setSpeechLang] = useState<string>("en-US");
   const [lastSpokenText, setLastSpokenText] = useState("");
   const sessionIdRef = useRef<string | null>(null); // Declare a ref for sessionId
   const [endDisabled, setEndDisabled] = useState(false);
@@ -140,6 +142,14 @@ export default function VoiceInterviewPage() {
   // Handle microphone toggle (start/stop listening) with permission request
   // Silence timeout ref
   const silenceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Detect browser language for SpeechRecognition
+  useEffect(() => {
+    let lang = navigator.language || (navigator as any).userLanguage || "en-US";
+    // If language is just 'en', default to 'en-US' for best compatibility
+    if (lang === "en") lang = "en-US";
+    setSpeechLang(lang);
+  }, []);
 
 const toggleListening = async () => {
   if (!recognition) {
@@ -294,17 +304,28 @@ const toggleListening = async () => {
     };
 
 
+
     sr.onerror = (error: any) => {
       setIsListening(false);
       // Only re-enable mic if not sending
       if (!hasRespondedThisTurn && !isLoading) setMicDisabled(false);
       if (silenceTimeoutRef.current) { clearTimeout(silenceTimeoutRef.current); silenceTimeoutRef.current = null; }
       console.error("Speech recognition error:", error);
+      let userMsg = "";
       if (error.error === "not-allowed" || error.error === "denied") {
-        alert("Microphone access denied. Please allow microphone permission in your browser settings.");
+        userMsg = "Microphone access denied. Please allow microphone permission in your browser settings.";
       } else if (error.error === "no-speech") {
-        alert("No speech detected. Please try again and speak clearly.");
+        userMsg = "No speech detected. Please try again and speak clearly.";
+      } else if (error.error === "audio-capture") {
+        userMsg = "No microphone was found. Please ensure a microphone is connected.";
+      } else if (error.error === "aborted") {
+        userMsg = "Speech recognition was aborted. Please try again.";
+      } else if (error.error === "language-not-supported") {
+        userMsg = `Speech recognition language (${speechLang}) is not supported in your browser.`;
+      } else {
+        userMsg = `Speech recognition error: ${error.error}`;
       }
+      setSpeechError(userMsg);
       if (silenceTimeoutRef.current) { clearTimeout(silenceTimeoutRef.current); silenceTimeoutRef.current = null; }
     };
 
@@ -317,7 +338,9 @@ const toggleListening = async () => {
       transcriptRef.current = "";
     };
 
-    setRecognition(sr);
+  // Set language dynamically
+  sr.lang = speechLang;
+  setRecognition(sr);
   }, []);
 
   //use effect to start interview
@@ -511,6 +534,19 @@ const toggleListening = async () => {
       {/* Main Content */}
       <div className="w-screen px-0 py-8">
         <div className="space-y-6 w-screen">
+          {/* Speech Recognition Error Message */}
+          {speechError && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-center" role="alert">
+              <span className="block sm:inline">{speechError}</span>
+              <button
+                className="absolute top-0 bottom-0 right-0 px-4 py-3"
+                onClick={() => setSpeechError("")}
+                aria-label="Close"
+              >
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+          )}
           {/* Voice Controls Card */}
           <Card className="border-gray-200 shadow-sm">
             <CardHeader className="bg-blue-50 border-b">
