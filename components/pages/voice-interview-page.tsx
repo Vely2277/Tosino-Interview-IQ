@@ -306,26 +306,30 @@ const toggleListening = async () => {
 
 
     sr.onerror = (error: any) => {
-      setIsListening(false);
-      // Only re-enable mic if not sending
-      if (!hasRespondedThisTurn && !isLoading) setMicDisabled(false);
-      if (silenceTimeoutRef.current) { clearTimeout(silenceTimeoutRef.current); silenceTimeoutRef.current = null; }
-      console.error("Speech recognition error:", error);
+      console.error("Speech recognition error (sr.onerror):", error);
+      // Show immediate alert to the user (so client on Android will see it)
+      try {
+        alert("SpeechRecognition error: " + (error && error.error ? error.error : JSON.stringify(error)));
+      } catch(e) { /* ignore if alert blocked */ }
+
       let userMsg = "";
-      if (error.error === "not-allowed" || error.error === "denied") {
+      if (error && (error.error === "not-allowed" || error.error === "denied")) {
         userMsg = "Microphone access denied. Please allow microphone permission in your browser settings.";
-      } else if (error.error === "no-speech") {
+      } else if (error && error.error === "no-speech") {
         userMsg = "No speech detected. Please try again and speak clearly.";
-      } else if (error.error === "audio-capture") {
+      } else if (error && error.error === "audio-capture") {
         userMsg = "No microphone was found. Please ensure a microphone is connected.";
-      } else if (error.error === "aborted") {
+      } else if (error && error.error === "aborted") {
         userMsg = "Speech recognition was aborted. Please try again.";
-      } else if (error.error === "language-not-supported") {
+      } else if (error && error.error === "language-not-supported") {
         userMsg = `Speech recognition language (${speechLang}) is not supported in your browser.`;
       } else {
-        userMsg = `Speech recognition error: ${error.error}`;
+        userMsg = `Speech recognition error: ${error && error.error ? error.error : 'unknown'}`;
       }
+
       setSpeechError(userMsg);
+      setIsListening(false);
+      if (!hasRespondedThisTurn && !isLoading) setMicDisabled(false);
       if (silenceTimeoutRef.current) { clearTimeout(silenceTimeoutRef.current); silenceTimeoutRef.current = null; }
     };
 
