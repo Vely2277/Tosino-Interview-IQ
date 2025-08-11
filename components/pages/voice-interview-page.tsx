@@ -146,18 +146,17 @@ const toggleListening = async () => {
     setMicDisabled(false);
     return;
   }
-  try {
-    setMicDisabled(true); // Button is greyed out while handshake is pending
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    setAudioStream(stream);
-
-    // Connect to backend WebSocket for streaming using voiceAPI
-    const wsConn = voiceAPI.connectWebSocket(
-      sessionIdRef.current,
-      (event) => {
-        const data = JSON.parse(event.data);
-        if (data.type === "joined") {
-          // Only start audio streaming after receiving 'joined' from backend
+  setMicDisabled(true); // Button is greyed out while handshake is pending
+  // Connect to backend WebSocket for streaming using voiceAPI
+  const wsConn = voiceAPI.connectWebSocket(
+    sessionIdRef.current,
+    async (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === "joined") {
+        // Only request mic and start audio streaming after receiving 'joined' from backend
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          setAudioStream(stream);
           setIsListening(true); // Only set isListening after handshake
           setMicDisabled(false); // Enable button after handshake
           const audioCtx = new window.AudioContext();
@@ -175,60 +174,60 @@ const toggleListening = async () => {
             // Send raw PCM audio as binary for best quality and speed
             wsConn.send(buf.buffer);
           };
-        } else if (data.type === "partial_transcript") {
-          setTranscript(data.text);
-        } else if (data.type === "final_transcript") {
-          setTranscript("");
-          setChatHistory((prev) => [...prev, { from: "user", text: data.text }]);
-        } else if (data.type === "ai_stream") {
-          setChatHistory((prev) => {
-            const last = prev[prev.length - 1];
-            if (last && last.from === "ai") {
-              return [
-                ...prev.slice(0, -1),
-                { ...last, text: data.text },
-              ];
-            } else {
-              return [...prev, { from: "ai", text: data.text }];
-            }
-          });
-          setAiResponse(data.text);
-        } else if (data.type === "audio") {
-          const audioData = Uint8Array.from(atob(data.data), (c) => c.charCodeAt(0));
-          const blob = new Blob([audioData], { type: "audio/wav" });
-          const url = URL.createObjectURL(blob);
-          let player = audioPlayer;
-          if (!player) {
-            player = new Audio();
-            setAudioPlayer(player);
+        } catch (err) {
+          alert("Microphone access is required. Please allow microphone permission in your browser settings.");
+          setIsListening(false);
+          setMicDisabled(false);
+        }
+      } else if (data.type === "partial_transcript") {
+        setTranscript(data.text);
+      } else if (data.type === "final_transcript") {
+        setTranscript("");
+        setChatHistory((prev) => [...prev, { from: "user", text: data.text }]);
+      } else if (data.type === "ai_stream") {
+        setChatHistory((prev) => {
+          const last = prev[prev.length - 1];
+          if (last && last.from === "ai") {
+            return [
+              ...prev.slice(0, -1),
+              { ...last, text: data.text },
+            ];
+          } else {
+            return [...prev, { from: "ai", text: data.text }];
           }
-          player.src = url;
-          player.play();
+        });
+        setAiResponse(data.text);
+      } else if (data.type === "audio") {
+        const audioData = Uint8Array.from(atob(data.data), (c) => c.charCodeAt(0));
+        const blob = new Blob([audioData], { type: "audio/wav" });
+        const url = URL.createObjectURL(blob);
+        let player = audioPlayer;
+        if (!player) {
+          player = new Audio();
+          setAudioPlayer(player);
         }
-      },
-      () => {
-        // onOpen: send join message only
-        if (wsConn.readyState === 1) {
-          wsConn.send(JSON.stringify({ type: "join", sessionId: sessionIdRef.current }));
-        } else {
-          wsConn.addEventListener("open", () => {
-            wsConn.send(JSON.stringify({ type: "join", sessionId: sessionIdRef.current }));
-          }, { once: true });
-        }
-      },
-      () => {
-        setIsListening(false);
-        setMicDisabled(false);
-        setAudioStream(null);
-        setWs(null);
+        player.src = url;
+        player.play();
       }
-    );
-    setWs(wsConn);
-  } catch (err) {
-    alert("Microphone access is required. Please allow microphone permission in your browser settings.");
-    setIsListening(false);
-    setMicDisabled(false);
-  }
+    },
+    () => {
+      // onOpen: send join message only
+      if (wsConn.readyState === 1) {
+        wsConn.send(JSON.stringify({ type: "join", sessionId: sessionIdRef.current }));
+      } else {
+        wsConn.addEventListener("open", () => {
+          wsConn.send(JSON.stringify({ type: "join", sessionId: sessionIdRef.current }));
+        }, { once: true });
+      }
+    },
+    () => {
+      setIsListening(false);
+      setMicDisabled(false);
+      setAudioStream(null);
+      setWs(null);
+    }
+  );
+  setWs(wsConn);
 };
 
   // End the interview session
