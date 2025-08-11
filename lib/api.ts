@@ -1,3 +1,21 @@
+// Voice API calls (WebSocket connection encapsulation)
+export const voiceAPI = {
+  connectWebSocket: (sessionId, onMessage, onOpen, onClose) => {
+    const wsUrl = getVoiceWebSocketUrl();
+    const ws = new window.WebSocket(wsUrl);
+    ws.onopen = () => {
+      ws.send(JSON.stringify({ type: "join", sessionId }));
+      if (onOpen) onOpen(ws);
+    };
+    ws.onmessage = (event) => {
+      if (onMessage) onMessage(event, ws);
+    };
+    ws.onclose = () => {
+      if (onClose) onClose(ws);
+    };
+    return ws;
+  },
+};
 // Utility to get the WebSocket URL for voice interview streaming
 export const getVoiceWebSocketUrl = () => {
   const backendUrl = getBackendUrl();

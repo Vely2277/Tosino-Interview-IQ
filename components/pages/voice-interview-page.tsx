@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mic, MicOff, ArrowLeft, Volume2, Menu, X, Settings } from "lucide-react";
 import { renderMarkdownToHTML } from "@/lib/markdown";
-import { interviewAPI, getVoiceWebSocketUrl } from "@/lib/api";
+import { interviewAPI, voiceAPI } from "@/lib/api";
 import Image from "next/image";
 
 
@@ -151,29 +151,10 @@ const toggleListening = async () => {
     setAudioStream(stream);
     setIsListening(true);
     setMicDisabled(false);
-  // Connect to backend WebSocket for streaming
-  const wsUrl = getVoiceWebSocketUrl();
-  const wsConn = new window.WebSocket(wsUrl);
-    setWs(wsConn);
-    wsConn.onopen = () => {
-      wsConn.send(JSON.stringify({ type: "join", sessionId: sessionIdRef.current }));
-      // Stream audio to backend
-      const audioCtx = new window.AudioContext();
-      const source = audioCtx.createMediaStreamSource(stream);
-      const processor = audioCtx.createScriptProcessor(4096, 1, 1);
-      source.connect(processor);
-      processor.connect(audioCtx.destination);
-      processor.onaudioprocess = (e: any) => {
-        if (!isListening) return;
-        const input = e.inputBuffer.getChannelData(0);
-        const buf = new Int16Array(input.length);
-        for (let i = 0; i < input.length; i++) {
-          buf[i] = Math.max(-1, Math.min(1, input[i])) * 32767;
-        }
-        wsConn.send(JSON.stringify({ type: "audio", audio: btoa(String.fromCharCode(...new Uint8Array(buf.buffer))) }));
-      };
-    };
-    wsConn.onmessage = (event) => {
+  // Connect to backend WebSocket for streaming using voiceAPI
+  const wsConn = voiceAPI.connectWebSocket(
+    sessionIdRef.current,
+    (event) => {
       const data = JSON.parse(event.data);
       if (data.type === "partial_transcript") {
         setTranscript(data.text);
@@ -181,23 +162,19 @@ const toggleListening = async () => {
         setTranscript("");
         setChatHistory((prev) => [...prev, { from: "user", text: data.text }]);
       } else if (data.type === "ai_stream") {
-        // Streamed AI text: update the last AI message or add a new one if needed
         setChatHistory((prev) => {
           const last = prev[prev.length - 1];
           if (last && last.from === "ai") {
-            // Update the last AI message
             return [
               ...prev.slice(0, -1),
               { ...last, text: data.text },
             ];
           } else {
-            // Add a new AI message
             return [...prev, { from: "ai", text: data.text }];
           }
         });
         setAiResponse(data.text);
       } else if (data.type === "audio") {
-        // Play audio chunk
         const audioData = Uint8Array.from(atob(data.data), (c) => c.charCodeAt(0));
         const blob = new Blob([audioData], { type: "audio/wav" });
         const url = URL.createObjectURL(blob);
@@ -208,16 +185,33 @@ const toggleListening = async () => {
         }
         player.src = url;
         player.play();
-      } else if (data.type === "audio_end") {
-        // Optionally handle end of audio
       }
-    };
-    wsConn.onclose = () => {
+    },
+    () => {
+      // onOpen: stream audio to backend
+      const audioCtx = new window.AudioContext();
+      const source = audioCtx.createMediaStreamSource(stream);
+      const processor = audioCtx.createScriptProcessor(4096, 1, 1);
+      source.connect(processor);
+      processor.connect(audioCtx.destination);
+      processor.onaudioprocess = (e) => {
+        if (!isListening) return;
+        const input = e.inputBuffer.getChannelData(0);
+        const buf = new Int16Array(input.length);
+        for (let i = 0; i < input.length; i++) {
+          buf[i] = Math.max(-1, Math.min(1, input[i])) * 32767;
+        }
+        wsConn.send(JSON.stringify({ type: "audio", audio: btoa(String.fromCharCode(...new Uint8Array(buf.buffer))) }));
+      };
+    },
+    () => {
       setIsListening(false);
       setMicDisabled(false);
       setAudioStream(null);
       setWs(null);
-    };
+    }
+  );
+  setWs(wsConn);
   } catch (err) {
     alert("Microphone access is required. Please allow microphone permission in your browser settings.");
     setIsListening(false);
