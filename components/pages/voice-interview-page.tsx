@@ -1,36 +1,20 @@
 
 "use client";
-// Guard to ensure only one response per listening session
-let hasRespondedThisTurn = false;
 
-import { useState, useEffect } from "react";
+
+
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/contexts/auth-context";
-import { useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useInterview } from "@/contexts/interview-context";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Mic,
-  MicOff,
-  ArrowLeft,
-  Volume2,
-  Menu,
-  X,
-  Settings,
-} from "lucide-react";
+import { Mic, MicOff, ArrowLeft, Volume2, Menu, X, Settings } from "lucide-react";
 import { renderMarkdownToHTML } from "@/lib/markdown";
 import { interviewAPI } from "@/lib/api";
 import Image from "next/image";
 
-let micPermissionGranted = false;
 
-const getSpeechRecognition = () => {
-  const SpeechRecognition =
-    (window as any).SpeechRecognition ||
-    (window as any).webkitSpeechRecognition;
-  return SpeechRecognition ? new SpeechRecognition() : null;
-};
 
 export default function VoiceInterviewPage() {
   const { user, signOut } = useAuth();
@@ -38,17 +22,11 @@ export default function VoiceInterviewPage() {
   const { interviewData } = useInterview();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
-  const [transcript, setTranscript] = useState("");
-  const [speechError, setSpeechError] = useState("");
-  const [micDisabled, setMicDisabled] = useState(false); // disables mic during AI speech
-  const transcriptRef = useRef("");
+  const [micDisabled, setMicDisabled] = useState(false);
   const [aiResponse, setAiResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const [recognition, setRecognition] = useState<any>(null);
-  const [speechLang, setSpeechLang] = useState<string>("en-US");
-  const [lastSpokenText, setLastSpokenText] = useState("");
-  const sessionIdRef = useRef<string | null>(null); // Declare a ref for sessionId
+  const sessionIdRef = useRef<string | null>(null);
   const [endDisabled, setEndDisabled] = useState(false);
   const [summary, setSummary] = useState("");
   const [chatHistory, setChatHistory] = useState<
@@ -59,9 +37,10 @@ export default function VoiceInterviewPage() {
       reasoning?: string | null;
     }[]
   >([]);
-  const [pitch, setPitch] = useState(1);
-  const [rate, setRate] = useState(1);
-  const [volume, setVolume] = useState(1);
+  const [transcript, setTranscript] = useState("");
+  const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
+  const [ws, setWs] = useState<WebSocket | null>(null);
+  const [audioPlayer, setAudioPlayer] = useState<HTMLAudioElement | null>(null);
 
   // Initialize the interview session STARTING THE INTERVIEW
   const initializeInterview = async () => {
@@ -150,90 +129,99 @@ export default function VoiceInterviewPage() {
 
   // Handle microphone toggle (start/stop listening)
   // Handle microphone toggle (start/stop listening) with permission request
-  // Silence timeout ref
-  const silenceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Detect browser language for SpeechRecognition
-  useEffect(() => {
-    let lang = navigator.language || (navigator as any).userLanguage || "en-US";
-    // If language is just 'en', default to 'en-US' for best compatibility
-    if (lang === "en") lang = "en-US";
-    setSpeechLang(lang);
-  }, []);
 
+
+
+
+// WebRTC/WS audio streaming logic
 const toggleListening = async () => {
-  console.log("[TOGGLE] toggleListening called. isListening:", isListening, "micDisabled:", micDisabled);
-  if (!recognition) {
-    console.log("[TOGGLE] Speech Recognition not supported on this browser.");
-    alert("Speech Recognition not supported on this browser.");
+  if (isListening) {
+    setIsListening(false);
+    setMicDisabled(true);
+    if (audioStream) {
+      audioStream.getTracks().forEach((track) => track.stop());
+      setAudioStream(null);
+    }
+    setMicDisabled(false);
     return;
   }
-
-  if (isListening) {
-    console.log("[TOGGLE] Stopping listening. Current transcript:", transcriptRef.current);
-    if (silenceTimeoutRef.current) {
-      clearTimeout(silenceTimeoutRef.current);
-      console.log("[TOGGLE] Cleared silence timeout");
-    }
-  setMicDisabled(true);
-  console.log("[TOGGLE] Mic disabled");
-  setIsListening(false);
-  console.log("[TOGGLE] isListening set to false");
-    // Stop recognition and send response if transcript exists
-    const sr = recognition;
-  setIsLoading(true); // FIX: set loading before stop so onend doesn't re-enable mic
-  console.log("[TOGGLE] isLoading set to true before stop");
-  sr.stop();
-  console.log("[TOGGLE] recognition.stop() called");
-    if (transcriptRef.current && transcriptRef.current.trim() && !hasRespondedThisTurn) {
-      console.log("[TOGGLE] transcriptRef has value, sending response:", transcriptRef.current);
-  hasRespondedThisTurn = true;
-  console.log("[TOGGLE] hasRespondedThisTurn set to true");
-      handleRespond(transcriptRef.current.trim()).finally(() => {
-        console.log("[TOGGLE] handleRespond finished in stop branch");
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    setAudioStream(stream);
+    setIsListening(true);
+    setMicDisabled(false);
+    // Connect to backend WebSocket for streaming
+    const wsUrl = process.env.NEXT_PUBLIC_VOICE_WS_URL || "ws://localhost:3000/api/voice/webrtcSignaling";
+    const wsConn = new window.WebSocket(wsUrl);
+    setWs(wsConn);
+    wsConn.onopen = () => {
+      wsConn.send(JSON.stringify({ type: "join", sessionId: sessionIdRef.current }));
+      // Stream audio to backend
+      const audioCtx = new window.AudioContext();
+      const source = audioCtx.createMediaStreamSource(stream);
+      const processor = audioCtx.createScriptProcessor(4096, 1, 1);
+      source.connect(processor);
+      processor.connect(audioCtx.destination);
+      processor.onaudioprocess = (e: any) => {
+        if (!isListening) return;
+        const input = e.inputBuffer.getChannelData(0);
+        const buf = new Int16Array(input.length);
+        for (let i = 0; i < input.length; i++) {
+          buf[i] = Math.max(-1, Math.min(1, input[i])) * 32767;
+        }
+        wsConn.send(JSON.stringify({ type: "audio", audio: btoa(String.fromCharCode(...new Uint8Array(buf.buffer))) }));
+      };
+    };
+    wsConn.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === "partial_transcript") {
+        setTranscript(data.text);
+      } else if (data.type === "final_transcript") {
         setTranscript("");
-        transcriptRef.current = "";
-        setIsLoading(false);
-        setMicDisabled(false);
-      });
-    } else {
-  setMicDisabled(false);
-  setIsLoading(false);
-  console.log("[TOGGLE] No transcript, mic enabled, loading false");
-    }
-  } else {
-    console.log("[TOGGLE] Starting listening");
-    try {
-      if (!micPermissionGranted) {
-        console.log("[TOGGLE] Requesting mic permission");
-        await navigator.mediaDevices.getUserMedia({ audio: true });
-        console.log("[TOGGLE] Mic permission granted");
+        setChatHistory((prev) => [...prev, { from: "user", text: data.text }]);
+      } else if (data.type === "ai_stream") {
+        // Streamed AI text: update the last AI message or add a new one if needed
+        setChatHistory((prev) => {
+          const last = prev[prev.length - 1];
+          if (last && last.from === "ai") {
+            // Update the last AI message
+            return [
+              ...prev.slice(0, -1),
+              { ...last, text: data.text },
+            ];
+          } else {
+            // Add a new AI message
+            return [...prev, { from: "ai", text: data.text }];
+          }
+        });
+        setAiResponse(data.text);
+      } else if (data.type === "audio") {
+        // Play audio chunk
+        const audioData = Uint8Array.from(atob(data.data), (c) => c.charCodeAt(0));
+        const blob = new Blob([audioData], { type: "audio/wav" });
+        const url = URL.createObjectURL(blob);
+        let player = audioPlayer;
+        if (!player) {
+          player = new Audio();
+          setAudioPlayer(player);
+        }
+        player.src = url;
+        player.play();
+      } else if (data.type === "audio_end") {
+        // Optionally handle end of audio
       }
-  setTranscript("");
-  console.log("[TOGGLE] Transcript cleared for new listening");
-  transcriptRef.current = "";
-  console.log("[TOGGLE] transcriptRef cleared for new listening");
-  hasRespondedThisTurn = false;
-  console.log("[TOGGLE] hasRespondedThisTurn set to false");
-      try {
-        console.log("[TOGGLE] Starting recognition.start()");
-        recognition.start();
-        micPermissionGranted = true;
-        setIsListening(true);
-        console.log("[TOGGLE] recognition started, isListening set to true");
-        // No initial silence timer here; timer is managed in onspeechstart/onresult
-      } catch (recErr) {
-        micPermissionGranted = false;
-        console.log("[TOGGLE] recognition.start() failed:", recErr);
-        alert("Microphone access is required. Please allow microphone permission in your browser settings.");
-        setIsListening(false);
-      }
-    } catch (err) {
-      micPermissionGranted = false;
-      console.log("[TOGGLE] getUserMedia failed:", err);
-      alert("Microphone access is required. Please allow microphone permission in your browser settings.");
+    };
+    wsConn.onclose = () => {
       setIsListening(false);
-    }
+      setMicDisabled(false);
+      setAudioStream(null);
+      setWs(null);
+    };
+  } catch (err) {
+    alert("Microphone access is required. Please allow microphone permission in your browser settings.");
+    setIsListening(false);
+    setMicDisabled(false);
   }
 };
 
@@ -260,167 +248,16 @@ const toggleListening = async () => {
     }
   };
 
-  // Speak out AI response
-  const speakText = (text: string) => {
-    console.log("[SPEAK] speakText called with:", text);
-    if (!text || "speechSynthesis" in window === false) {
-      console.log("[SPEAK] No text or speechSynthesis not supported");
-      return;
-    }
 
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.pitch = pitch;
-    utterance.rate = rate;
-    utterance.volume = volume;
-
-
-    utterance.onstart = () => {
-      setMicDisabled(true);
-      console.log("[SPEAK] Speech synthesis started, mic disabled");
-    };
-    utterance.onend = () => {
-      setMicDisabled(false);
-      console.log("[SPEAK] Speech synthesis ended, mic enabled");
-      // Immediately start listening for the user's next response
-      toggleListening();
-      console.log("[SPEAK] Called toggleListening after speech synthesis");
-    };
-
-  speechSynthesis.cancel();
-  console.log("[SPEAK] speechSynthesis.cancel() called");
-  speechSynthesis.speak(utterance);
-  console.log("[SPEAK] speechSynthesis.speak() called");
-  };
-
+  // No browser TTS; audio is streamed from backend and played automatically
   const speakResponse = () => {
-    console.log("[SPEAK] speakResponse called");
-  speakText(aiResponse);
-  setLastSpokenText(aiResponse); // update last spoken manually
-  console.log("[SPEAK] lastSpokenText set to:", aiResponse);
+    // Optionally replay last AI audio if needed
+    // (Implementation depends on how you want to handle replay)
   };
 
-  // Initialize interview when the component mounts
-  useEffect(() => {
-    if (!aiResponse || aiResponse === lastSpokenText) {
-      console.log("[EFFECT] aiResponse unchanged or already spoken");
-      return;
-    }
-    console.log("[EFFECT] New aiResponse detected, speaking:", aiResponse);
-    speakText(aiResponse);
-    setLastSpokenText(aiResponse);
-    console.log("[EFFECT] lastSpokenText updated");
-  }, [aiResponse, lastSpokenText]);
 
-  //same thing
-  useEffect(() => {
-    const sr = getSpeechRecognition();
-    if (!sr) {
-      console.log("[EFFECT] getSpeechRecognition returned null");
-      return;
-    }
-    console.log("[EFFECT] getSpeechRecognition returned instance");
 
-    sr.lang = "en-US";
-    sr.continuous = true;
-    sr.interimResults = false;
 
-    sr.onspeechstart = () => {
-      console.log("[SR] onspeechstart fired");
-      // Only clear/reset any existing timer, do not schedule the finalizer here
-      if (silenceTimeoutRef.current) {
-        clearTimeout(silenceTimeoutRef.current);
-        console.log("[SR] Cleared silence timeout on speechstart");
-      }
-    };
-
-    sr.onresult = (event: any) => {
-      console.log("[SR] onresult fired. event:", event);
-      // Accumulate transcript, do not stop or finalize here
-      let result = "";
-      for (let i = 0; i < event.results.length; i++) {
-        result += event.results[i][0].transcript + " ";
-      }
-      result = result.trim();
-      transcriptRef.current = result;
-      setTranscript(result);
-      console.log("[SR] Transcript updated:", result);
-      // Reset silence timer for 3s after last speech
-      if (silenceTimeoutRef.current) {
-        clearTimeout(silenceTimeoutRef.current);
-        silenceTimeoutRef.current = null;
-        console.log("[SR] Cleared silence timeout before setting new");
-      }
-      silenceTimeoutRef.current = setTimeout(() => {
-        console.log("[SR] Silence timeout fired. hasRespondedThisTurn:", hasRespondedThisTurn, "transcriptRef:", transcriptRef.current);
-        if (!hasRespondedThisTurn && transcriptRef.current.trim()) {
-          hasRespondedThisTurn = true;
-          setIsListening(false);
-          setMicDisabled(true);
-          setIsLoading(true); // FIX: set loading before stop so onend doesn't re-enable mic
-          sr.stop();
-          console.log("[SR] Stopping recognition and sending response:", transcriptRef.current);
-          handleRespond(transcriptRef.current.trim()).finally(() => {
-            setTranscript("");
-            transcriptRef.current = "";
-            setIsLoading(false);
-            setMicDisabled(false);
-            console.log("[SR] handleRespond finished in silence timeout");
-          });
-        } else {
-          setTranscript("");
-          transcriptRef.current = "";
-          setMicDisabled(false);
-          console.log("[SR] Silence timeout: no response sent, transcript cleared");
-        }
-      }, 3000);
-    };
-
-    sr.onerror = (error: any) => {
-      setIsListening(false);
-      // Only re-enable mic if not sending
-      if (!hasRespondedThisTurn && !isLoading) setMicDisabled(false);
-      if (silenceTimeoutRef.current) {
-        clearTimeout(silenceTimeoutRef.current);
-        silenceTimeoutRef.current = null;
-        console.log("[SR] Cleared silence timeout on error");
-      }
-      console.error("[SR] Speech recognition error:", error);
-      let userMsg = "";
-      if (error.error === "not-allowed" || error.error === "denied") {
-        userMsg = "Microphone access denied. Please allow microphone permission in your browser settings.";
-      } else if (error.error === "no-speech") {
-        userMsg = "No speech detected. Please try again and speak clearly.";
-      } else if (error.error === "audio-capture") {
-        userMsg = "No microphone was found. Please ensure a microphone is connected.";
-      } else if (error.error === "aborted") {
-        userMsg = "Speech recognition was aborted. Please try again.";
-      } else if (error.error === "language-not-supported") {
-        userMsg = `Speech recognition language (${speechLang}) is not supported in your browser.`;
-      } else {
-        userMsg = `Speech recognition error: ${error.error}`;
-      }
-      setSpeechError(userMsg);
-    };
-
-    sr.onend = () => {
-      setIsListening(false);
-      // Only re-enable mic if not sending
-      if (!hasRespondedThisTurn && !isLoading) setMicDisabled(false);
-      if (silenceTimeoutRef.current) {
-        clearTimeout(silenceTimeoutRef.current);
-        silenceTimeoutRef.current = null;
-        console.log("[SR] Cleared silence timeout on end");
-      }
-      setTranscript("");
-      transcriptRef.current = "";
-      console.log("[SR] onend fired, transcript cleared");
-    };
-
-    // Set language dynamically
-    sr.lang = speechLang;
-    setRecognition(sr);
-    console.log("[EFFECT] SpeechRecognition instance set with lang:", speechLang);
-  }, []);
 
   //use effect to start interview
   useEffect(() => {
@@ -614,99 +451,9 @@ const toggleListening = async () => {
       <div className="w-screen px-0 py-8">
         <div className="space-y-6 w-screen">
           {/* Speech Recognition Error Message */}
-          {speechError && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-center" role="alert">
-              <span className="block sm:inline">{speechError}</span>
-              <button
-                className="absolute top-0 bottom-0 right-0 px-4 py-3"
-                onClick={() => setSpeechError("")}
-                aria-label="Close"
-              >
-                <span aria-hidden="true">&times;</span>
-              </button>
-            </div>
-          )}
+
           {/* Voice Controls Card */}
-          <Card className="border-gray-200 shadow-sm">
-            <CardHeader className="bg-blue-50 border-b">
-              <CardTitle className="flex items-center space-x-2 text-blue-900">
-                <Settings className="h-5 w-5" />
-                <span>Voice Controls</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-4">
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2">
-                  <label className="text-sm w-16 font-medium">Pitch</label>
-                  <input
-                    type="range"
-                    min="0"
-                    max="2"
-                    step="0.1"
-                    value={pitch}
-                    onChange={(e) => {
-                      const newPitch = parseFloat(e.target.value);
-                      setPitch(newPitch);
-                      speechSynthesis.cancel();
-                      speakText(aiResponse);
-                      setLastSpokenText(aiResponse);
-                    }}
-                    className="w-full h-1 appearance-none bg-blue-200 rounded-md [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-600"
-                  />
-                  <span className="text-xs w-8 text-right">
-                    {pitch.toFixed(1)}
-                  </span>
-                </div>
 
-                <div className="flex items-center space-x-2">
-                  <label className="text-sm w-16 font-medium">Rate</label>
-                  <input
-                    type="range"
-                    min="0.5"
-                    max="2"
-                    step="0.1"
-                    value={rate}
-                    onChange={(e) => {
-                      const newRate = parseFloat(e.target.value);
-                      setRate(newRate);
-                      speechSynthesis.cancel();
-                      speakText(aiResponse);
-                      setLastSpokenText(aiResponse);
-                    }}
-                    className="w-full h-1 appearance-none bg-blue-200 rounded-md [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-600"
-                  />
-                  <span className="text-xs w-8 text-right">
-                    {rate.toFixed(1)}
-                  </span>
-                </div>
-
-                <div className="flex items-center space-x-2">
-                  <label className="text-sm w-16 font-medium">Volume</label>
-                  <input
-                    type="range"
-                    min="0"
-                    max="1"
-                    step="0.1"
-                    value={volume}
-                    onChange={(e) => {
-                      const newVolume = parseFloat(e.target.value);
-                      setVolume(newVolume);
-                      speechSynthesis.cancel();
-                      speakText(aiResponse);
-                      setLastSpokenText(aiResponse);
-                    }}
-                    className="w-full h-1 appearance-none bg-blue-200 rounded-md [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:h-4 [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-blue-600"
-                  />
-                  <span className="text-xs w-8 text-right">
-                    {volume.toFixed(1)}
-                  </span>
-                </div>
-                <p className="text-sm text-gray-500 text-center">
-                  Adjust voice settings to match your preference.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
 
           <Card>
             <CardContent className="p-6 space-y-4">
