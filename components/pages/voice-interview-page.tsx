@@ -137,6 +137,7 @@ export default function VoiceInterviewPage() {
 // WebRTC/WS audio streaming logic
 const toggleListening = async () => {
   if (isListening) {
+    console.log('[MIC] Stopping listening');
     setIsListening(false);
     setMicDisabled(true);
     if (audioStream) {
@@ -147,15 +148,18 @@ const toggleListening = async () => {
     return;
   }
   setMicDisabled(true); // Button is greyed out while handshake is pending
-  // Connect to backend WebSocket for streaming using voiceAPI
+  console.log('[WS] Opening WebSocket connection...');
   const wsConn = voiceAPI.connectWebSocket(
     sessionIdRef.current,
     async (event) => {
       const data = JSON.parse(event.data);
       if (data.type === "joined") {
+        console.log('[WS] Received "joined" from backend. Requesting mic...');
         // Only request mic and start audio streaming after receiving 'joined' from backend
         try {
+          console.log('[MIC] Requesting microphone access...');
           const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          console.log('[MIC] Microphone granted. Starting audio streaming.');
           setAudioStream(stream);
           setIsListening(true); // Only set isListening after handshake
           setMicDisabled(false); // Enable button after handshake
@@ -212,15 +216,19 @@ const toggleListening = async () => {
     },
     () => {
       // onOpen: send join message only
+      console.log('[WS] WebSocket opened. Sending "join" message...');
       if (wsConn.readyState === 1) {
         wsConn.send(JSON.stringify({ type: "join", sessionId: sessionIdRef.current }));
+        console.log('[WS] "join" message sent:', { type: "join", sessionId: sessionIdRef.current });
       } else {
         wsConn.addEventListener("open", () => {
           wsConn.send(JSON.stringify({ type: "join", sessionId: sessionIdRef.current }));
+          console.log('[WS] "join" message sent (after open):', { type: "join", sessionId: sessionIdRef.current });
         }, { once: true });
       }
     },
     () => {
+      console.log('[WS] WebSocket closed. Cleaning up.');
       setIsListening(false);
       setMicDisabled(false);
       setAudioStream(null);
