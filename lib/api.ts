@@ -1,7 +1,7 @@
 import { createSupabaseClient } from './supabase';
 
 // Get the backend URL from environment
-const getBackendUrl = () => {
+export const getBackendUrl = () => {
   return process.env.NEXT_PUBLIC_BACKEND_URL;
 };
 
