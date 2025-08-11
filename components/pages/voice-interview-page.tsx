@@ -147,7 +147,7 @@ const toggleListening = async () => {
     return;
   }
   try {
-    setMicDisabled(true);
+    setMicDisabled(true); // Button is greyed out while handshake is pending
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     setAudioStream(stream);
 
@@ -159,7 +159,7 @@ const toggleListening = async () => {
         if (data.type === "joined") {
           // Only start audio streaming after receiving 'joined' from backend
           setIsListening(true); // Only set isListening after handshake
-          setMicDisabled(false);
+          setMicDisabled(false); // Enable button after handshake
           const audioCtx = new window.AudioContext();
           const source = audioCtx.createMediaStreamSource(stream);
           const processor = audioCtx.createScriptProcessor(4096, 1, 1);
