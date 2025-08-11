@@ -144,6 +144,11 @@ const toggleListening = async () => {
     console.log('[MIC] Stopping listening');
     setIsListening(false);
     setMicDisabled(true);
+    // Send stop message to backend
+    if (ws && ws.readyState === 1) {
+      ws.send(JSON.stringify({ type: 'stop' }));
+      console.log('[WS] Sent stop message to backend');
+    }
     // Stop silence timer
     if (silenceTimeoutRef.current) {
       clearTimeout(silenceTimeoutRef.current);
@@ -211,6 +216,11 @@ const toggleListening = async () => {
         silenceTimeoutRef.current = setTimeout(() => {
           if (Date.now() - lastNonSilent >= 3000) {
             console.log('[MIC] Detected 3 seconds of silence, stopping...');
+            // Send stop message to backend
+            if (ws && ws.readyState === 1) {
+              ws.send(JSON.stringify({ type: 'stop' }));
+              console.log('[WS] Sent stop message to backend (silence)');
+            }
             setIsListening(false);
             setMicDisabled(true);
             if (audioStream) {
