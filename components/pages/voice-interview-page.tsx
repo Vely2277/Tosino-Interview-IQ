@@ -151,77 +151,80 @@ const toggleListening = async () => {
     setAudioStream(stream);
     setIsListening(true);
     setMicDisabled(false);
-  // Connect to backend WebSocket for streaming using voiceAPI
-  const wsConn = voiceAPI.connectWebSocket(
-    sessionIdRef.current,
-    (event) => {
-      const data = JSON.parse(event.data);
-      if (data.type === "partial_transcript") {
-        setTranscript(data.text);
-      } else if (data.type === "final_transcript") {
-        setTranscript("");
-        setChatHistory((prev) => [...prev, { from: "user", text: data.text }]);
-      } else if (data.type === "ai_stream") {
-        setChatHistory((prev) => {
-          const last = prev[prev.length - 1];
-          if (last && last.from === "ai") {
-            return [
-              ...prev.slice(0, -1),
-              { ...last, text: data.text },
-            ];
-          } else {
-            return [...prev, { from: "ai", text: data.text }];
+
+    // Connect to backend WebSocket for streaming using voiceAPI
+    const wsConn = voiceAPI.connectWebSocket(
+      sessionIdRef.current,
+      (event) => {
+        const data = JSON.parse(event.data);
+        if (data.type === "joined") {
+          // Only start audio streaming after receiving 'joined' from backend
+          const audioCtx = new window.AudioContext();
+          const source = audioCtx.createMediaStreamSource(stream);
+          const processor = audioCtx.createScriptProcessor(4096, 1, 1);
+          source.connect(processor);
+          processor.connect(audioCtx.destination);
+          processor.onaudioprocess = (e) => {
+            if (!isListening) return;
+            const input = e.inputBuffer.getChannelData(0);
+            const buf = new Int16Array(input.length);
+            for (let i = 0; i < input.length; i++) {
+              buf[i] = Math.max(-1, Math.min(1, input[i])) * 32767 | 0;
+            }
+            // Send raw PCM audio as binary for best quality and speed
+            if (wsConn.readyState === 1) {
+              wsConn.send(buf.buffer);
+            }
+          };
+        } else if (data.type === "partial_transcript") {
+          setTranscript(data.text);
+        } else if (data.type === "final_transcript") {
+          setTranscript("");
+          setChatHistory((prev) => [...prev, { from: "user", text: data.text }]);
+        } else if (data.type === "ai_stream") {
+          setChatHistory((prev) => {
+            const last = prev[prev.length - 1];
+            if (last && last.from === "ai") {
+              return [
+                ...prev.slice(0, -1),
+                { ...last, text: data.text },
+              ];
+            } else {
+              return [...prev, { from: "ai", text: data.text }];
+            }
+          });
+          setAiResponse(data.text);
+        } else if (data.type === "audio") {
+          const audioData = Uint8Array.from(atob(data.data), (c) => c.charCodeAt(0));
+          const blob = new Blob([audioData], { type: "audio/wav" });
+          const url = URL.createObjectURL(blob);
+          let player = audioPlayer;
+          if (!player) {
+            player = new Audio();
+            setAudioPlayer(player);
           }
-        });
-        setAiResponse(data.text);
-      } else if (data.type === "audio") {
-        const audioData = Uint8Array.from(atob(data.data), (c) => c.charCodeAt(0));
-        const blob = new Blob([audioData], { type: "audio/wav" });
-        const url = URL.createObjectURL(blob);
-        let player = audioPlayer;
-        if (!player) {
-          player = new Audio();
-          setAudioPlayer(player);
+          player.src = url;
+          player.play();
         }
-        player.src = url;
-        player.play();
-      }
-    },
-    () => {
-      // onOpen: send join message, then stream audio to backend
-      if (wsConn.readyState === 1) {
-        wsConn.send(JSON.stringify({ type: "join", sessionId: sessionIdRef.current }));
-      } else {
-        wsConn.addEventListener("open", () => {
-          wsConn.send(JSON.stringify({ type: "join", sessionId: sessionIdRef.current }));
-        }, { once: true });
-      }
-      const audioCtx = new window.AudioContext();
-      const source = audioCtx.createMediaStreamSource(stream);
-      const processor = audioCtx.createScriptProcessor(4096, 1, 1);
-      source.connect(processor);
-      processor.connect(audioCtx.destination);
-      processor.onaudioprocess = (e) => {
-        if (!isListening) return;
-        const input = e.inputBuffer.getChannelData(0);
-        const buf = new Int16Array(input.length);
-        for (let i = 0; i < input.length; i++) {
-          buf[i] = Math.max(-1, Math.min(1, input[i])) * 32767 | 0;
-        }
-        // Send raw PCM audio as binary for best quality and speed
+      },
+      () => {
+        // onOpen: send join message only
         if (wsConn.readyState === 1) {
-          wsConn.send(buf.buffer);
+          wsConn.send(JSON.stringify({ type: "join", sessionId: sessionIdRef.current }));
+        } else {
+          wsConn.addEventListener("open", () => {
+            wsConn.send(JSON.stringify({ type: "join", sessionId: sessionIdRef.current }));
+          }, { once: true });
         }
-      };
-    },
-    () => {
-      setIsListening(false);
-      setMicDisabled(false);
-      setAudioStream(null);
-      setWs(null);
-    }
-  );
-  setWs(wsConn);
+      },
+      () => {
+        setIsListening(false);
+        setMicDisabled(false);
+        setAudioStream(null);
+        setWs(null);
+      }
+    );
+    setWs(wsConn);
   } catch (err) {
     alert("Microphone access is required. Please allow microphone permission in your browser settings.");
     setIsListening(false);
