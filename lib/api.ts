@@ -10,7 +10,18 @@ export const voiceAPI = {
     ws.onmessage = (event) => {
       if (onMessage) onMessage(event, ws);
     };
-    ws.onclose = () => {
+    ws.onerror = (event) => {
+      // Log detailed error for debugging
+      console.error("WebSocket connection error:", event);
+      if (ws.readyState === 3) {
+        console.error("WebSocket connection failed: Unable to connect to backend WebSocket server at", wsUrl);
+        alert("Unable to connect to the voice server. Please check your backend deployment and WebSocket URL.");
+      }
+    };
+    ws.onclose = (event) => {
+      if (event && event.code !== 1000) {
+        console.error("WebSocket closed unexpectedly:", event);
+      }
       if (onClose) onClose(ws);
     };
     return ws;
