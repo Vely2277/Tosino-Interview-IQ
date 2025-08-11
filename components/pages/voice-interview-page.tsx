@@ -149,20 +149,29 @@ const toggleListening = async () => {
       clearTimeout(silenceTimeoutRef.current);
       silenceTimeoutRef.current = null;
     }
-    // Stop audio stream
+    // Bulletproof mic cleanup
     if (audioStream) {
-      audioStream.getTracks().forEach((track) => track.stop());
+      try {
+        audioStream.getTracks().forEach((track) => {
+          track.stop();
+          console.log('[MIC] Track stopped:', track.kind);
+        });
+      } catch (e) { console.warn('[MIC] Error stopping tracks:', e); }
       setAudioStream(null);
     }
-    // Disconnect processor
     if (processorRef.current) {
-      processorRef.current.disconnect();
-      processorRef.current.onaudioprocess = null;
+      try {
+        processorRef.current.disconnect();
+        processorRef.current.onaudioprocess = null;
+        console.log('[MIC] Processor disconnected and cleared');
+      } catch (e) { console.warn('[MIC] Error disconnecting processor:', e); }
       processorRef.current = null;
     }
-    // Close audio context
     if (audioCtxRef.current) {
-      audioCtxRef.current.close();
+      try {
+        audioCtxRef.current.close();
+        console.log('[MIC] AudioContext closed');
+      } catch (e) { console.warn('[MIC] Error closing AudioContext:', e); }
       audioCtxRef.current = null;
     }
     // DO NOT close WebSocket here! Keep it open for session.
