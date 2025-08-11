@@ -41,6 +41,10 @@ export default function VoiceInterviewPage() {
   const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
   const [ws, setWs] = useState<WebSocket | null>(null);
   const [audioPlayer, setAudioPlayer] = useState<HTMLAudioElement | null>(null);
+  const audioCtxRef = useRef<AudioContext | null>(null);
+  const processorRef = useRef<ScriptProcessorNode | null>(null);
+  const silenceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const wsReadyRef = useRef(false);
 
   // Initialize the interview session STARTING THE INTERVIEW
   const initializeInterview = async () => {
@@ -140,42 +144,156 @@ const toggleListening = async () => {
     console.log('[MIC] Stopping listening');
     setIsListening(false);
     setMicDisabled(true);
+    // Stop silence timer
+    if (silenceTimeoutRef.current) {
+      clearTimeout(silenceTimeoutRef.current);
+      silenceTimeoutRef.current = null;
+    }
+    // Stop audio stream
     if (audioStream) {
       audioStream.getTracks().forEach((track) => track.stop());
       setAudioStream(null);
     }
+    // Disconnect processor
+    if (processorRef.current) {
+      processorRef.current.disconnect();
+      processorRef.current.onaudioprocess = null;
+      processorRef.current = null;
+    }
+    // Close audio context
+    if (audioCtxRef.current) {
+      audioCtxRef.current.close();
+      audioCtxRef.current = null;
+    }
+    // DO NOT close WebSocket here! Keep it open for session.
     setMicDisabled(false);
     return;
   }
   setMicDisabled(true); // Button is greyed out while handshake is pending
+  // If ws already exists and is open, just start mic streaming
+  if (ws && ws.readyState === 1) {
+    // Already joined, just start mic
+    try {
+      console.log('[MIC] Requesting microphone access...');
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      console.log('[MIC] Microphone granted. Starting audio streaming.');
+      setAudioStream(stream);
+      setIsListening(true);
+      setMicDisabled(false);
+      const audioCtx = new window.AudioContext();
+      audioCtxRef.current = audioCtx;
+      const source = audioCtx.createMediaStreamSource(stream);
+      const processor = audioCtx.createScriptProcessor(4096, 1, 1);
+      processorRef.current = processor;
+      source.connect(processor);
+      processor.connect(audioCtx.destination);
+      let lastNonSilent = Date.now();
+      processor.onaudioprocess = (e) => {
+        if (!ws || ws.readyState !== 1) return;
+        const input = e.inputBuffer.getChannelData(0);
+        let silent = true;
+        for (let i = 0; i < input.length; i++) {
+          if (Math.abs(input[i]) > 0.01) { silent = false; break; }
+        }
+        if (!silent) {
+          lastNonSilent = Date.now();
+        }
+        if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
+        silenceTimeoutRef.current = setTimeout(() => {
+          if (Date.now() - lastNonSilent >= 3000) {
+            console.log('[MIC] Detected 3 seconds of silence, stopping...');
+            setIsListening(false);
+            setMicDisabled(true);
+            if (audioStream) {
+              audioStream.getTracks().forEach((track) => track.stop());
+              setAudioStream(null);
+            }
+            if (processorRef.current) {
+              processorRef.current.disconnect();
+              processorRef.current.onaudioprocess = null;
+              processorRef.current = null;
+            }
+            if (audioCtxRef.current) {
+              audioCtxRef.current.close();
+              audioCtxRef.current = null;
+            }
+            setMicDisabled(false);
+          }
+        }, 3100);
+        const buf = new Int16Array(input.length);
+        for (let i = 0; i < input.length; i++) {
+          buf[i] = Math.max(-1, Math.min(1, input[i])) * 32767 | 0;
+        }
+        ws.send(buf.buffer);
+      };
+    } catch (err) {
+      alert("Microphone access is required. Please allow microphone permission in your browser settings.");
+      setIsListening(false);
+      setMicDisabled(false);
+    }
+    return;
+  }
+  // Otherwise, open a new WebSocket and join
   console.log('[WS] Opening WebSocket connection...');
   const wsConn = voiceAPI.connectWebSocket(
     sessionIdRef.current,
     async (event) => {
       const data = JSON.parse(event.data);
       if (data.type === "joined") {
-        console.log('[WS] Received "joined" from backend. Requesting mic...');
-        // Only request mic and start audio streaming after receiving 'joined' from backend
+        wsReadyRef.current = true;
+        setWs(wsConn);
+        // Now start mic
         try {
           console.log('[MIC] Requesting microphone access...');
           const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
           console.log('[MIC] Microphone granted. Starting audio streaming.');
           setAudioStream(stream);
-          setIsListening(true); // Only set isListening after handshake
-          setMicDisabled(false); // Enable button after handshake
+          setIsListening(true);
+          setMicDisabled(false);
           const audioCtx = new window.AudioContext();
+          audioCtxRef.current = audioCtx;
           const source = audioCtx.createMediaStreamSource(stream);
           const processor = audioCtx.createScriptProcessor(4096, 1, 1);
+          processorRef.current = processor;
           source.connect(processor);
           processor.connect(audioCtx.destination);
+          let lastNonSilent = Date.now();
           processor.onaudioprocess = (e) => {
             if (!wsConn || wsConn.readyState !== 1) return;
             const input = e.inputBuffer.getChannelData(0);
+            let silent = true;
+            for (let i = 0; i < input.length; i++) {
+              if (Math.abs(input[i]) > 0.01) { silent = false; break; }
+            }
+            if (!silent) {
+              lastNonSilent = Date.now();
+            }
+            if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
+            silenceTimeoutRef.current = setTimeout(() => {
+              if (Date.now() - lastNonSilent >= 3000) {
+                console.log('[MIC] Detected 3 seconds of silence, stopping...');
+                setIsListening(false);
+                setMicDisabled(true);
+                if (audioStream) {
+                  audioStream.getTracks().forEach((track) => track.stop());
+                  setAudioStream(null);
+                }
+                if (processorRef.current) {
+                  processorRef.current.disconnect();
+                  processorRef.current.onaudioprocess = null;
+                  processorRef.current = null;
+                }
+                if (audioCtxRef.current) {
+                  audioCtxRef.current.close();
+                  audioCtxRef.current = null;
+                }
+                setMicDisabled(false);
+              }
+            }, 3100);
             const buf = new Int16Array(input.length);
             for (let i = 0; i < input.length; i++) {
               buf[i] = Math.max(-1, Math.min(1, input[i])) * 32767 | 0;
             }
-            // Send raw PCM audio as binary for best quality and speed
             wsConn.send(buf.buffer);
           };
         } catch (err) {
@@ -229,13 +347,14 @@ const toggleListening = async () => {
     },
     () => {
       console.log('[WS] WebSocket closed. Cleaning up.');
+      wsReadyRef.current = false;
       setIsListening(false);
       setMicDisabled(false);
       setAudioStream(null);
       setWs(null);
     }
   );
-  setWs(wsConn);
+  // Don't setWs(wsConn) here, only after joined
 };
 
   // End the interview session
