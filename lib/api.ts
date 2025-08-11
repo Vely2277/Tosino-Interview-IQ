@@ -30,7 +30,8 @@ import { createSupabaseClient } from './supabase';
 
 // Get the backend URL from environment
 export const getBackendUrl = () => {
-  return process.env.NEXT_PUBLIC_BACKEND_URL;
+  // Hardcoded for debugging as requested
+  return "https://v0-remember-last-app.vercel.app";
 };
 
 // Get the current session and access token
