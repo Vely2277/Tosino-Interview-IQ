@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mic, MicOff, ArrowLeft, Volume2, Menu, X, Settings } from "lucide-react";
 import { renderMarkdownToHTML } from "@/lib/markdown";
-import { interviewAPI, getBackendUrl } from "@/lib/api";
+import { interviewAPI, getVoiceWebSocketUrl } from "@/lib/api";
 import Image from "next/image";
 
 
@@ -151,13 +151,9 @@ const toggleListening = async () => {
     setAudioStream(stream);
     setIsListening(true);
     setMicDisabled(false);
-    // Connect to backend WebSocket for streaming
-    const backendUrl = getBackendUrl();
-    if (!backendUrl) {
-      throw new Error("NEXT_PUBLIC_BACKEND_URL environment variable must be set for WebSocket connection.");
-    }
-    const wsUrl = backendUrl.replace(/^http/, "ws") + "/api/voice/webrtcSignaling";
-    const wsConn = new window.WebSocket(wsUrl);
+  // Connect to backend WebSocket for streaming
+  const wsUrl = getVoiceWebSocketUrl();
+  const wsConn = new window.WebSocket(wsUrl);
     setWs(wsConn);
     wsConn.onopen = () => {
       wsConn.send(JSON.stringify({ type: "join", sessionId: sessionIdRef.current }));

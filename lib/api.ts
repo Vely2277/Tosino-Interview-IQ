@@ -1,3 +1,13 @@
+// Utility to get the WebSocket URL for voice interview streaming
+export const getVoiceWebSocketUrl = () => {
+  const backendUrl = getBackendUrl();
+  if (!backendUrl) {
+    throw new Error("NEXT_PUBLIC_BACKEND_URL environment variable must be set for WebSocket connection.");
+  }
+  // Remove any trailing slash for consistency
+  const cleanBackendUrl = backendUrl.replace(/\/$/, "");
+  return cleanBackendUrl.replace(/^http/, "ws") + "/api/voice/webrtcSignaling";
+};
 import { createSupabaseClient } from './supabase';
 
 // Get the backend URL from environment
