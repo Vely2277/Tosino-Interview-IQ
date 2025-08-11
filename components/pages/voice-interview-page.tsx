@@ -140,53 +140,40 @@ export default function VoiceInterviewPage() {
 
 // WebRTC/WS audio streaming logic
 const toggleListening = async () => {
-  if (isListening) {
-    console.log('[MIC] Stopping listening');
-    setIsListening(false);
-    setMicDisabled(true); // Disable mic button after stop
-    // Send stop message to backend
+  console.log("toggleListening called, isListening:", isListening);
+
+  // Always stop mic if active
+  if (audioStream) {
     if (ws && ws.readyState === 1) {
       ws.send(JSON.stringify({ type: 'stop' }));
       console.log('[WS] Sent stop message to backend');
+    }
+    audioStream.getTracks().forEach(track => track.stop());
+    setAudioStream(null);
+    setIsListening(false);
+    setMicDisabled(true); // Optionally disable button after stop
+    if (processorRef.current) {
+      processorRef.current.disconnect();
+      processorRef.current.onaudioprocess = null;
+      processorRef.current = null;
+    }
+    if (audioCtxRef.current) {
+      audioCtxRef.current.close();
+      audioCtxRef.current = null;
     }
     // Stop silence timer
     if (silenceTimeoutRef.current) {
       clearTimeout(silenceTimeoutRef.current);
       silenceTimeoutRef.current = null;
     }
-    // Bulletproof mic cleanup
-    if (audioStream) {
-      try {
-        audioStream.getTracks().forEach((track) => {
-          track.stop();
-          console.log('[MIC] Track stopped:', track.kind);
-        });
-      } catch (e) { console.warn('[MIC] Error stopping tracks:', e); }
-      setAudioStream(null);
-    }
-    if (processorRef.current) {
-      try {
-        processorRef.current.disconnect();
-        processorRef.current.onaudioprocess = null;
-        console.log('[MIC] Processor disconnected and cleared');
-      } catch (e) { console.warn('[MIC] Error disconnecting processor:', e); }
-      processorRef.current = null;
-    }
-    if (audioCtxRef.current) {
-      try {
-        audioCtxRef.current.close();
-        console.log('[MIC] AudioContext closed');
-      } catch (e) { console.warn('[MIC] Error closing AudioContext:', e); }
-      audioCtxRef.current = null;
-    }
-    // DO NOT close WebSocket here! Keep it open for session.
-    // Mic is now fully disabled until user starts a new session or explicitly restarts
-    return;
+    console.log("Microphone stopped.");
+    return; // Exit here so we don't start a new one
   }
+
+  // Otherwise, start listening (if allowed)
   setMicDisabled(true); // Button is greyed out while handshake is pending
   // If ws already exists and is open, just start mic streaming
   if (ws && ws.readyState === 1) {
-    // Already joined, just start mic
     try {
       console.log('[MIC] Requesting microphone access...');
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -216,17 +203,16 @@ const toggleListening = async () => {
         silenceTimeoutRef.current = setTimeout(() => {
           if (Date.now() - lastNonSilent >= 3000) {
             console.log('[MIC] Detected 3 seconds of silence, stopping...');
-            // Send stop message to backend
             if (ws && ws.readyState === 1) {
               ws.send(JSON.stringify({ type: 'stop' }));
               console.log('[WS] Sent stop message to backend (silence)');
             }
-            setIsListening(false);
-            setMicDisabled(true);
             if (audioStream) {
-              audioStream.getTracks().forEach((track) => track.stop());
+              audioStream.getTracks().forEach(track => track.stop());
               setAudioStream(null);
             }
+            setIsListening(false);
+            setMicDisabled(true);
             if (processorRef.current) {
               processorRef.current.disconnect();
               processorRef.current.onaudioprocess = null;
@@ -236,7 +222,11 @@ const toggleListening = async () => {
               audioCtxRef.current.close();
               audioCtxRef.current = null;
             }
-            setMicDisabled(false);
+            if (silenceTimeoutRef.current) {
+              clearTimeout(silenceTimeoutRef.current);
+              silenceTimeoutRef.current = null;
+            }
+            console.log("Microphone stopped (silence).");
           }
         }, 3100);
         const buf = new Int16Array(input.length);
@@ -252,6 +242,7 @@ const toggleListening = async () => {
     }
     return;
   }
+
   // Otherwise, open a new WebSocket and join
   console.log('[WS] Opening WebSocket connection...');
   const wsConn = voiceAPI.connectWebSocket(
@@ -291,12 +282,16 @@ const toggleListening = async () => {
             silenceTimeoutRef.current = setTimeout(() => {
               if (Date.now() - lastNonSilent >= 3000) {
                 console.log('[MIC] Detected 3 seconds of silence, stopping...');
-                setIsListening(false);
-                setMicDisabled(true);
+                if (wsConn && wsConn.readyState === 1) {
+                  wsConn.send(JSON.stringify({ type: 'stop' }));
+                  console.log('[WS] Sent stop message to backend (silence)');
+                }
                 if (audioStream) {
-                  audioStream.getTracks().forEach((track) => track.stop());
+                  audioStream.getTracks().forEach(track => track.stop());
                   setAudioStream(null);
                 }
+                setIsListening(false);
+                setMicDisabled(true);
                 if (processorRef.current) {
                   processorRef.current.disconnect();
                   processorRef.current.onaudioprocess = null;
@@ -306,7 +301,11 @@ const toggleListening = async () => {
                   audioCtxRef.current.close();
                   audioCtxRef.current = null;
                 }
-                setMicDisabled(false);
+                if (silenceTimeoutRef.current) {
+                  clearTimeout(silenceTimeoutRef.current);
+                  silenceTimeoutRef.current = null;
+                }
+                console.log("Microphone stopped (silence).");
               }
             }, 3100);
             const buf = new Int16Array(input.length);
