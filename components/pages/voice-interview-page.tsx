@@ -188,7 +188,14 @@ const toggleListening = async () => {
       }
     },
     () => {
-      // onOpen: stream audio to backend
+      // onOpen: send join message, then stream audio to backend
+      if (wsConn.readyState === 1) {
+        wsConn.send(JSON.stringify({ type: "join", sessionId: sessionIdRef.current }));
+      } else {
+        wsConn.addEventListener("open", () => {
+          wsConn.send(JSON.stringify({ type: "join", sessionId: sessionIdRef.current }));
+        }, { once: true });
+      }
       const audioCtx = new window.AudioContext();
       const source = audioCtx.createMediaStreamSource(stream);
       const processor = audioCtx.createScriptProcessor(4096, 1, 1);
