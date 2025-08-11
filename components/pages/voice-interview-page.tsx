@@ -199,9 +199,12 @@ const toggleListening = async () => {
         const input = e.inputBuffer.getChannelData(0);
         const buf = new Int16Array(input.length);
         for (let i = 0; i < input.length; i++) {
-          buf[i] = Math.max(-1, Math.min(1, input[i])) * 32767;
+          buf[i] = Math.max(-1, Math.min(1, input[i])) * 32767 | 0;
         }
-        wsConn.send(JSON.stringify({ type: "audio", audio: btoa(String.fromCharCode(...new Uint8Array(buf.buffer))) }));
+        // Send raw PCM audio as binary for best quality and speed
+        if (wsConn.readyState === 1) {
+          wsConn.send(buf.buffer);
+        }
       };
     },
     () => {
