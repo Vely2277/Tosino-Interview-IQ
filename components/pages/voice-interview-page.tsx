@@ -152,7 +152,11 @@ const toggleListening = async () => {
     setIsListening(true);
     setMicDisabled(false);
     // Connect to backend WebSocket for streaming
-    const wsUrl = process.env.NEXT_PUBLIC_VOICE_WS_URL || "ws://localhost:3000/api/voice/webrtcSignaling";
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+    if (!backendUrl) {
+      throw new Error("NEXT_PUBLIC_BACKEND_URL environment variable must be set for WebSocket connection.");
+    }
+    const wsUrl = backendUrl.replace(/^http/, "ws") + "/api/voice/webrtcSignaling";
     const wsConn = new window.WebSocket(wsUrl);
     setWs(wsConn);
     wsConn.onopen = () => {
