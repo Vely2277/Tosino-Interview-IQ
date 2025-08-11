@@ -143,7 +143,7 @@ const toggleListening = async () => {
   if (isListening) {
     console.log('[MIC] Stopping listening');
     setIsListening(false);
-    setMicDisabled(true);
+    setMicDisabled(true); // Disable mic button after stop
     // Send stop message to backend
     if (ws && ws.readyState === 1) {
       ws.send(JSON.stringify({ type: 'stop' }));
@@ -180,7 +180,7 @@ const toggleListening = async () => {
       audioCtxRef.current = null;
     }
     // DO NOT close WebSocket here! Keep it open for session.
-    setMicDisabled(false);
+    // Mic is now fully disabled until user starts a new session or explicitly restarts
     return;
   }
   setMicDisabled(true); // Button is greyed out while handshake is pending
