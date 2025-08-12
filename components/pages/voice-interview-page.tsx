@@ -1,8 +1,13 @@
+
 "use client";
 
 
 
 import { useState, useEffect, useRef } from "react";
+// WebRTC helpers
+function createPeerConnection() {
+  return new RTCPeerConnection();
+}
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import { useInterview } from "@/contexts/interview-context";
@@ -12,7 +17,6 @@ import { Mic, MicOff, ArrowLeft, Volume2, Menu, X, Settings } from "lucide-react
 import { renderMarkdownToHTML } from "@/lib/markdown";
 import { interviewAPI, voiceAPI } from "@/lib/api";
 import Image from "next/image";
-
 
 
 
@@ -39,41 +43,36 @@ export default function VoiceInterviewPage() {
   >([]);
   const [transcript, setTranscript] = useState("");
   const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
-  const [ws, setWs] = useState<WebSocket | null>(null);
+  // Remove ws state, use peer connection and data channel instead
+  const [pc, setPc] = useState<RTCPeerConnection | null>(null);
+  const [dataChannel, setDataChannel] = useState<RTCDataChannel | null>(null);
+  const [rtcId, setRtcId] = useState<string | null>(null);
   const [audioPlayer, setAudioPlayer] = useState<HTMLAudioElement | null>(null);
   const audioCtxRef = useRef<AudioContext | null>(null);
   const processorRef = useRef<ScriptProcessorNode | null>(null);
   const silenceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const wsReadyRef = useRef(false);
 
-  // NEW: ref that always points to the actual active MediaStream
-  const audioStreamRef = useRef<MediaStream | null>(null);
-
   // Initialize the interview session STARTING THE INTERVIEW
   const initializeInterview = async () => {
     console.log("[INIT] Initializing interview session");
-    setIsLoading(true);
-    console.log("[INIT] Loading state set to true");
+  setIsLoading(true);
+  console.log("[INIT] Loading state set to true");
     try {
-      console.log(
-        "[INIT] Calling interviewAPI.start with:",
+  console.log("[INIT] Calling interviewAPI.start with:", interviewData.jobTitle, interviewData.company, "voice");
+  const data = await interviewAPI.start(
         interviewData.jobTitle,
         interviewData.company,
         "voice"
       );
-      const data = await interviewAPI.start(
-        interviewData.jobTitle,
-        interviewData.company,
-        "voice"
-      );
-      console.log("[INIT] Received session data:", data);
-      setSessionId(data.sessionId);
+  console.log("[INIT] Received session data:", data);
+  setSessionId(data.sessionId);
       sessionIdRef.current = data.sessionId;
       console.log("Log session id:", data.sessionId);
       const id = data.sessionId;
       setSessionId(id);
-      setAiResponse(data.initialMessage); // Set the initial AI message
-      console.log("[INIT] Initial AI message:", data.initialMessage);
+  setAiResponse(data.initialMessage); // Set the initial AI message
+  console.log("[INIT] Initial AI message:", data.initialMessage);
       setChatHistory((prev) => [
         // ...existing code...
         ...prev,
@@ -95,20 +94,20 @@ export default function VoiceInterviewPage() {
     );
     // if (!sessionId) return;
 
-    setIsLoading(true);
-    console.log("[RESPOND] Loading state set to true");
+  setIsLoading(true);
+  console.log("[RESPOND] Loading state set to true");
     console.log("Sending user response to backend:", userResponse);
 
     try {
-      console.log("[RESPOND] session id ref:", sessionIdRef.current);
-      const data = await interviewAPI.respond(
+  console.log("[RESPOND] session id ref:", sessionIdRef.current);
+  const data = await interviewAPI.respond(
         sessionIdRef.current!,
         userResponse,
         "voice"
       );
 
-      console.log("[RESPOND] api call sent. waiting for response...");
-      console.log("[RESPOND] Received response from backend:", data);
+  console.log("[RESPOND] api call sent. waiting for response...");
+  console.log("[RESPOND] Received response from backend:", data);
 
       setChatHistory((prev) => [
         // ...existing code...
@@ -125,10 +124,10 @@ export default function VoiceInterviewPage() {
         },
       ]);
 
-      setAiResponse(data.aiResponse);
-      console.log("[RESPOND] AI response set:", data.aiResponse);
-      setTranscript("");
-      console.log("[RESPOND] Transcript cleared");
+  setAiResponse(data.aiResponse);
+  console.log("[RESPOND] AI response set:", data.aiResponse);
+  setTranscript("");
+  console.log("[RESPOND] Transcript cleared");
 
     } catch (error) {
       console.error("[RESPOND] Error in handleRespond:", error);
@@ -139,252 +138,144 @@ export default function VoiceInterviewPage() {
     }
   };
 
-  // ------------------------------------------------------------------
-  // AUDIO CLEANUP helper (NEW)
-  // Stops the actual device microphone (tracks), clears processor & audioCtx
-  // and resets related state/ref values.
-  // ------------------------------------------------------------------
-  const cleanupAudio = () => {
-    try {
-      if (silenceTimeoutRef.current) {
-        clearTimeout(silenceTimeoutRef.current);
-        silenceTimeoutRef.current = null;
-      }
+  // Handle microphone toggle (start/stop listening)
+  // Handle microphone toggle (start/stop listening) with permission request
 
-      const stream = audioStreamRef.current;
-      if (stream) {
-        console.log('[CLEANUP] stopping tracks on audioStreamRef.current');
-        stream.getTracks().forEach((t) => {
-          try { t.stop(); } catch (e) { console.warn('Error stopping track', e); }
-        });
-        audioStreamRef.current = null;
-      }
 
-      // also clear React state (UI)
-      setAudioStream(null);
 
-      if (processorRef.current) {
-        try { processorRef.current.disconnect(); } catch (e) { /* ignore */ }
-        processorRef.current.onaudioprocess = null;
-        processorRef.current = null;
-      }
 
-      if (audioCtxRef.current) {
-        try { audioCtxRef.current.close(); } catch (e) { /* ignore */ }
-        audioCtxRef.current = null;
-      }
 
-    } finally {
-      setIsListening(false);
-      setMicDisabled(false);
-      console.log('[CLEANUP] audio cleaned up and UI reset');
-    }
-  };
-
-  // WebRTC/WS audio streaming logic
-  const toggleListening = async () => {
-    console.log("toggleListening called, isListening:", isListening);
-
-    // If an actual active stream exists, stop it (use ref to avoid stale state)
-    if (audioStreamRef.current) {
-      if (ws && ws.readyState === 1) {
-        try { ws.send(JSON.stringify({ type: 'stop' })); } catch(e) {}
-        console.log('[WS] Sent stop message to backend');
-      }
-      cleanupAudio();
-      return; // Exit here so we don't start a new one
-    }
-
-    // Otherwise, start listening (if allowed)
-    setMicDisabled(true); // Button is greyed out while handshake is pending
-    // If ws already exists and is open, just start mic streaming
-    if (ws && ws.readyState === 1) {
+// WebRTC audio streaming logic
+const toggleListening = async () => {
+  if (isListening) {
+    setIsListening(false);
+    setMicDisabled(true);
+    if (audioStream) {
       try {
-        console.log('[MIC] Requesting microphone access...');
-        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        console.log('[MIC] Microphone granted. Starting audio streaming.');
-        setAudioStream(stream);
-        audioStreamRef.current = stream; // IMPORTANT: keep ref in sync with actual stream
-        setIsListening(true);
-        setMicDisabled(false);
-        const audioCtx = new window.AudioContext();
-        audioCtxRef.current = audioCtx;
-        const source = audioCtx.createMediaStreamSource(stream);
-        const processor = audioCtx.createScriptProcessor(4096, 1, 1);
-        processorRef.current = processor;
-        source.connect(processor);
-        processor.connect(audioCtx.destination);
-        let lastNonSilent = Date.now();
-        processor.onaudioprocess = (e) => {
-          if (!ws || ws.readyState !== 1) return;
-          const input = e.inputBuffer.getChannelData(0);
-          let silent = true;
-          for (let i = 0; i < input.length; i++) {
-            if (Math.abs(input[i]) > 0.01) { silent = false; break; }
+        audioStream.getTracks().forEach((track) => {
+          track.stop();
+          if (pc) {
+            const senders = pc.getSenders();
+            senders.forEach((sender) => {
+              if (sender.track === track) pc.removeTrack(sender);
+            });
           }
-          if (!silent) {
-            lastNonSilent = Date.now();
-          }
-          if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
-          silenceTimeoutRef.current = setTimeout(() => {
-            if (Date.now() - lastNonSilent >= 3000) {
-              console.log('[MIC] Detected 3 seconds of silence, stopping...');
-              if (ws && ws.readyState === 1) {
-                try { ws.send(JSON.stringify({ type: 'stop' })); } catch(e){}
-                console.log('[WS] Sent stop message to backend (silence)');
-              }
-              cleanupAudio();
-              console.log("Microphone stopped (silence).");
-            }
-          }, 3100);
-          const buf = new Int16Array(input.length);
-          for (let i = 0; i < input.length; i++) {
-            buf[i] = Math.max(-1, Math.min(1, input[i])) * 32767 | 0;
-          }
-          try { ws.send(buf.buffer); } catch(e) { /* ignore send errors */ }
-        };
-      } catch (err) {
-        alert("Microphone access is required. Please allow microphone permission in your browser settings.");
-        setIsListening(false);
-        setMicDisabled(false);
-      }
-      return;
+        });
+      } catch (e) { console.warn('[MIC] Error stopping tracks:', e); }
+      setAudioStream(null);
     }
-
-    // Otherwise, open a new WebSocket and join
-    console.log('[WS] Opening WebSocket connection...');
-    const wsConn = voiceAPI.connectWebSocket(
-      sessionIdRef.current,
-      async (event) => {
-        const data = JSON.parse(event.data);
-        if (data.type === "joined") {
-          wsReadyRef.current = true;
-          setWs(wsConn);
-          // Now start mic
-          try {
-            console.log('[MIC] Requesting microphone access...');
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            console.log('[MIC] Microphone granted. Starting audio streaming.');
-            setAudioStream(stream);
-            audioStreamRef.current = stream; // keep ref in sync
-            setIsListening(true);
-            setMicDisabled(false);
-            const audioCtx = new window.AudioContext();
-            audioCtxRef.current = audioCtx;
-            const source = audioCtx.createMediaStreamSource(stream);
-            const processor = audioCtx.createScriptProcessor(4096, 1, 1);
-            processorRef.current = processor;
-            source.connect(processor);
-            processor.connect(audioCtx.destination);
-            let lastNonSilent = Date.now();
-            processor.onaudioprocess = (e) => {
-              if (!wsConn || wsConn.readyState !== 1) return;
-              const input = e.inputBuffer.getChannelData(0);
-              let silent = true;
-              for (let i = 0; i < input.length; i++) {
-                if (Math.abs(input[i]) > 0.01) { silent = false; break; }
-              }
-              if (!silent) {
-                lastNonSilent = Date.now();
-              }
-              if (silenceTimeoutRef.current) clearTimeout(silenceTimeoutRef.current);
-              silenceTimeoutRef.current = setTimeout(() => {
-                if (Date.now() - lastNonSilent >= 3000) {
-                  console.log('[MIC] Detected 3 seconds of silence, stopping...');
-                  if (wsConn && wsConn.readyState === 1) {
-                    try { wsConn.send(JSON.stringify({ type: 'stop' })); } catch(e){}
-                    console.log('[WS] Sent stop message to backend (silence)');
-                  }
-                  cleanupAudio();
-                  console.log("Microphone stopped (silence).");
-                }
-              }, 3100);
-              const buf = new Int16Array(input.length);
-              for (let i = 0; i < input.length; i++) {
-                buf[i] = Math.max(-1, Math.min(1, input[i])) * 32767 | 0;
-              }
-              try { wsConn.send(buf.buffer); } catch(e) { /* ignore send errors */ }
-            };
-          } catch (err) {
-            alert("Microphone access is required. Please allow microphone permission in your browser settings.");
-            setIsListening(false);
-            setMicDisabled(false);
-          }
-        } else if (data.type === "partial_transcript") {
-          setTranscript(data.text);
-        } else if (data.type === "final_transcript") {
-          setTranscript("");
-          setChatHistory((prev) => [...prev, { from: "user", text: data.text }]);
-        } else if (data.type === "ai_stream") {
-          setChatHistory((prev) => {
-            const last = prev[prev.length - 1];
-            if (last && last.from === "ai") {
-              return [
-                ...prev.slice(0, -1),
-                { ...last, text: data.text },
-              ];
-            } else {
-              return [...prev, { from: "ai", text: data.text }];
-            }
-          });
-          setAiResponse(data.text);
-        } else if (data.type === "audio") {
-          const audioData = Uint8Array.from(atob(data.data), (c) => c.charCodeAt(0));
-          const blob = new Blob([audioData], { type: "audio/wav" });
-          const url = URL.createObjectURL(blob);
-          let player = audioPlayer;
-          if (!player) {
-            player = new Audio();
-            setAudioPlayer(player);
-          }
-          player.src = url;
-          player.play();
-        }
-      },
-      () => {
-        // onOpen: send join message only
-        console.log('[WS] WebSocket opened. Sending "join" message...');
-        if (wsConn.readyState === 1) {
-          wsConn.send(JSON.stringify({ type: "join", sessionId: sessionIdRef.current }));
-          console.log('[WS] "join" message sent:', { type: "join", sessionId: sessionIdRef.current });
-        } else {
-          wsConn.addEventListener("open", () => {
-            wsConn.send(JSON.stringify({ type: "join", sessionId: sessionIdRef.current }));
-            console.log('[WS] "join" message sent (after open):', { type: "join", sessionId: sessionIdRef.current });
-          }, { once: true });
-        }
-      },
-      () => {
-        console.log('[WS] WebSocket closed. Cleaning up.');
-        wsReadyRef.current = false;
-        // cleanup audio to ensure device mic is stopped
-        cleanupAudio();
-        setWs(null);
+    if (processorRef.current) {
+      try {
+        processorRef.current.disconnect();
+        processorRef.current.onaudioprocess = null;
+      } catch (e) { console.warn('[MIC] Error disconnecting processor:', e); }
+      processorRef.current = null;
+    }
+    if (audioCtxRef.current) {
+      try {
+        audioCtxRef.current.close();
+      } catch (e) { console.warn('[MIC] Error closing AudioContext:', e); }
+      audioCtxRef.current = null;
+    }
+    setMicDisabled(false);
+    return;
+  }
+  setMicDisabled(true);
+  let peer = pc;
+  if (!peer) {
+    peer = createPeerConnection();
+    setPc(peer);
+  }
+  let dc = dataChannel;
+  if (!dc && peer) {
+    dc = peer.createDataChannel('iqaudio-data');
+    setDataChannel(dc);
+    dc.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      if (data.type === "partial_transcript") setTranscript(data.text);
+      if (data.type === "final_transcript") {
+        setTranscript("");
+        setChatHistory((prev) => [...prev, { from: "user", text: data.text }]);
       }
-    );
-    // Don't setWs(wsConn) here, only after joined
-  };
+      if (data.type === "ai_stream") {
+        setChatHistory((prev) => {
+          const last = prev[prev.length - 1];
+          if (last && last.from === "ai") {
+            return [
+              ...prev.slice(0, -1),
+              { ...last, text: data.text },
+            ];
+          } else {
+            return [...prev, { from: "ai", text: data.text }];
+          }
+        });
+        setAiResponse(data.text);
+      }
+      if (data.type === "audio_base64") {
+        const audioData = Uint8Array.from(atob(data.data), (c) => c.charCodeAt(0));
+        const blob = new Blob([audioData], { type: "audio/wav" });
+        const url = URL.createObjectURL(blob);
+        let player = audioPlayer;
+        if (!player) {
+          player = new Audio();
+          setAudioPlayer(player);
+        }
+        player.src = url;
+        player.play();
+      }
+    };
+  }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    setAudioStream(stream);
+    setIsListening(true);
+    setMicDisabled(false);
+    if (peer) {
+      stream.getTracks().forEach((track) => {
+        peer.addTrack(track, stream);
+      });
+    }
+    const offer = await peer.createOffer();
+    await peer.setLocalDescription(offer);
+    const res = await fetch('/api/voice-stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sdp: offer.sdp, sessionId: sessionIdRef.current })
+    });
+    const { sdp, rtcId } = await res.json();
+    await peer.setRemoteDescription({ type: 'answer', sdp });
+    setRtcId(rtcId);
+  } catch (err) {
+    alert("Microphone access is required. Please allow microphone permission in your browser settings.");
+    setIsListening(false);
+    setMicDisabled(false);
+  }
+};
 
   // End the interview session
   const handleEndInterview = async () => {
-    console.log("[END] handleEndInterview called. sessionId:", sessionId, "endDisabled:", endDisabled);
     if (!sessionId || endDisabled) return;
     setEndDisabled(true);
-    console.log("[END] endDisabled set to true");
     setIsLoading(true);
-    console.log("[END] isLoading set to true");
     try {
-      console.log("[END] Calling interviewAPI.end with sessionId:", sessionId);
       const data = await interviewAPI.end(sessionId);
-      console.log("[END] Interview Summary:", data.summary); // Handle the summary data
-      setSummary(data.summary); //store the summary in state
-      console.log("[END] Summary set in state");
+      setSummary(data.summary);
+      // Cleanup peer connection
+      if (pc && rtcId) {
+        await fetch('/api/voice-stream', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rtcId })
+        });
+        pc.close();
+        setPc(null);
+      }
+      setDataChannel(null);
+      setRtcId(null);
     } catch (error) {
-      console.error("[END] Error ending interview:", error);
-      setEndDisabled(false); // allow retry if error
+      setEndDisabled(false);
     } finally {
       setIsLoading(false);
-      console.log("[END] isLoading set to false");
     }
   };
 
@@ -394,6 +285,7 @@ export default function VoiceInterviewPage() {
     // Optionally replay last AI audio if needed
     // (Implementation depends on how you want to handle replay)
   };
+
 
 
 
@@ -661,6 +553,20 @@ export default function VoiceInterviewPage() {
                   </div>
                 );
               })}
+
+              {/*
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-sm font-medium text-blue-800">
+                AI Interviewer
+              </span>
+              <Button variant="ghost" size="sm" onClick={speakResponse}>
+                <Volume2 className="h-4 w-4" />
+              </Button>
+            </div>
+            <p className="text-blue-900">{aiResponse}</p>
+          </div>
+          */}
 
               {transcript && (
                 <div className="bg-gray-50 p-4 rounded-lg">
