@@ -148,7 +148,6 @@ export default function VoiceInterviewPage() {
 // WebRTC audio streaming logic
 const toggleListening = async () => {
   if (isListening) {
-    console.log('[FRONTEND] Stopping mic and cleaning up');
     setIsListening(false);
     setMicDisabled(true);
     if (audioStream) {
@@ -183,21 +182,15 @@ const toggleListening = async () => {
   }
   setMicDisabled(true);
   let peer = pc;
-  console.log('[FRONTEND] toggleListening: creating or using peer connection');
   if (!peer) {
-    console.log('[FRONTEND] Creating new RTCPeerConnection');
     peer = createPeerConnection();
     setPc(peer);
   }
   let dc = dataChannel;
   if (!dc && peer) {
-    console.log('[FRONTEND] Creating new data channel');
-  dc = peer.createDataChannel('iqaudio-data');
-  dc.onopen = () => console.log('[FRONTEND] Data channel open');
-  dc.onclose = () => console.log('[FRONTEND] Data channel closed');
+    dc = peer.createDataChannel('iqaudio-data');
     setDataChannel(dc);
     dc.onmessage = (event) => {
-      console.log('[FRONTEND] Data channel message:', event.data);
       const data = JSON.parse(event.data);
       if (data.type === "partial_transcript") setTranscript(data.text);
       if (data.type === "final_transcript") {
@@ -233,34 +226,26 @@ const toggleListening = async () => {
     };
   }
   try {
-  console.log('[FRONTEND] Requesting microphone access...');
-  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-  console.log('[FRONTEND] Microphone granted');
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     setAudioStream(stream);
     setIsListening(true);
     setMicDisabled(false);
     if (peer) {
-      console.log('[FRONTEND] Adding audio track to peer connection');
       stream.getTracks().forEach((track) => {
         peer.addTrack(track, stream);
       });
     }
   const offer = await peer.createOffer();
-  console.log('[FRONTEND] Created offer SDP');
   await peer.setLocalDescription(offer);
-  console.log('[FRONTEND] Set local description');
-    const res = await fetch('/api/voice-stream', {
-      console.log('[FRONTEND] Sending offer to backend');
+  console.log('[FRONTEND] Sending offer to backend');
+  const res = await fetch('/api/voice-stream', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ sdp: offer.sdp, sessionId: sessionIdRef.current })
     });
-  const { sdp, rtcId } = await res.json();
-  console.log('[FRONTEND] Received answer SDP and rtcId:', rtcId);
-  await peer.setRemoteDescription({ type: 'answer', sdp });
-  console.log('[FRONTEND] Set remote description');
-  setRtcId(rtcId);
-  console.log('[FRONTEND] Peer connection setup complete');
+    const { sdp, rtcId } = await res.json();
+    await peer.setRemoteDescription({ type: 'answer', sdp });
+    setRtcId(rtcId);
   } catch (err) {
     alert("Microphone access is required. Please allow microphone permission in your browser settings.");
     setIsListening(false);
