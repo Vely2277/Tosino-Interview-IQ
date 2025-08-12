@@ -4,9 +4,20 @@
 
 
 import { useState, useEffect, useRef } from "react";
-// WebRTC helpers
-function createPeerConnection() {
-  return new RTCPeerConnection();
+// Audio recording helpers
+function recordAudioStream(stream: MediaStream, onStop: (audioBuffer: ArrayBuffer) => void) {
+  const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+  let chunks: BlobPart[] = [];
+  mediaRecorder.ondataavailable = (e) => {
+    if (e.data.size > 0) chunks.push(e.data);
+  };
+  mediaRecorder.onstop = async () => {
+    const blob = new Blob(chunks, { type: 'audio/webm' });
+    const arrayBuffer = await blob.arrayBuffer();
+    onStop(arrayBuffer);
+  };
+  mediaRecorder.start();
+  return mediaRecorder;
 }
 import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
@@ -43,15 +54,10 @@ export default function VoiceInterviewPage() {
   >([]);
   const [transcript, setTranscript] = useState("");
   const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
-  // Remove ws state, use peer connection and data channel instead
-  const [pc, setPc] = useState<RTCPeerConnection | null>(null);
-  const [dataChannel, setDataChannel] = useState<RTCDataChannel | null>(null);
-  const [rtcId, setRtcId] = useState<string | null>(null);
+  // Remove all WebRTC state
   const [audioPlayer, setAudioPlayer] = useState<HTMLAudioElement | null>(null);
-  const audioCtxRef = useRef<AudioContext | null>(null);
-  const processorRef = useRef<ScriptProcessorNode | null>(null);
-  const silenceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const wsReadyRef = useRef(false);
+  const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
+  const [recording, setRecording] = useState(false);
 
   // Initialize the interview session STARTING THE INTERVIEW
   const initializeInterview = async () => {
@@ -145,74 +151,55 @@ export default function VoiceInterviewPage() {
 
 
 
-// WebRTC audio streaming logic
+// Audio recording and streaming logic
 const toggleListening = async () => {
-  if (isListening) {
+  if (recording) {
+    // Stop recording
     setIsListening(false);
     setMicDisabled(true);
+    if (mediaRecorder) {
+      mediaRecorder.stop();
+      setMediaRecorder(null);
+    }
     if (audioStream) {
-      try {
-        audioStream.getTracks().forEach((track) => {
-          track.stop();
-          if (pc) {
-            const senders = pc.getSenders();
-            senders.forEach((sender) => {
-              if (sender.track === track) pc.removeTrack(sender);
-            });
-          }
-        });
-      } catch (e) { console.warn('[MIC] Error stopping tracks:', e); }
+      audioStream.getTracks().forEach((track) => track.stop());
       setAudioStream(null);
     }
-    if (processorRef.current) {
-      try {
-        processorRef.current.disconnect();
-        processorRef.current.onaudioprocess = null;
-      } catch (e) { console.warn('[MIC] Error disconnecting processor:', e); }
-      processorRef.current = null;
-    }
-    if (audioCtxRef.current) {
-      try {
-        audioCtxRef.current.close();
-      } catch (e) { console.warn('[MIC] Error closing AudioContext:', e); }
-      audioCtxRef.current = null;
-    }
     setMicDisabled(false);
+    setRecording(false);
     return;
   }
   setMicDisabled(true);
-  let peer = pc;
-  if (!peer) {
-    peer = createPeerConnection();
-    setPc(peer);
-  }
-  let dc = dataChannel;
-  if (!dc && peer) {
-    dc = peer.createDataChannel('iqaudio-data');
-    setDataChannel(dc);
-    dc.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      if (data.type === "partial_transcript") setTranscript(data.text);
-      if (data.type === "final_transcript") {
-        setTranscript("");
-        setChatHistory((prev) => [...prev, { from: "user", text: data.text }]);
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    setAudioStream(stream);
+    setIsListening(true);
+    setRecording(true);
+    setMicDisabled(false);
+    // Start recording
+    const rec = recordAudioStream(stream, async (audioBuffer) => {
+      setIsListening(false);
+      setRecording(false);
+      setMicDisabled(true);
+      // Send audio to backend as base64
+      const audioBase64 = btoa(String.fromCharCode(...new Uint8Array(audioBuffer)));
+      const res = await fetch('/api/voice-stream', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ audio: audioBase64, sessionId: sessionIdRef.current })
+      });
+      const data = await res.json();
+      if (data.error) {
+        setAiResponse("Error: " + data.error);
+        setMicDisabled(false);
+        return;
       }
-      if (data.type === "ai_stream") {
-        setChatHistory((prev) => {
-          const last = prev[prev.length - 1];
-          if (last && last.from === "ai") {
-            return [
-              ...prev.slice(0, -1),
-              { ...last, text: data.text },
-            ];
-          } else {
-            return [...prev, { from: "ai", text: data.text }];
-          }
-        });
-        setAiResponse(data.text);
-      }
-      if (data.type === "audio_base64") {
-        const audioData = Uint8Array.from(atob(data.data), (c) => c.charCodeAt(0));
+      setTranscript("");
+      setChatHistory((prev) => [...prev, { from: "user", text: transcript }, { from: "ai", text: data.aiResponse }]);
+      setAiResponse(data.aiResponse);
+      // Play TTS audio
+      if (data.audioBase64) {
+        const audioData = Uint8Array.from(atob(data.audioBase64), (c) => c.charCodeAt(0));
         const blob = new Blob([audioData], { type: "audio/wav" });
         const url = URL.createObjectURL(blob);
         let player = audioPlayer;
@@ -223,33 +210,14 @@ const toggleListening = async () => {
         player.src = url;
         player.play();
       }
-    };
-  }
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    setAudioStream(stream);
-    setIsListening(true);
-    setMicDisabled(false);
-    if (peer) {
-      stream.getTracks().forEach((track) => {
-        peer.addTrack(track, stream);
-      });
-    }
-  const offer = await peer.createOffer();
-  await peer.setLocalDescription(offer);
-  console.log('[FRONTEND] Sending offer to backend');
-  const res = await fetch('/api/voice-stream', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sdp: offer.sdp, sessionId: sessionIdRef.current })
+      setMicDisabled(false);
     });
-    const { sdp, rtcId } = await res.json();
-    await peer.setRemoteDescription({ type: 'answer', sdp });
-    setRtcId(rtcId);
+    setMediaRecorder(rec);
   } catch (err) {
     alert("Microphone access is required. Please allow microphone permission in your browser settings.");
     setIsListening(false);
     setMicDisabled(false);
+    setRecording(false);
   }
 };
 
@@ -261,18 +229,15 @@ const toggleListening = async () => {
     try {
       const data = await interviewAPI.end(sessionId);
       setSummary(data.summary);
-      // Cleanup peer connection
-      if (pc && rtcId) {
-        await fetch('/api/voice-stream', {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ rtcId })
-        });
-        pc.close();
-        setPc(null);
+      // Cleanup audio
+      if (mediaRecorder) {
+        mediaRecorder.stop();
+        setMediaRecorder(null);
       }
-      setDataChannel(null);
-      setRtcId(null);
+      if (audioStream) {
+        audioStream.getTracks().forEach((track) => track.stop());
+        setAudioStream(null);
+      }
     } catch (error) {
       setEndDisabled(false);
     } finally {
