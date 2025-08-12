@@ -183,32 +183,26 @@ const toggleListening = async () => {
       setMicDisabled(true);
       // Send audio to backend as base64
       const audioBase64 = btoa(String.fromCharCode(...new Uint8Array(audioBuffer)));
-      const res = await fetch('/api/voice-stream', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ audio: audioBase64, sessionId: sessionIdRef.current })
-      });
-      const data = await res.json();
-      if (data.error) {
-        setAiResponse("Error: " + data.error);
-        setMicDisabled(false);
-        return;
-      }
-      setTranscript("");
-      setChatHistory((prev) => [...prev, { from: "user", text: transcript }, { from: "ai", text: data.aiResponse }]);
-      setAiResponse(data.aiResponse);
-      // Play TTS audio
-      if (data.audioBase64) {
-        const audioData = Uint8Array.from(atob(data.audioBase64), (c) => c.charCodeAt(0));
-        const blob = new Blob([audioData], { type: "audio/wav" });
-        const url = URL.createObjectURL(blob);
-        let player = audioPlayer;
-        if (!player) {
-          player = new Audio();
-          setAudioPlayer(player);
+      try {
+        const data = await voiceAPI.stream(audioBase64, sessionIdRef.current!);
+        setTranscript("");
+        setChatHistory((prev) => [...prev, { from: "user", text: transcript }, { from: "ai", text: data.aiResponse }]);
+        setAiResponse(data.aiResponse);
+        // Play TTS audio
+        if (data.audioBase64) {
+          const audioData = Uint8Array.from(atob(data.audioBase64), (c) => c.charCodeAt(0));
+          const blob = new Blob([audioData], { type: "audio/wav" });
+          const url = URL.createObjectURL(blob);
+          let player = audioPlayer;
+          if (!player) {
+            player = new Audio();
+            setAudioPlayer(player);
+          }
+          player.src = url;
+          player.play();
         }
-        player.src = url;
-        player.play();
+      } catch (err: any) {
+        setAiResponse("Error: " + (err?.message || "Unknown error"));
       }
       setMicDisabled(false);
     });

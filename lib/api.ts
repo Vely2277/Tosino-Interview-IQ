@@ -26,6 +26,23 @@ export const voiceAPI = {
     };
     return ws;
   },
+
+  // New: stream audio to backend using env backend URL
+  stream: async (audioBase64: string, sessionId: string) => {
+    const backendUrl = getBackendUrl();
+    const url = `${backendUrl}/api/voice-stream`;
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ audio: audioBase64, sessionId }),
+    });
+    if (!res.ok) {
+      let err = 'Unknown error';
+      try { err = (await res.json()).error; } catch {}
+      throw new Error(err);
+    }
+    return res.json();
+  },
 };
 // Utility to get the WebSocket URL for voice interview streaming
 export const getVoiceWebSocketUrl = () => {
