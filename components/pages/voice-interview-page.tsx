@@ -151,7 +151,7 @@ export default function VoiceInterviewPage() {
 
 
 
-// Robust audio recording and streaming logic with permission and state sync
+// Robust audio recording and streaming logic with improved permission and state sync
 const toggleListening = async () => {
   if (recording) {
     // Stop recording and clean up
@@ -173,21 +173,7 @@ const toggleListening = async () => {
     return;
   }
   setMicDisabled(true);
-  // Check for permission before requesting
   try {
-    let permission;
-    if (navigator.permissions) {
-      try {
-        permission = await navigator.permissions.query({ name: 'microphone' as PermissionName });
-        if (permission.state === 'denied') {
-          alert('Microphone access is denied. Please enable it in your browser settings.');
-          setIsListening(false);
-          setMicDisabled(false);
-          setRecording(false);
-          return;
-        }
-      } catch {}
-    }
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     setAudioStream(stream);
     setIsListening(true);
@@ -211,11 +197,9 @@ const toggleListening = async () => {
       setMicDisabled(false);
       // Clean up audio stream after recording
       try {
-        if (audioStream) {
-          audioStream.getTracks().forEach((track) => track.stop());
-          setAudioStream(null);
-        }
+        stream.getTracks().forEach((track) => track.stop());
       } catch (e) {}
+      setAudioStream(null);
     });
     setMediaRecorder(rec);
   } catch (err: any) {
