@@ -31,6 +31,7 @@ function recordAudioStream(stream: MediaStream, onStop: (audioBuffer: ArrayBuffe
   const mediaRecorder = new MediaRecorder(stream, { mimeType });
   let chunks: BlobPart[] = [];
   mediaRecorder.ondataavailable = (e) => {
+    console.log('[VOICE] mediaRecorder.ondataavailable fired, data size:', e.data.size);
     if (e.data.size > 0) chunks.push(e.data);
   };
   mediaRecorder.onstop = async () => {
@@ -39,6 +40,9 @@ function recordAudioStream(stream: MediaStream, onStop: (audioBuffer: ArrayBuffe
     console.log('[VOICE] Blob created, size:', blob.size);
     const arrayBuffer = await blob.arrayBuffer();
     onStop(arrayBuffer);
+  };
+  mediaRecorder.onerror = (e) => {
+    console.error('[VOICE] mediaRecorder.onerror:', e);
   };
   mediaRecorder.start();
   console.log('[VOICE] mediaRecorder started');
@@ -186,6 +190,7 @@ const toggleListening = async () => {
     setMicDisabled(true);
     try {
       if (mediaRecorder) {
+        console.log('[VOICE] Calling mediaRecorder.stop()...');
         mediaRecorder.onstop = null;
         mediaRecorder.stop();
         setMediaRecorder(null);
@@ -194,7 +199,9 @@ const toggleListening = async () => {
         audioStream.getTracks().forEach((track) => track.stop());
         setAudioStream(null);
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error('[VOICE] Error when stopping mediaRecorder or cleaning up:', e);
+    }
     setMicDisabled(false);
     setRecording(false);
     return;
