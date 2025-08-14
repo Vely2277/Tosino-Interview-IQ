@@ -215,12 +215,22 @@ const toggleListening = async () => {
         if (typeof result === 'string') {
           base64 = result.split(',')[1]; // Remove data URI prefix
         }
+        console.log('[VOICE] base64 length:', base64.length, 'sessionId:', sessionIdRef.current);
+        if (!base64) {
+          console.error('[VOICE] No base64 audio to send!');
+          setMicDisabled(false);
+          setAudioStream(null);
+          return;
+        }
         try {
+          console.log('[VOICE] Sending audio to backend...');
           const data = await voiceAPI.stream(base64, sessionIdRef.current!);
+          console.log('[VOICE] Backend response:', data);
           setTranscript('Voice input');
           setChatHistory((prev) => [...prev, { from: "user", text: 'Voice input' }, { from: "ai", text: data.aiResponse }]);
           setAiResponse(data.aiResponse);
         } catch (err: any) {
+          console.error('[VOICE] Error sending audio:', err);
           setAiResponse("Error: " + (err?.message || "Unknown error"));
         }
         setMicDisabled(false);
