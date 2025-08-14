@@ -240,20 +240,33 @@ const toggleListening = async () => {
   };
 
 
-  // No browser TTS; audio is streamed from backend and played automatically
-  const speakResponse = () => {
-    // Optionally replay last AI audio if needed
-    // (Implementation depends on how you want to handle replay)
+  // Browser TTS: Speak the AI response using Speech Synthesis API
+  const speakResponse = (text?: string) => {
+    const toSpeak = text || aiResponse;
+    if (!toSpeak) return;
+    if (typeof window !== "undefined" && window.speechSynthesis) {
+      window.speechSynthesis.cancel(); // Stop any ongoing speech
+      const utter = new window.SpeechSynthesisUtterance(toSpeak);
+      utter.lang = "en-US";
+      window.speechSynthesis.speak(utter);
+    }
   };
 
 
 
 
 
-  //use effect to start interview
+  // useEffect to start interview and speak initial AI message
   useEffect(() => {
     initializeInterview();
   }, []);
+
+  // Speak the initial AI message when it is set
+  useEffect(() => {
+    if (aiResponse) {
+      speakResponse(aiResponse);
+    }
+  }, [aiResponse]);
 
   return (
     <div className="min-h-screen w-screen overflow-x-hidden" style={{ backgroundColor: "#f5f5dc" }}>
@@ -500,7 +513,7 @@ const toggleListening = async () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={speakResponse}
+                            onClick={() => speakResponse(msg.text)}
                             className="ml-2 p-1"
                           >
                             <Volume2 className="h-4 w-4" />
