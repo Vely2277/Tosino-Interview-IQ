@@ -427,7 +427,7 @@ export default function CreateCvPage() {
                 <CardHeader>
                   <CardTitle>
                     Generated CV<br></br>
-                    Tap generated CV to edit
+                    <br></br>Tap generated CV to edit
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
