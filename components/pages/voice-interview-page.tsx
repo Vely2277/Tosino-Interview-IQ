@@ -5,14 +5,35 @@
 
 import { useState, useEffect, useRef } from "react";
 // Audio recording helpers
+// Helper to get a supported audio mime type for MediaRecorder
+function getSupportedMimeType() {
+  const possibleTypes = [
+    'audio/webm;codecs=opus',
+    'audio/webm',
+    'audio/ogg;codecs=opus',
+    'audio/ogg',
+    'audio/mp4',
+    'audio/wav',
+  ];
+  for (const type of possibleTypes) {
+    if (MediaRecorder.isTypeSupported(type)) return type;
+  }
+  return '';
+}
+
 function recordAudioStream(stream: MediaStream, onStop: (audioBuffer: ArrayBuffer) => void) {
-  const mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+  const mimeType = getSupportedMimeType();
+  if (!mimeType) {
+    alert('Your browser does not support audio recording.');
+    return null;
+  }
+  const mediaRecorder = new MediaRecorder(stream, { mimeType });
   let chunks: BlobPart[] = [];
   mediaRecorder.ondataavailable = (e) => {
     if (e.data.size > 0) chunks.push(e.data);
   };
   mediaRecorder.onstop = async () => {
-    const blob = new Blob(chunks, { type: 'audio/webm' });
+    const blob = new Blob(chunks, { type: mimeType });
     const arrayBuffer = await blob.arrayBuffer();
     onStop(arrayBuffer);
   };
@@ -180,27 +201,47 @@ const toggleListening = async () => {
     setRecording(true);
     setMicDisabled(false);
     // Start recording
-    const rec = recordAudioStream(stream, async (audioBuffer) => {
+    const rec = recordAudioStream(stream, (audioBuffer) => {
       setIsListening(false);
       setRecording(false);
       setMicDisabled(true);
-      // Send audio to backend as base64
-      const audioBase64 = btoa(String.fromCharCode(...new Uint8Array(audioBuffer)));
-      try {
-        const data = await voiceAPI.stream(audioBase64, sessionIdRef.current!);
-        setTranscript("");
-        setChatHistory((prev) => [...prev, { from: "user", text: transcript }, { from: "ai", text: data.aiResponse }]);
-        setAiResponse(data.aiResponse);
-      } catch (err: any) {
-        setAiResponse("Error: " + (err?.message || "Unknown error"));
-      }
+      // Use FileReader to safely encode audio as base64
+      const mimeType = getSupportedMimeType();
+      const blob = new Blob([audioBuffer], { type: mimeType });
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const result = reader.result;
+        let base64 = '';
+        if (typeof result === 'string') {
+          base64 = result.split(',')[1]; // Remove data URI prefix
+        }
+        try {
+          const data = await voiceAPI.stream(base64, sessionIdRef.current!);
+          setTranscript('Voice input');
+          setChatHistory((prev) => [...prev, { from: "user", text: 'Voice input' }, { from: "ai", text: data.aiResponse }]);
+          setAiResponse(data.aiResponse);
+        } catch (err: any) {
+          setAiResponse("Error: " + (err?.message || "Unknown error"));
+        }
+        setMicDisabled(false);
+        // Clean up audio stream after recording
+        try {
+          stream.getTracks().forEach((track) => track.stop());
+        } catch (e) {}
+        setAudioStream(null);
+      };
+      reader.readAsDataURL(blob);
+    });
+    if (!rec) {
+      setIsListening(false);
       setMicDisabled(false);
-      // Clean up audio stream after recording
+      setRecording(false);
       try {
         stream.getTracks().forEach((track) => track.stop());
       } catch (e) {}
       setAudioStream(null);
-    });
+      return;
+    }
     setMediaRecorder(rec);
   } catch (err: any) {
     let message = "Microphone access is required. Please allow microphone permission in your browser settings.";
