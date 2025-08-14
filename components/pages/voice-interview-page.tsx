@@ -191,7 +191,7 @@ const toggleListening = async () => {
     try {
       if (mediaRecorder) {
         console.log('[VOICE] Calling mediaRecorder.stop()...');
-        mediaRecorder.onstop = null;
+        // Do NOT remove the onstop handler here!
         mediaRecorder.stop();
         setMediaRecorder(null);
       }
