@@ -151,26 +151,43 @@ export default function VoiceInterviewPage() {
 
 
 
-// Audio recording and streaming logic
+// Robust audio recording and streaming logic with permission and state sync
 const toggleListening = async () => {
   if (recording) {
-    // Stop recording
+    // Stop recording and clean up
     setIsListening(false);
     setMicDisabled(true);
-    if (mediaRecorder) {
-      mediaRecorder.stop();
-      setMediaRecorder(null);
-    }
-    if (audioStream) {
-      audioStream.getTracks().forEach((track) => track.stop());
-      setAudioStream(null);
-    }
+    try {
+      if (mediaRecorder) {
+        mediaRecorder.onstop = null;
+        mediaRecorder.stop();
+        setMediaRecorder(null);
+      }
+      if (audioStream) {
+        audioStream.getTracks().forEach((track) => track.stop());
+        setAudioStream(null);
+      }
+    } catch (e) {}
     setMicDisabled(false);
     setRecording(false);
     return;
   }
   setMicDisabled(true);
+  // Check for permission before requesting
   try {
+    let permission;
+    if (navigator.permissions) {
+      try {
+        permission = await navigator.permissions.query({ name: 'microphone' as PermissionName });
+        if (permission.state === 'denied') {
+          alert('Microphone access is denied. Please enable it in your browser settings.');
+          setIsListening(false);
+          setMicDisabled(false);
+          setRecording(false);
+          return;
+        }
+      } catch {}
+    }
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     setAudioStream(stream);
     setIsListening(true);
@@ -188,30 +205,37 @@ const toggleListening = async () => {
         setTranscript("");
         setChatHistory((prev) => [...prev, { from: "user", text: transcript }, { from: "ai", text: data.aiResponse }]);
         setAiResponse(data.aiResponse);
-        // Play TTS audio
-        if (data.audioBase64) {
-          const audioData = Uint8Array.from(atob(data.audioBase64), (c) => c.charCodeAt(0));
-          const blob = new Blob([audioData], { type: "audio/wav" });
-          const url = URL.createObjectURL(blob);
-          let player = audioPlayer;
-          if (!player) {
-            player = new Audio();
-            setAudioPlayer(player);
-          }
-          player.src = url;
-          player.play();
-        }
       } catch (err: any) {
         setAiResponse("Error: " + (err?.message || "Unknown error"));
       }
       setMicDisabled(false);
+      // Clean up audio stream after recording
+      try {
+        if (audioStream) {
+          audioStream.getTracks().forEach((track) => track.stop());
+          setAudioStream(null);
+        }
+      } catch (e) {}
     });
     setMediaRecorder(rec);
-  } catch (err) {
-    alert("Microphone access is required. Please allow microphone permission in your browser settings.");
+  } catch (err: any) {
+    let message = "Microphone access is required. Please allow microphone permission in your browser settings.";
+    if (err && err.name === 'NotAllowedError') {
+      message = "Microphone access denied. Please enable it in your browser settings.";
+    } else if (err && err.name === 'NotFoundError') {
+      message = "No microphone found. Please connect a microphone and try again.";
+    }
+    alert(message);
     setIsListening(false);
     setMicDisabled(false);
     setRecording(false);
+    // Clean up any open streams
+    try {
+      if (audioStream) {
+        audioStream.getTracks().forEach((track) => track.stop());
+        setAudioStream(null);
+      }
+    } catch (e) {}
   }
 };
 
