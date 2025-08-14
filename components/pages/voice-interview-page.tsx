@@ -178,9 +178,9 @@ export default function VoiceInterviewPage() {
 
 // Robust audio recording and streaming logic with improved permission and state sync
 const toggleListening = async () => {
-  console.log('[VOICE] toggleListening called, recording:', recording);
+  console.log('[VOICE] BUTTON TAPPED. Current recording state:', recording);
   if (recording) {
-    console.log('[VOICE] Stopping recording...');
+    console.log('[VOICE] STOP RECORDING requested.');
     // Stop recording and clean up
     setIsListening(false);
     setMicDisabled(true);
@@ -200,17 +200,17 @@ const toggleListening = async () => {
     return;
   }
   setMicDisabled(true);
-  console.log('[VOICE] Requesting microphone permission...');
+  console.log('[VOICE] START RECORDING requested. Requesting microphone permission...');
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     setAudioStream(stream);
     setIsListening(true);
     setRecording(true);
     setMicDisabled(false);
-    console.log('[VOICE] Microphone stream acquired, starting recording...');
+    console.log('[VOICE] Microphone stream acquired. RECORDING...');
     // Start recording
     const rec = recordAudioStream(stream, (audioBuffer) => {
-      console.log('[VOICE] recordAudioStream callback fired');
+      console.log('[VOICE] RECORDING END. Callback fired. Preparing to send...');
       setIsListening(false);
       setRecording(false);
       setMicDisabled(true);
@@ -233,7 +233,7 @@ const toggleListening = async () => {
           return;
         }
         try {
-          console.log('[VOICE] Sending audio to backend...');
+          console.log('[VOICE] RECORDING SENT. Sending audio to backend...');
           const data = await voiceAPI.stream(base64, sessionIdRef.current!);
           console.log('[VOICE] Backend response:', data);
           setTranscript('Voice input');
@@ -253,6 +253,7 @@ const toggleListening = async () => {
       reader.readAsDataURL(blob);
     });
     if (!rec) {
+      console.error('[VOICE] Could not start recording. MediaRecorder not created.');
       setIsListening(false);
       setMicDisabled(false);
       setRecording(false);
@@ -264,6 +265,7 @@ const toggleListening = async () => {
     }
     setMediaRecorder(rec);
   } catch (err: any) {
+    console.error('[VOICE] ERROR requesting microphone or starting recording:', err);
     let message = "Microphone access is required. Please allow microphone permission in your browser settings.";
     if (err && err.name === 'NotAllowedError') {
       message = "Microphone access denied. Please enable it in your browser settings.";
