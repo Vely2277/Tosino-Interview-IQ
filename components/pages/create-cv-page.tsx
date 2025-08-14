@@ -425,11 +425,17 @@ export default function CreateCvPage() {
             <>
               <Card>
                 <CardHeader>
-                  <CardTitle>Generated CV</CardTitle>
+                  <CardTitle>
+                    Generated CV
+                    TAO GENERATED CV TO EDIT BEFORE DOWNLOAD
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="bg-gray-50 p-4 rounded-lg">
-<div id="editable-cv" className="prose dark:prose-invert max-w-none" contentEditable={true} // Enables editing
+                    <div
+                      id="editable-cv"
+                      className="prose dark:prose-invert max-w-none"
+                      contentEditable={true} // Enables editing
                       suppressContentEditableWarning={true} // Suppresses React warning for contentEditable
                       dangerouslySetInnerHTML={{
                         __html: renderMarkdownToHTML(generatedCV),
