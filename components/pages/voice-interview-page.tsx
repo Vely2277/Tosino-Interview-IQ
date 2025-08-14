@@ -23,6 +23,7 @@ function getSupportedMimeType() {
 
 function recordAudioStream(stream: MediaStream, onStop: (audioBuffer: ArrayBuffer) => void) {
   const mimeType = getSupportedMimeType();
+  console.log('[VOICE] recordAudioStream called, mimeType:', mimeType);
   if (!mimeType) {
     alert('Your browser does not support audio recording.');
     return null;
@@ -33,11 +34,14 @@ function recordAudioStream(stream: MediaStream, onStop: (audioBuffer: ArrayBuffe
     if (e.data.size > 0) chunks.push(e.data);
   };
   mediaRecorder.onstop = async () => {
+    console.log('[VOICE] mediaRecorder.onstop fired, chunks:', chunks.length);
     const blob = new Blob(chunks, { type: mimeType });
+    console.log('[VOICE] Blob created, size:', blob.size);
     const arrayBuffer = await blob.arrayBuffer();
     onStop(arrayBuffer);
   };
   mediaRecorder.start();
+  console.log('[VOICE] mediaRecorder started');
   return mediaRecorder;
 }
 import { useAuth } from "@/contexts/auth-context";
@@ -174,7 +178,9 @@ export default function VoiceInterviewPage() {
 
 // Robust audio recording and streaming logic with improved permission and state sync
 const toggleListening = async () => {
+  console.log('[VOICE] toggleListening called, recording:', recording);
   if (recording) {
+    console.log('[VOICE] Stopping recording...');
     // Stop recording and clean up
     setIsListening(false);
     setMicDisabled(true);
@@ -194,20 +200,24 @@ const toggleListening = async () => {
     return;
   }
   setMicDisabled(true);
+  console.log('[VOICE] Requesting microphone permission...');
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     setAudioStream(stream);
     setIsListening(true);
     setRecording(true);
     setMicDisabled(false);
+    console.log('[VOICE] Microphone stream acquired, starting recording...');
     // Start recording
     const rec = recordAudioStream(stream, (audioBuffer) => {
+      console.log('[VOICE] recordAudioStream callback fired');
       setIsListening(false);
       setRecording(false);
       setMicDisabled(true);
       // Use FileReader to safely encode audio as base64
       const mimeType = getSupportedMimeType();
       const blob = new Blob([audioBuffer], { type: mimeType });
+      console.log('[VOICE] Blob for FileReader, size:', blob.size);
       const reader = new FileReader();
       reader.onloadend = async () => {
         const result = reader.result;
