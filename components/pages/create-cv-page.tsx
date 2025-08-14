@@ -426,8 +426,8 @@ export default function CreateCvPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>
-                    Generated CV
-                    TAO GENERATED CV TO EDIT BEFORE DOWNLOAD
+                    Generated CV<br></br>
+                    Tap generated CV to edit
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
