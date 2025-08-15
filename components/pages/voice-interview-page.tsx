@@ -1,3 +1,58 @@
+// --- Lamejs for WAV to MP3 conversion ---
+import lamejs from 'lamejs';
+
+// Utility: Convert WAV ArrayBuffer to MP3 Uint8Array
+function wavToMp3(wavBuffer) {
+  // Parse WAV header (PCM 16-bit LE, mono or stereo)
+  function readInt16LE(buffer, offset) {
+    return buffer[offset] | (buffer[offset + 1] << 8);
+  }
+  const wav = new DataView(wavBuffer);
+  // Find "fmt " and "data" chunks
+  let offset = 12;
+  let fmtChunkOffset = -1, dataChunkOffset = -1, dataChunkSize = 0, numChannels = 1, sampleRate = 16000, bitsPerSample = 16;
+  while (offset < wav.byteLength) {
+    const chunkId = String.fromCharCode(
+      wav.getUint8(offset), wav.getUint8(offset + 1), wav.getUint8(offset + 2), wav.getUint8(offset + 3)
+    );
+    const chunkSize = wav.getUint32(offset + 4, true);
+    if (chunkId === 'fmt ') {
+      fmtChunkOffset = offset + 8;
+      numChannels = wav.getUint16(fmtChunkOffset + 2, true);
+      sampleRate = wav.getUint32(fmtChunkOffset + 4, true);
+      bitsPerSample = wav.getUint16(fmtChunkOffset + 14, true);
+    } else if (chunkId === 'data') {
+      dataChunkOffset = offset + 8;
+      dataChunkSize = chunkSize;
+      break;
+    }
+    offset += 8 + chunkSize;
+  }
+  if (dataChunkOffset === -1) throw new Error('WAV: data chunk not found');
+  // Read PCM samples
+  const samples = new Int16Array(wavBuffer, dataChunkOffset, dataChunkSize / 2);
+  // Encode to MP3
+  const mp3Encoder = new lamejs.Mp3Encoder(numChannels, sampleRate, 128);
+  const mp3Data = [];
+  let remaining = samples.length;
+  let sampleBlockSize = 1152;
+  for (let i = 0; i < samples.length; i += sampleBlockSize) {
+    const sampleChunk = samples.subarray(i, i + sampleBlockSize);
+    const mp3buf = mp3Encoder.encodeBuffer(sampleChunk);
+    if (mp3buf.length > 0) mp3Data.push(new Uint8Array(mp3buf));
+  }
+  const mp3buf = mp3Encoder.flush();
+  if (mp3buf.length > 0) mp3Data.push(new Uint8Array(mp3buf));
+  // Concatenate all mp3 chunks
+  let totalLength = mp3Data.reduce((acc, cur) => acc + cur.length, 0);
+  let mp3 = new Uint8Array(totalLength);
+  let offsetMp3 = 0;
+  for (let b of mp3Data) {
+    mp3.set(b, offsetMp3);
+    offsetMp3 += b.length;
+  }
+  return mp3;
+}
 
 "use client";
 
@@ -333,22 +388,39 @@ const toggleListening = async () => {
 
 
   // Play AI response audio from backend (gTTS)
-  const speakResponse = (audioObj?: { base64: string; format: string }) => {
+  // Play AI response audio: convert WAV to MP3 in browser using lamejs
+  const speakResponse = async (audioObj?: { base64: string; format: string }) => {
     if (!audioObj || !audioObj.base64) {
       alert("No audio available for this response.");
       return;
     }
-    const mimeType = audioObj.format === 'mp3' ? 'audio/mp3' : 'audio/wav';
-    console.log('[AUDIO] Attempting to play audio, base64 length:', audioObj.base64.length, 'format:', audioObj.format);
-    const audio = new Audio(`data:${mimeType};base64,${audioObj.base64}`);
-    audio.play()
-      .then(() => {
-        console.log('[AUDIO] Playback started successfully.');
-      })
-      .catch((err) => {
-        console.error("Audio playback error:", err);
-        alert("Could not play audio. Please check your device's audio settings.");
-      });
+    try {
+      console.log('[AUDIO] Received audio for playback, base64 length:', audioObj.base64.length, 'format:', audioObj.format);
+      // Decode base64 to ArrayBuffer
+      const binary = atob(audioObj.base64);
+      const wavBuffer = new ArrayBuffer(binary.length);
+      const view = new Uint8Array(wavBuffer);
+      for (let i = 0; i < binary.length; i++) view[i] = binary.charCodeAt(i);
+      // Convert WAV to MP3
+      console.log('[AUDIO] Converting WAV to MP3 using lamejs...');
+      const mp3Uint8 = wavToMp3(wavBuffer);
+      console.log('[AUDIO] MP3 conversion complete, size:', mp3Uint8.length);
+      // Create Blob and play
+      const mp3Blob = new Blob([mp3Uint8], { type: 'audio/mp3' });
+      const url = URL.createObjectURL(mp3Blob);
+      const audio = new Audio(url);
+      audio.play()
+        .then(() => {
+          console.log('[AUDIO] MP3 playback started successfully.');
+        })
+        .catch((err) => {
+          console.error("Audio playback error:", err);
+          alert("Could not play audio. Please check your device's audio settings.");
+        });
+    } catch (err) {
+      console.error('[AUDIO] Error during WAV→MP3 conversion or playback:', err);
+      alert('Could not play audio. Conversion failed.');
+    }
   };
 
 

@@ -51,6 +51,7 @@
     "geist": "latest",
     "html2pdf.js": "^0.10.3",
     "input-otp": "latest",
+    "lamejs": "^1.2.1",
     "lucide-react": "^0.454.0",
     "marked": "^4.3.0",
     "next": "15.2.4",
