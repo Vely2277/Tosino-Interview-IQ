@@ -1,6 +1,6 @@
-// --- Lamejs for WAV to MP3 conversion ---
-import lamejs from 'lamejs';
+"use client";
 
+import lamejs from 'lamejs';
 // Utility: Convert WAV ArrayBuffer to MP3 Uint8Array
 function wavToMp3(wavBuffer) {
   // Parse WAV header (PCM 16-bit LE, mono or stereo)
