@@ -79,12 +79,14 @@ export default function VoiceInterviewPage() {
       text: string;
       grade?: number | null;
       reasoning?: string | null;
+      audioBase64?: string;
     }[]
   >([]);
   const [transcript, setTranscript] = useState("");
   const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
   // Remove all WebRTC state
   const [audioPlayer, setAudioPlayer] = useState<HTMLAudioElement | null>(null);
+  const [lastAIAudio, setLastAIAudio] = useState<string | null>(null);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [recording, setRecording] = useState(false);
 
@@ -129,23 +131,29 @@ export default function VoiceInterviewPage() {
     );
     // if (!sessionId) return;
 
-  setIsLoading(true);
-  console.log("[RESPOND] Loading state set to true");
+    setIsLoading(true);
+    console.log("[RESPOND] Loading state set to true");
     console.log("Sending user response to backend:", userResponse);
 
     try {
-  console.log("[RESPOND] session id ref:", sessionIdRef.current);
-  const data = await interviewAPI.respond(
+      console.log("[RESPOND] session id ref:", sessionIdRef.current);
+      const data = await interviewAPI.respond(
         sessionIdRef.current!,
         userResponse,
         "voice"
       );
 
-  console.log("[RESPOND] api call sent. waiting for response...");
-  console.log("[RESPOND] Received response from backend:", data);
+      console.log("[RESPOND] api call sent. waiting for response...");
+      console.log("[RESPOND] Received response from backend:", data);
+
+      // If backend returns audioBase64, set it for playback
+      if (data.audioBase64) {
+        setLastAIAudio(data.audioBase64);
+      } else {
+        setLastAIAudio(null);
+      }
 
       setChatHistory((prev) => [
-        // ...existing code...
         ...prev,
         {
           from: "user",
@@ -156,13 +164,14 @@ export default function VoiceInterviewPage() {
         {
           from: "ai",
           text: data.aiResponse,
+          audioBase64: data.audioBase64 || undefined,
         },
       ]);
 
-  setAiResponse(data.aiResponse);
-  console.log("[RESPOND] AI response set:", data.aiResponse);
-  setTranscript("");
-  console.log("[RESPOND] Transcript cleared");
+      setAiResponse(data.aiResponse);
+      console.log("[RESPOND] AI response set:", data.aiResponse);
+      setTranscript("");
+      console.log("[RESPOND] Transcript cleared");
 
     } catch (error) {
       console.error("[RESPOND] Error in handleRespond:", error);
@@ -318,16 +327,11 @@ const toggleListening = async () => {
   };
 
 
-  // Browser TTS: Speak the AI response using Speech Synthesis API
-  const speakResponse = (text?: string) => {
-    const toSpeak = text || aiResponse;
-    if (!toSpeak) return;
-    if (typeof window !== "undefined" && window.speechSynthesis) {
-      window.speechSynthesis.cancel(); // Stop any ongoing speech
-      const utter = new window.SpeechSynthesisUtterance(toSpeak);
-      utter.lang = "en-US";
-      window.speechSynthesis.speak(utter);
-    }
+  // Play AI response audio from backend (gTTS)
+  const speakResponse = (audioBase64?: string) => {
+    if (!audioBase64) return;
+    const audio = new Audio(`data:audio/mpeg;base64,${audioBase64}`);
+    audio.play();
   };
 
 
@@ -339,12 +343,12 @@ const toggleListening = async () => {
     initializeInterview();
   }, []);
 
-  // Speak the initial AI message when it is set
+  // Optionally, auto-play the latest AI audio when it arrives
   useEffect(() => {
-    if (aiResponse) {
-      speakResponse(aiResponse);
+    if (lastAIAudio) {
+      speakResponse(lastAIAudio);
     }
-  }, [aiResponse]);
+  }, [lastAIAudio]);
 
   return (
     <div className="min-h-screen w-screen overflow-x-hidden" style={{ backgroundColor: "#f5f5dc" }}>
@@ -587,11 +591,11 @@ const toggleListening = async () => {
                           {isAI ? "AI Interviewer" : "You"}
                         </span>
 
-                        {isLastAI && (
+                        {isLastAI && msg.audioBase64 && (
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => speakResponse(msg.text)}
+                            onClick={() => speakResponse(msg.audioBase64)}
                             className="ml-2 p-1"
                           >
                             <Volume2 className="h-4 w-4" />
