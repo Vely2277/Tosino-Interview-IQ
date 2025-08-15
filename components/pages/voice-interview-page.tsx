@@ -689,7 +689,10 @@ const toggleListening = async () => {
                             onClick={() => speakResponse({ base64: msg.audioBase64!, format: 'mp3' })}
                             title="Play AI audio"
                           >
-                            <span role="img" aria-label="Play">🔊</span>
+                            {/* Volume icon for play button */}
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 9v6h4l5 5V4l-5 5H9z" />
+                            </svg>
                           </Button>
                         )}
                       </div>
