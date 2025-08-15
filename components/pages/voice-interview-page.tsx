@@ -330,7 +330,7 @@ const toggleListening = async () => {
   // Play AI response audio from backend (gTTS)
   const speakResponse = (audioBase64?: string) => {
     if (!audioBase64) return;
-    const audio = new Audio(`data:audio/mpeg;base64,${audioBase64}`);
+    const audio = new Audio(`data:audio/wav;base64,${audioBase64}`);
     audio.play();
   };
 
@@ -544,8 +544,7 @@ const toggleListening = async () => {
           <Card>
             <CardContent className="p-6 space-y-4">
               {chatHistory.map((msg, idx) => {
-                const isLastAI =
-                  msg.from === "ai" && idx === chatHistory.length - 1;
+
                 const isAI = msg.from === "ai";
 
                 return (
@@ -591,10 +590,11 @@ const toggleListening = async () => {
                           {isAI ? "AI Interviewer" : "You"}
                         </span>
 
-                        {isLastAI && msg.audioBase64 && (
+                        {isAI && msg.audioBase64 && (
                           <Button
                             variant="ghost"
                             size="sm"
+                            aria-label="Replay AI audio"
                             onClick={() => speakResponse(msg.audioBase64)}
                             className="ml-2 p-1"
                           >
