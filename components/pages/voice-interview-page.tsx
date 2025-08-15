@@ -329,9 +329,15 @@ const toggleListening = async () => {
 
   // Play AI response audio from backend (gTTS)
   const speakResponse = (audioBase64?: string) => {
-    if (!audioBase64) return;
+    if (!audioBase64) {
+      alert("No audio available for this response.");
+      return;
+    }
     const audio = new Audio(`data:audio/wav;base64,${audioBase64}`);
-    audio.play();
+    audio.play().catch((err) => {
+      console.error("Audio playback error:", err);
+      alert("Could not play audio. Please check your device's audio settings.");
+    });
   };
 
 
@@ -546,7 +552,6 @@ const toggleListening = async () => {
               {chatHistory.map((msg, idx) => {
 
                 const isAI = msg.from === "ai";
-
                 return (
                   <div
                     key={idx}
@@ -589,7 +594,6 @@ const toggleListening = async () => {
                         <span className="text-sm font-semibold">
                           {isAI ? "AI Interviewer" : "You"}
                         </span>
-
                         {isAI && msg.audioBase64 && (
                           <Button
                             variant="ghost"
@@ -602,7 +606,6 @@ const toggleListening = async () => {
                           </Button>
                         )}
                       </div>
-
                       <p className="text-sm">{msg.text}</p>
                     </div>
                   </div>
