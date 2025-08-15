@@ -440,6 +440,7 @@ const toggleListening = async () => {
   // Optionally, auto-play the latest AI audio when it arrives
   useEffect(() => {
     if (lastAIAudio) {
+      console.log('[AUDIO] Auto-playing AI audio as soon as it arrives:', lastAIAudio);
       speakResponse(lastAIAudio);
     }
   }, [lastAIAudio]);
