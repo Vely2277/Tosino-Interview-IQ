@@ -2,12 +2,11 @@
 import lamejs from 'lamejs';
 // Utility: Convert WAV ArrayBuffer to MP3 Uint8Array
 function wavToMp3(wavBuffer) {
-  // Parse WAV header (PCM 16-bit LE, mono or stereo)
+  console.log('[LAMEJS] wavToMp3 called. Buffer length:', wavBuffer.byteLength);
   function readInt16LE(buffer, offset) {
     return buffer[offset] | (buffer[offset + 1] << 8);
   }
   const wav = new DataView(wavBuffer);
-  // Find "fmt " and "data" chunks
   let offset = 12;
   let fmtChunkOffset = -1, dataChunkOffset = -1, dataChunkSize = 0, numChannels = 1, sampleRate = 16000, bitsPerSample = 16;
   while (offset < wav.byteLength) {
@@ -15,25 +14,30 @@ function wavToMp3(wavBuffer) {
       wav.getUint8(offset), wav.getUint8(offset + 1), wav.getUint8(offset + 2), wav.getUint8(offset + 3)
     );
     const chunkSize = wav.getUint32(offset + 4, true);
+    console.log(`[LAMEJS] Found chunk: ${chunkId} at offset ${offset}, size ${chunkSize}`);
     if (chunkId === 'fmt ') {
       fmtChunkOffset = offset + 8;
       numChannels = wav.getUint16(fmtChunkOffset + 2, true);
       sampleRate = wav.getUint32(fmtChunkOffset + 4, true);
       bitsPerSample = wav.getUint16(fmtChunkOffset + 14, true);
+      console.log(`[LAMEJS] fmt chunk: numChannels=${numChannels}, sampleRate=${sampleRate}, bitsPerSample=${bitsPerSample}`);
     } else if (chunkId === 'data') {
       dataChunkOffset = offset + 8;
       dataChunkSize = chunkSize;
+      console.log(`[LAMEJS] data chunk: offset=${dataChunkOffset}, size=${dataChunkSize}`);
       break;
     }
     offset += 8 + chunkSize;
   }
-  if (dataChunkOffset === -1) throw new Error('WAV: data chunk not found');
-  // Read PCM samples
+  if (dataChunkOffset === -1) {
+    console.error('[LAMEJS] WAV: data chunk not found');
+    throw new Error('WAV: data chunk not found');
+  }
   const samples = new Int16Array(wavBuffer, dataChunkOffset, dataChunkSize / 2);
-  // Encode to MP3
+  console.log(`[LAMEJS] PCM samples extracted. Length: ${samples.length}`);
+  console.log(`[LAMEJS] Encoding to MP3: numChannels=${numChannels}, sampleRate=${sampleRate}, bitsPerSample=${bitsPerSample}`);
   const mp3Encoder = new lamejs.Mp3Encoder(numChannels, sampleRate, 128);
   const mp3Data = [];
-  let remaining = samples.length;
   let sampleBlockSize = 1152;
   for (let i = 0; i < samples.length; i += sampleBlockSize) {
     const sampleChunk = samples.subarray(i, i + sampleBlockSize);
@@ -42,7 +46,6 @@ function wavToMp3(wavBuffer) {
   }
   const mp3buf = mp3Encoder.flush();
   if (mp3buf.length > 0) mp3Data.push(new Uint8Array(mp3buf));
-  // Concatenate all mp3 chunks
   let totalLength = mp3Data.reduce((acc, cur) => acc + cur.length, 0);
   let mp3 = new Uint8Array(totalLength);
   let offsetMp3 = 0;
@@ -50,6 +53,7 @@ function wavToMp3(wavBuffer) {
     mp3.set(b, offsetMp3);
     offsetMp3 += b.length;
   }
+  console.log('[LAMEJS] MP3 encoding complete. MP3 length:', mp3.length);
   return mp3;
 }
 
@@ -400,6 +404,7 @@ const toggleListening = async () => {
       const wavBuffer = new ArrayBuffer(binary.length);
       const view = new Uint8Array(wavBuffer);
       for (let i = 0; i < binary.length; i++) view[i] = binary.charCodeAt(i);
+      console.log('[AUDIO] WAV buffer created. Length:', wavBuffer.byteLength);
       // Convert WAV to MP3
       console.log('[AUDIO] Converting WAV to MP3 using lamejs...');
       const mp3Uint8 = wavToMp3(wavBuffer);
@@ -407,6 +412,7 @@ const toggleListening = async () => {
       // Create Blob and play
       const mp3Blob = new Blob([mp3Uint8], { type: 'audio/mp3' });
       const url = URL.createObjectURL(mp3Blob);
+      console.log('[AUDIO] MP3 Blob URL created:', url);
       const audio = new Audio(url);
       audio.play()
         .then(() => {
