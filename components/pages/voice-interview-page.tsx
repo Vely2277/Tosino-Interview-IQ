@@ -86,7 +86,8 @@ export default function VoiceInterviewPage() {
   const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
   // Remove all WebRTC state
   const [audioPlayer, setAudioPlayer] = useState<HTMLAudioElement | null>(null);
-  const [lastAIAudio, setLastAIAudio] = useState<string | null>(null);
+  // lastAIAudio is now an object with base64 and format, or null
+  const [lastAIAudio, setLastAIAudio] = useState<{ base64: string; format: string } | null>(null);
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [recording, setRecording] = useState(false);
 
@@ -148,8 +149,11 @@ export default function VoiceInterviewPage() {
 
       // If backend returns audioBase64, set it for playback
       if (data.audioBase64) {
-        console.log('[AUDIO] Received audioBase64 from backend, length:', data.audioBase64.length);
-        setLastAIAudio(data.audioBase64);
+        console.log('[AUDIO] Received audioBase64 from backend, length:', data.audioBase64.length, 'format:', data.audioFormat);
+        setLastAIAudio({
+          base64: data.audioBase64,
+          format: data.audioFormat || 'mp3',
+        });
       } else {
         setLastAIAudio(null);
       }
@@ -329,13 +333,14 @@ const toggleListening = async () => {
 
 
   // Play AI response audio from backend (gTTS)
-  const speakResponse = (audioBase64?: string) => {
-    if (!audioBase64) {
+  const speakResponse = (audioObj?: { base64: string; format: string }) => {
+    if (!audioObj || !audioObj.base64) {
       alert("No audio available for this response.");
       return;
     }
-    console.log('[AUDIO] Attempting to play audio, base64 length:', audioBase64.length);
-    const audio = new Audio(`data:audio/wav;base64,${audioBase64}`);
+    const mimeType = audioObj.format === 'mp3' ? 'audio/mp3' : 'audio/wav';
+    console.log('[AUDIO] Attempting to play audio, base64 length:', audioObj.base64.length, 'format:', audioObj.format);
+    const audio = new Audio(`data:${mimeType};base64,${audioObj.base64}`);
     audio.play()
       .then(() => {
         console.log('[AUDIO] Playback started successfully.');
@@ -556,7 +561,6 @@ const toggleListening = async () => {
           <Card>
             <CardContent className="p-6 space-y-4">
               {chatHistory.map((msg, idx) => {
-
                 const isAI = msg.from === "ai";
                 return (
                   <div
@@ -604,11 +608,10 @@ const toggleListening = async () => {
                           <Button
                             variant="ghost"
                             size="sm"
-                            aria-label="Replay AI audio"
-                            onClick={() => speakResponse(msg.audioBase64)}
-                            className="ml-2 p-1"
+                            onClick={() => speakResponse({ base64: msg.audioBase64!, format: 'mp3' })}
+                            title="Play AI audio"
                           >
-                            <Volume2 className="h-4 w-4" />
+                            <span role="img" aria-label="Play">🔊</span>
                           </Button>
                         )}
                       </div>
