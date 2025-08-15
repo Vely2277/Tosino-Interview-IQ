@@ -148,6 +148,7 @@ export default function VoiceInterviewPage() {
 
       // If backend returns audioBase64, set it for playback
       if (data.audioBase64) {
+        console.log('[AUDIO] Received audioBase64 from backend, length:', data.audioBase64.length);
         setLastAIAudio(data.audioBase64);
       } else {
         setLastAIAudio(null);
@@ -333,11 +334,16 @@ const toggleListening = async () => {
       alert("No audio available for this response.");
       return;
     }
+    console.log('[AUDIO] Attempting to play audio, base64 length:', audioBase64.length);
     const audio = new Audio(`data:audio/wav;base64,${audioBase64}`);
-    audio.play().catch((err) => {
-      console.error("Audio playback error:", err);
-      alert("Could not play audio. Please check your device's audio settings.");
-    });
+    audio.play()
+      .then(() => {
+        console.log('[AUDIO] Playback started successfully.');
+      })
+      .catch((err) => {
+        console.error("Audio playback error:", err);
+        alert("Could not play audio. Please check your device's audio settings.");
+      });
   };
 
 
