@@ -56,7 +56,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Mic, MicOff, ArrowLeft, Volume2, Menu, X, Settings } from "lucide-react";
 import { renderMarkdownToHTML } from "@/lib/markdown";
-import { interviewAPI, voiceAPI } from "@/lib/api";
+import { interviewAPI, voiceAPI, getBackendUrl } from "@/lib/api";
 import Image from "next/image";
 
 
@@ -94,11 +94,12 @@ export default function VoiceInterviewPage() {
     console.log("[INIT] Fetching initial AI audio message from backend");
     setIsLoading(true);
     try {
-      // Build the URL for the GET /api/voice-stream endpoint
+      // Build the URL for the GET /api/voice-stream endpoint using backend URL from env
       const params = new URLSearchParams();
       if (interviewData.jobTitle) params.append('jobTitle', interviewData.jobTitle);
       if (interviewData.company) params.append('company', interviewData.company);
-      const url = `/api/voice-stream?${params.toString()}`;
+      const backendUrl = getBackendUrl();
+      const url = `${backendUrl}/api/voice-stream?${params.toString()}`;
       const res = await fetch(url);
       if (!res.ok) {
         throw new Error('Failed to fetch initial AI audio');
