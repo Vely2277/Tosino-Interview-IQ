@@ -553,7 +553,15 @@ const toggleListening = async () => {
                       </div>
                     )}
                     <div
-                      className={`p-4 rounded-lg flex items-center gap-3 ${isAI ? "bg-blue-50 text-blue-900" : "bg-green-100 text-green-900"}`}
+                      className={`p-4 rounded-lg flex items-center gap-3 ${
+                        isAI
+                          ? "bg-blue-50 text-blue-900"
+                          : msg.grade == null
+                          ? "bg-gray-100 text-gray-900"
+                          : msg.grade < 5
+                          ? "bg-red-100 text-red-900"
+                          : "bg-green-100 text-green-900"
+                      }`}
                     >
                       {msg.audioBase64 && (
                         <Button
