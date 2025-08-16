@@ -77,7 +77,8 @@ export default function VoiceInterviewPage() {
   const [chatHistory, setChatHistory] = useState<
     {
       from: "user" | "ai";
-      audioBase64: string;
+      text: string;
+      audioBase64?: string;
     }[]
   >([]);
   // Removed transcript state, not needed for voice note chat
@@ -106,11 +107,11 @@ export default function VoiceInterviewPage() {
       console.log("Log session id:", data.sessionId);
       const id = data.sessionId;
       setSessionId(id);
-      // Expecting backend to return initial audioBase64 for AI's first message
-      if (data.audioBase64) {
+      // Expecting backend to return initial audioBase64 and text for AI's first message
+      if (data.audioBase64 && data.text) {
         setChatHistory((prev) => [
           ...prev,
-          { from: "ai", audioBase64: data.audioBase64 },
+          { from: "ai", text: data.text, audioBase64: data.audioBase64 },
         ]);
       }
     } catch (error) {
@@ -135,21 +136,14 @@ export default function VoiceInterviewPage() {
 
     try {
       console.log("[RESPOND] session id ref:", sessionIdRef.current);
-      const data = await interviewAPI.respond(
-        sessionIdRef.current!,
-        userResponse,
-        "voice"
-      );
-
-      console.log("[RESPOND] api call sent. waiting for response...");
-      console.log("[RESPOND] Received response from backend:", data);
-
-
-      // Add user voice note and AI voice note to chat history
+      // userResponse is the user's voice note base64 (WAV)
+      // Send to backend for STT+TTS (voiceAPI.stream returns { aiResponse, audioBase64 })
+      const data = await voiceAPI.stream(userResponse, sessionIdRef.current!);
+      // Add user voice note and AI response (text + audio) to chat
       setChatHistory((prev) => [
         ...prev,
-        { from: "user" as const, audioBase64: userResponse },
-        ...(data.audioBase64 ? [{ from: "ai" as const, audioBase64: data.audioBase64 }] : []),
+        { from: "user" as const, text: '', audioBase64: userResponse },
+        ...(data.audioBase64 && data.aiResponse ? [{ from: "ai" as const, text: data.aiResponse, audioBase64: data.audioBase64 }] : []),
       ]);
 
     } catch (error) {
@@ -540,15 +534,18 @@ const toggleListening = async () => {
                     <div
                       className={`p-4 rounded-lg flex items-center gap-3 ${isAI ? "bg-blue-50 text-blue-900" : "bg-green-100 text-green-900"}`}
                     >
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => speakResponse(msg.audioBase64)}
-                        title={isAI ? "Play AI voice note" : "Play your voice note"}
-                      >
-                        <Volume2 className="w-6 h-6" />
-                      </Button>
+                      {msg.audioBase64 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => speakResponse(msg.audioBase64)}
+                          title={isAI ? "Play AI voice note" : "Play your voice note"}
+                        >
+                          <Volume2 className="w-6 h-6" />
+                        </Button>
+                      )}
                       <span className="text-xs font-semibold">{isAI ? "AI" : "You"}</span>
+                      <span className="ml-2 text-sm">{msg.text}</span>
                     </div>
                   </div>
                 );
