@@ -89,36 +89,33 @@ export default function VoiceInterviewPage() {
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [recording, setRecording] = useState(false);
 
-  // Initialize the interview session STARTING THE INTERVIEW
+  // Initialize the interview session: fetch start message audio from backend
   const initializeInterview = async () => {
-    console.log("[INIT] Initializing interview session");
-  setIsLoading(true);
-  console.log("[INIT] Loading state set to true");
+    console.log("[INIT] Fetching initial AI audio message from backend");
+    setIsLoading(true);
     try {
-  console.log("[INIT] Calling interviewAPI.start with:", interviewData.jobTitle, interviewData.company, "voice");
-  const data = await interviewAPI.start(
-        interviewData.jobTitle,
-        interviewData.company,
-        "voice"
-      );
-  console.log("[INIT] Received session data:", data);
-  setSessionId(data.sessionId);
-      sessionIdRef.current = data.sessionId;
-      console.log("Log session id:", data.sessionId);
-      const id = data.sessionId;
-      setSessionId(id);
-      // Expecting backend to return initial audioBase64 and text for AI's first message
-      if (data.audioBase64 && data.text) {
-        setChatHistory((prev) => [
-          ...prev,
-          { from: "ai", text: data.text, audioBase64: data.audioBase64 },
-        ]);
+      // Build the URL for the GET /api/voice-stream endpoint
+      const params = new URLSearchParams();
+      if (interviewData.jobTitle) params.append('jobTitle', interviewData.jobTitle);
+      if (interviewData.company) params.append('company', interviewData.company);
+      const url = `/api/voice-stream?${params.toString()}`;
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error('Failed to fetch initial AI audio');
       }
+      const data = await res.json();
+      if (!data.audioBase64) {
+        throw new Error('No audioBase64 in initial AI response');
+      }
+      setChatHistory((prev) => [
+        ...prev,
+        { from: "ai" as const, text: '', audioBase64: data.audioBase64 },
+      ]);
+      console.log('[INIT] Initial AI audio message loaded.');
     } catch (error) {
-      console.error("[INIT] Error starting interview:", error);
+      console.error("[INIT] Error fetching initial AI audio:", error);
     } finally {
       setIsLoading(false);
-      console.log("[INIT] Loading state set to false");
     }
   };
 
