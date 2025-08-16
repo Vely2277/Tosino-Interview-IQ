@@ -141,7 +141,7 @@ export default function VoiceInterviewPage() {
           grade: data.grade ?? null,
           reasoning: data.reasoning ?? null,
         },
-        ...(data.audioBase64 && data.aiResponse ? [{ from: "ai" as const, text: data.aiResponse, audioBase64: data.audioBase64 }] : []),
+        ...(data.aiResponse ? [{ from: "ai" as const, text: data.aiResponse, audioBase64: data.audioBase64 }] : []),
       ]);
       // Auto-play AI response if present
       if (data.audioBase64 || data.aiResponse) {
