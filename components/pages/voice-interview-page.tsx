@@ -24,7 +24,6 @@ function getSupportedMimeType() {
 
 function recordAudioStream(stream: MediaStream, onStop: (audioBuffer: ArrayBuffer) => void) {
   const mimeType = getSupportedMimeType();
-  console.log('[VOICE] recordAudioStream called, mimeType:', mimeType);
   if (!mimeType) {
     alert('Your browser does not support audio recording.');
     return null;
@@ -32,13 +31,10 @@ function recordAudioStream(stream: MediaStream, onStop: (audioBuffer: ArrayBuffe
   const mediaRecorder = new MediaRecorder(stream, { mimeType });
   let chunks: BlobPart[] = [];
   mediaRecorder.ondataavailable = (e) => {
-    console.log('[VOICE] mediaRecorder.ondataavailable fired, data size:', e.data.size);
     if (e.data.size > 0) chunks.push(e.data);
   };
   mediaRecorder.onstop = async () => {
-    console.log('[VOICE] mediaRecorder.onstop fired, chunks:', chunks.length);
     const blob = new Blob(chunks, { type: mimeType });
-    console.log('[VOICE] Blob created, size:', blob.size);
     const arrayBuffer = await blob.arrayBuffer();
     onStop(arrayBuffer);
   };
@@ -46,7 +42,6 @@ function recordAudioStream(stream: MediaStream, onStop: (audioBuffer: ArrayBuffe
     console.error('[VOICE] mediaRecorder.onerror:', e);
   };
   mediaRecorder.start();
-  console.log('[VOICE] mediaRecorder started');
   return mediaRecorder;
 }
 import { useAuth } from "@/contexts/auth-context";
@@ -93,7 +88,7 @@ export default function VoiceInterviewPage() {
 
   // Initialize the interview session: fetch start message audio from backend (using interviewAPI.start)
   const initializeInterview = async () => {
-    console.log("[INIT] Fetching initial AI audio message from backend");
+  // [INIT] Fetching initial AI audio message from backend
     setIsLoading(true);
     try {
       const data = await interviewAPI.start(
@@ -113,7 +108,7 @@ export default function VoiceInterviewPage() {
         ]);
         speakResponse(data.audioBase64, data.initialMessage);
       }
-      console.log('[INIT] Initial AI audio message loaded. sessionId:', data.sessionId);
+  // [INIT] Initial AI audio message loaded
     } catch (error) {
       console.error("[INIT] Error fetching initial AI audio:", error);
     } finally {
@@ -123,7 +118,7 @@ export default function VoiceInterviewPage() {
 
   // Respond to the interview: send user audio to backend (using interviewAPI.respond)
   const handleRespond = async (userResponse: string) => {
-    console.log("[RESPOND] handleRespond called with:", userResponse);
+  // [RESPOND] handleRespond called
     setIsLoading(true);
     try {
       const sid = sessionIdRef.current || sessionId;
@@ -167,15 +162,15 @@ export default function VoiceInterviewPage() {
 
 // Robust audio recording and streaming logic with improved permission and state sync
 const toggleListening = async () => {
-  console.log('[VOICE] BUTTON TAPPED. Current recording state:', recording);
+  // [VOICE] BUTTON TAPPED. Current recording state
   if (recording) {
-    console.log('[VOICE] STOP RECORDING requested.');
+  // [VOICE] STOP RECORDING requested
     // Stop recording and clean up
     setIsListening(false);
     setMicDisabled(true);
     try {
       if (mediaRecorder) {
-        console.log('[VOICE] Calling mediaRecorder.stop()...');
+  // [VOICE] Calling mediaRecorder.stop()
         // Do NOT remove the onstop handler here!
         mediaRecorder.stop();
         setMediaRecorder(null);
@@ -192,24 +187,24 @@ const toggleListening = async () => {
     return;
   }
   setMicDisabled(true);
-  console.log('[VOICE] START RECORDING requested. Requesting microphone permission...');
+  // [VOICE] START RECORDING requested. Requesting microphone permission
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
     setAudioStream(stream);
     setIsListening(true);
     setRecording(true);
     setMicDisabled(false);
-    console.log('[VOICE] Microphone stream acquired. RECORDING...');
+  // [VOICE] Microphone stream acquired. RECORDING
     // Start recording
     const rec = recordAudioStream(stream, (audioBuffer) => {
-      console.log('[VOICE] RECORDING END. Callback fired. Preparing to send...');
+  // [VOICE] RECORDING END. Callback fired. Preparing to send
       setIsListening(false);
       setRecording(false);
       setMicDisabled(true);
       // Use FileReader to safely encode audio as base64
       const mimeType = getSupportedMimeType();
       const blob = new Blob([audioBuffer], { type: mimeType });
-      console.log('[VOICE] Blob for FileReader, size:', blob.size);
+  // [VOICE] Blob for FileReader
       const reader = new FileReader();
       reader.onloadend = async () => {
         const result = reader.result;
@@ -217,19 +212,19 @@ const toggleListening = async () => {
         if (typeof result === 'string') {
           base64 = result.split(',')[1]; // Remove data URI prefix
         }
-        console.log('[VOICE] base64 length:', base64.length, 'sessionId:', sessionIdRef.current);
+  // [VOICE] base64 length
         if (!base64) {
-          console.error('[VOICE] No base64 audio to send!');
+          // [VOICE] No base64 audio to send
           setMicDisabled(false);
           setAudioStream(null);
           return;
         }
         try {
-          console.log('[VOICE] RECORDING SENT. Sending audio to backend...');
+          // [VOICE] RECORDING SENT. Sending audio to backend
           // Send the WAV base64 directly as the user response
           await handleRespond(base64);
         } catch (err: any) {
-          console.error('[VOICE] Error sending audio:', err);
+          // [VOICE] Error sending audio
         }
         setMicDisabled(false);
         // Clean up audio stream after recording
@@ -241,7 +236,7 @@ const toggleListening = async () => {
       reader.readAsDataURL(blob);
     });
     if (!rec) {
-      console.error('[VOICE] Could not start recording. MediaRecorder not created.');
+  // [VOICE] Could not start recording. MediaRecorder not created
       setIsListening(false);
       setMicDisabled(false);
       setRecording(false);
@@ -253,7 +248,7 @@ const toggleListening = async () => {
     }
     setMediaRecorder(rec);
   } catch (err: any) {
-    console.error('[VOICE] ERROR requesting microphone or starting recording:', err);
+  // [VOICE] ERROR requesting microphone or starting recording
     let message = "Microphone access is required. Please allow microphone permission in your browser settings.";
     if (err && err.name === 'NotAllowedError') {
       message = "Microphone access denied. Please enable it in your browser settings.";
