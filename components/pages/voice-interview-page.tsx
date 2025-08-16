@@ -111,6 +111,7 @@ export default function VoiceInterviewPage() {
           ...prev,
           { from: "ai" as const, text: data.initialMessage, audioBase64: data.audioBase64 },
         ]);
+        speakResponse(data.audioBase64, data.initialMessage);
       }
       console.log('[INIT] Initial AI audio message loaded. sessionId:', data.sessionId);
     } catch (error) {
@@ -143,8 +144,8 @@ export default function VoiceInterviewPage() {
         ...(data.audioBase64 && data.aiResponse ? [{ from: "ai" as const, text: data.aiResponse, audioBase64: data.audioBase64 }] : []),
       ]);
       // Auto-play AI response if present
-      if (data.audioBase64) {
-        speakResponse(data.audioBase64);
+      if (data.audioBase64 || data.aiResponse) {
+        speakResponse(data.audioBase64, data.aiResponse);
       }
       if (data.sessionId) {
         setSessionId(data.sessionId);
@@ -299,9 +300,23 @@ const toggleListening = async () => {
 
 
   // Play WAV audio from base64
-  const speakResponse = async (audioBase64?: string) => {
+  // Play WAV audio from base64, fallback to browser TTS if error or missing
+  const speakResponse = async (audioBase64?: string, text?: string) => {
+    // Helper: Use browser SpeechSynthesis
+    const speakWithBrowserTTS = (txt: string) => {
+      if (!txt) return;
+      try {
+        const utterance = new window.SpeechSynthesisUtterance(txt);
+        window.speechSynthesis.speak(utterance);
+      } catch (e) {
+        console.error('[AUDIO] Browser TTS failed:', e);
+      }
+    };
+
     if (!audioBase64) {
-      alert("No audio available for this response.");
+      // Fallback: Use browser TTS if no audio
+      if (text) speakWithBrowserTTS(text);
+      else alert("No audio or text available for this response.");
       return;
     }
     try {
@@ -316,11 +331,15 @@ const toggleListening = async () => {
       const audio = new Audio(url);
       audio.play().catch((err) => {
         console.error("Audio playback error:", err);
-        alert("Could not play audio. Please check your device's audio settings.");
+        // Fallback: Use browser TTS if playback fails
+        if (text) speakWithBrowserTTS(text);
+        else alert("Could not play audio. Please check your device's audio settings.");
       });
     } catch (err) {
       console.error('[AUDIO] Error during WAV playback:', err);
-      alert('Could not play audio.');
+      // Fallback: Use browser TTS if decoding fails
+      if (text) speakWithBrowserTTS(text);
+      else alert('Could not play audio.');
     }
   };
 
@@ -563,11 +582,11 @@ const toggleListening = async () => {
                           : "bg-green-100 text-green-900"
                       }`}
                     >
-                      {msg.audioBase64 && (
+                      {(msg.audioBase64 || msg.text) && (
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => speakResponse(msg.audioBase64)}
+                          onClick={() => speakResponse(msg.audioBase64, msg.text)}
                           title={isAI ? "Play AI voice note" : "Play your voice note"}
                         >
                           <Volume2 className="w-6 h-6" />
