@@ -89,31 +89,27 @@ export default function VoiceInterviewPage() {
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [recording, setRecording] = useState(false);
 
-  // Initialize the interview session: fetch start message audio from backend
+  // Initialize the interview session: fetch start message audio from backend (using interviewAPI.start)
   const initializeInterview = async () => {
     console.log("[INIT] Fetching initial AI audio message from backend");
     setIsLoading(true);
     try {
-      // Build the URL for the GET /api/voice-stream endpoint using backend URL from env
-      const params = new URLSearchParams();
-      if (interviewData.jobTitle) params.append('jobTitle', interviewData.jobTitle);
-      if (interviewData.company) params.append('company', interviewData.company);
-      const backendUrl = getBackendUrl();
-      const url = `${backendUrl}/api/voice-stream?${params.toString()}`;
-      const res = await fetch(url);
-      if (!res.ok) {
-        throw new Error('Failed to fetch initial AI audio');
-      }
-      const data = await res.json();
-      if (!data.audioBase64 || !data.sessionId) {
-        throw new Error('No audioBase64 or sessionId in initial AI response');
+      const data = await interviewAPI.start(
+        interviewData.jobTitle || '',
+        interviewData.company || '',
+        'voice'
+      );
+      if (!data.sessionId) {
+        throw new Error('No sessionId in initial AI response');
       }
       setSessionId(data.sessionId);
       sessionIdRef.current = data.sessionId;
-      setChatHistory((prev) => [
-        ...prev,
-        { from: "ai" as const, text: data.initialMessage || '', audioBase64: data.audioBase64 },
-      ]);
+      if (data.audioBase64 && data.initialMessage) {
+        setChatHistory((prev) => [
+          ...prev,
+          { from: "ai" as const, text: data.initialMessage, audioBase64: data.audioBase64 },
+        ]);
+      }
       console.log('[INIT] Initial AI audio message loaded. sessionId:', data.sessionId);
     } catch (error) {
       console.error("[INIT] Error fetching initial AI audio:", error);
@@ -122,6 +118,7 @@ export default function VoiceInterviewPage() {
     }
   };
 
+  // Respond to the interview: send user audio to backend (using interviewAPI.respond)
   const handleRespond = async (userResponse: string) => {
     console.log("[RESPOND] handleRespond called with:", userResponse);
     setIsLoading(true);
@@ -131,15 +128,12 @@ export default function VoiceInterviewPage() {
         throw new Error("No sessionId available for response!");
       }
       // userResponse is the user's voice note base64 (WAV)
-      // Send to backend for STT+TTS (voiceAPI.stream returns { aiResponse, audioBase64 })
-      const data = await voiceAPI.stream(userResponse, sid);
-      // Add user voice note and AI response (text + audio) to chat
+      const data = await interviewAPI.respond(sid, userResponse, 'voice');
       setChatHistory((prev) => [
         ...prev,
         { from: "user" as const, text: '', audioBase64: userResponse },
         ...(data.audioBase64 && data.aiResponse ? [{ from: "ai" as const, text: data.aiResponse, audioBase64: data.audioBase64 }] : []),
       ]);
-      // Update sessionId if backend returns it (for robustness)
       if (data.sessionId) {
         setSessionId(data.sessionId);
         sessionIdRef.current = data.sessionId;
