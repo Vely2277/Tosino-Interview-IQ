@@ -80,6 +80,7 @@ export default function VoiceInterviewPage() {
   >([]);
   // Removed transcript state, not needed for voice note chat
   const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
+  const audioStreamRef = useRef<MediaStream | null>(null);
   // Remove all WebRTC state
   const [audioPlayer, setAudioPlayer] = useState<HTMLAudioElement | null>(null);
   const [currentlyPlayingIdx, setCurrentlyPlayingIdx] = useState<number | null>(null);
@@ -138,13 +139,6 @@ export default function VoiceInterviewPage() {
         },
         ...(data.aiResponse ? [{ from: "ai" as const, text: data.aiResponse, audioBase64: data.audioBase64 }] : []),
       ]);
-      // Auto-play AI response if present
-      if (data.audioBase64 || data.aiResponse) {
-        // Always auto-play the latest AI response
-        setTimeout(() => {
-          speakResponse(data.audioBase64, data.aiResponse, chatHistory.length + 1);
-        }, 300);
-      }
       if (data.sessionId) {
         setSessionId(data.sessionId);
         sessionIdRef.current = data.sessionId;
@@ -165,23 +159,15 @@ export default function VoiceInterviewPage() {
 
 // Robust audio recording and streaming logic with improved permission and state sync
 const toggleListening = async () => {
-  // [VOICE] BUTTON TAPPED. Current recording state
   if (recording) {
-  // [VOICE] STOP RECORDING requested
-    // Stop recording and clean up
     setIsListening(false);
     setMicDisabled(true);
     try {
       if (mediaRecorder) {
-  // [VOICE] Calling mediaRecorder.stop()
-        // Do NOT remove the onstop handler here!
         mediaRecorder.stop();
         setMediaRecorder(null);
       }
-      if (audioStream) {
-        audioStream.getTracks().forEach((track) => track.stop());
-        setAudioStream(null);
-      }
+      // Do not stop audioStream here; keep it for reuse
     } catch (e) {
       console.error('[VOICE] Error when stopping mediaRecorder or cleaning up:', e);
     }
@@ -190,66 +176,50 @@ const toggleListening = async () => {
     return;
   }
   setMicDisabled(true);
-  // [VOICE] START RECORDING requested. Requesting microphone permission
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    setAudioStream(stream);
+    let stream = audioStreamRef.current;
+    if (!stream) {
+      stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      audioStreamRef.current = stream;
+      setAudioStream(stream);
+    }
     setIsListening(true);
     setRecording(true);
     setMicDisabled(false);
-  // [VOICE] Microphone stream acquired. RECORDING
-    // Start recording
     const rec = recordAudioStream(stream, (audioBuffer) => {
-  // [VOICE] RECORDING END. Callback fired. Preparing to send
       setIsListening(false);
       setRecording(false);
       setMicDisabled(true);
-      // Use FileReader to safely encode audio as base64
       const mimeType = getSupportedMimeType();
       const blob = new Blob([audioBuffer], { type: mimeType });
-  // [VOICE] Blob for FileReader
       const reader = new FileReader();
       reader.onloadend = async () => {
         const result = reader.result;
         let dataUrl = '';
         let base64 = '';
         if (typeof result === 'string') {
-          dataUrl = result; // Full data URL for playback
-          base64 = result.split(',')[1]; // Only base64 for backend
+          dataUrl = result;
+          base64 = result.split(',')[1];
         }
         if (!base64) {
           setMicDisabled(false);
-          setAudioStream(null);
           return;
         }
         try {
-          // Send only base64 to backend, but save full dataUrl for playback
           await handleRespond(base64, dataUrl);
-        } catch (err: any) {
-          // [VOICE] Error sending audio
-        }
+        } catch (err: any) {}
         setMicDisabled(false);
-        try {
-          stream.getTracks().forEach((track) => track.stop());
-        } catch (e) {}
-        setAudioStream(null);
       };
       reader.readAsDataURL(blob);
     });
     if (!rec) {
-  // [VOICE] Could not start recording. MediaRecorder not created
       setIsListening(false);
       setMicDisabled(false);
       setRecording(false);
-      try {
-        stream.getTracks().forEach((track) => track.stop());
-      } catch (e) {}
-      setAudioStream(null);
       return;
     }
     setMediaRecorder(rec);
   } catch (err: any) {
-  // [VOICE] ERROR requesting microphone or starting recording
     let message = "Microphone access is required. Please allow microphone permission in your browser settings.";
     if (err && err.name === 'NotAllowedError') {
       message = "Microphone access denied. Please enable it in your browser settings.";
@@ -260,15 +230,16 @@ const toggleListening = async () => {
     setIsListening(false);
     setMicDisabled(false);
     setRecording(false);
-    // Clean up any open streams
-    try {
-      if (audioStream) {
-        audioStream.getTracks().forEach((track) => track.stop());
-        setAudioStream(null);
-      }
-    } catch (e) {}
   }
 };
+  // Auto-play the latest AI response after chatHistory updates
+  useEffect(() => {
+    if (chatHistory.length === 0) return;
+    const lastMsg = chatHistory[chatHistory.length - 1];
+    if (lastMsg.from === 'ai' && lastMsg.audioBase64) {
+      speakResponse(lastMsg.audioBase64, lastMsg.text, chatHistory.length - 1);
+    }
+  }, [chatHistory]);
 
   // End the interview session
   const handleEndInterview = async () => {
