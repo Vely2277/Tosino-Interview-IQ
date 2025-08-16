@@ -82,7 +82,7 @@ export default function VoiceInterviewPage() {
   const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
   const audioStreamRef = useRef<MediaStream | null>(null);
   // Remove all WebRTC state
-  const [audioPlayer, setAudioPlayer] = useState<HTMLAudioElement | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const [currentlyPlayingIdx, setCurrentlyPlayingIdx] = useState<number | null>(null);
   // Removed lastAIAudio state, not needed for voice note chat
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
@@ -271,10 +271,9 @@ const toggleListening = async () => {
   // Play WAV audio from base64, fallback to browser TTS if error or missing
   const speakResponse = async (audioBase64?: string, text?: string, idx?: number) => {
     // Stop any ongoing audio or TTS
-    if (audioPlayer) {
-      audioPlayer.pause();
-      audioPlayer.currentTime = 0;
-      setAudioPlayer(null);
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
     }
     if (window.speechSynthesis && window.speechSynthesis.speaking) {
       window.speechSynthesis.cancel();
@@ -295,7 +294,6 @@ const toggleListening = async () => {
     };
 
     if (!audioBase64) {
-      // Fallback: Use browser TTS if no audio
       if (text) speakWithBrowserTTS(text);
       else alert("No audio or text available for this response.");
       return;
@@ -303,27 +301,19 @@ const toggleListening = async () => {
     try {
       let audioUrl = '';
       if (audioBase64.startsWith('data:audio/')) {
-        // User's own audio, already a Data URL
         audioUrl = audioBase64;
       } else {
-        // AI response: backend returns base64, convert to Data URL
         audioUrl = `data:audio/wav;base64,${audioBase64}`;
       }
-      const audio = new Audio(audioUrl);
-      setAudioPlayer(audio);
-      audio.onended = () => {
-        setCurrentlyPlayingIdx(null);
-        setAudioPlayer(null);
-      };
-      audio.play().catch((err) => {
-        setAudioPlayer(null);
-        setCurrentlyPlayingIdx(null);
-        if (text) speakWithBrowserTTS(text);
-        else alert("Could not play audio. Please check your device's audio settings.");
-      });
+      if (audioRef.current) {
+        audioRef.current.src = audioUrl;
+        audioRef.current.onended = () => {
+          setCurrentlyPlayingIdx(null);
+        };
+        await audioRef.current.play();
+      }
     } catch (err) {
       setCurrentlyPlayingIdx(null);
-      setAudioPlayer(null);
       if (text) speakWithBrowserTTS(text);
       else alert('Could not play audio.');
     }
@@ -521,8 +511,11 @@ const toggleListening = async () => {
         </div>
       </section>
 
-      {/* Main Content */}
-      <div className="w-screen px-0 py-8">
+  {/* Hidden audio element for reliable autoplay */}
+  <audio ref={audioRef} style={{ display: 'none' }} preload="auto" />
+
+  {/* Main Content */}
+  <div className="w-screen px-0 py-8">
         <div className="space-y-6 w-screen">
           {/* Speech Recognition Error Message */}
 
