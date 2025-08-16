@@ -82,6 +82,7 @@ export default function VoiceInterviewPage() {
   const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
   // Remove all WebRTC state
   const [audioPlayer, setAudioPlayer] = useState<HTMLAudioElement | null>(null);
+  const [currentlyPlayingIdx, setCurrentlyPlayingIdx] = useState<number | null>(null);
   // Removed lastAIAudio state, not needed for voice note chat
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [recording, setRecording] = useState(false);
@@ -296,15 +297,29 @@ const toggleListening = async () => {
 
   // Play WAV audio from base64
   // Play WAV audio from base64, fallback to browser TTS if error or missing
-  const speakResponse = async (audioBase64?: string, text?: string) => {
+  // Play WAV audio from base64, fallback to browser TTS if error or missing
+  const speakResponse = async (audioBase64?: string, text?: string, idx?: number) => {
+    // Stop any ongoing audio or TTS
+    if (audioPlayer) {
+      audioPlayer.pause();
+      audioPlayer.currentTime = 0;
+      setAudioPlayer(null);
+    }
+    if (window.speechSynthesis && window.speechSynthesis.speaking) {
+      window.speechSynthesis.cancel();
+    }
+
+    setCurrentlyPlayingIdx(idx ?? null);
+
     // Helper: Use browser SpeechSynthesis
     const speakWithBrowserTTS = (txt: string) => {
       if (!txt) return;
       try {
         const utterance = new window.SpeechSynthesisUtterance(txt);
+        utterance.onend = () => setCurrentlyPlayingIdx(null);
         window.speechSynthesis.speak(utterance);
       } catch (e) {
-        console.error('[AUDIO] Browser TTS failed:', e);
+        setCurrentlyPlayingIdx(null);
       }
     };
 
@@ -324,14 +339,21 @@ const toggleListening = async () => {
       const wavBlob = new Blob([wavBuffer], { type: 'audio/wav' });
       const url = URL.createObjectURL(wavBlob);
       const audio = new Audio(url);
+      setAudioPlayer(audio);
+      audio.onended = () => {
+        setCurrentlyPlayingIdx(null);
+        setAudioPlayer(null);
+      };
       audio.play().catch((err) => {
-        console.error("Audio playback error:", err);
         // Fallback: Use browser TTS if playback fails
+        setAudioPlayer(null);
+        setCurrentlyPlayingIdx(null);
         if (text) speakWithBrowserTTS(text);
         else alert("Could not play audio. Please check your device's audio settings.");
       });
     } catch (err) {
-      console.error('[AUDIO] Error during WAV playback:', err);
+      setCurrentlyPlayingIdx(null);
+      setAudioPlayer(null);
       // Fallback: Use browser TTS if decoding fails
       if (text) speakWithBrowserTTS(text);
       else alert('Could not play audio.');
@@ -581,10 +603,11 @@ const toggleListening = async () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => speakResponse(msg.audioBase64, msg.text)}
+                          onClick={() => speakResponse(msg.audioBase64, msg.text, idx)}
                           title={isAI ? "Play AI voice note" : "Play your voice note"}
+                          disabled={recording || (currentlyPlayingIdx !== null && currentlyPlayingIdx !== idx)}
                         >
-                          <Volume2 className="w-6 h-6" />
+                          <Volume2 className={`w-6 h-6 ${currentlyPlayingIdx === idx ? 'text-blue-600 animate-pulse' : ''}`} />
                         </Button>
                       )}
                       <span className="text-xs font-semibold">{isAI ? "AI" : "You"}</span>
@@ -612,7 +635,19 @@ const toggleListening = async () => {
 
               <div className="flex justify-center">
                 <Button
-                  onClick={toggleListening}
+                  onClick={() => {
+                    // Stop any playing audio or TTS when starting recording
+                    if (audioPlayer) {
+                      audioPlayer.pause();
+                      audioPlayer.currentTime = 0;
+                      setAudioPlayer(null);
+                    }
+                    if (window.speechSynthesis && window.speechSynthesis.speaking) {
+                      window.speechSynthesis.cancel();
+                    }
+                    setCurrentlyPlayingIdx(null);
+                    toggleListening();
+                  }}
                   className={`w-20 h-20 rounded-full ${
                     isListening
                       ? "bg-red-500 hover:bg-red-600 animate-pulse"
