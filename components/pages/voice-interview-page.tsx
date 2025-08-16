@@ -104,14 +104,16 @@ export default function VoiceInterviewPage() {
         throw new Error('Failed to fetch initial AI audio');
       }
       const data = await res.json();
-      if (!data.audioBase64) {
-        throw new Error('No audioBase64 in initial AI response');
+      if (!data.audioBase64 || !data.sessionId) {
+        throw new Error('No audioBase64 or sessionId in initial AI response');
       }
+      setSessionId(data.sessionId);
+      sessionIdRef.current = data.sessionId;
       setChatHistory((prev) => [
         ...prev,
-        { from: "ai" as const, text: '', audioBase64: data.audioBase64 },
+        { from: "ai" as const, text: data.initialMessage || '', audioBase64: data.audioBase64 },
       ]);
-      console.log('[INIT] Initial AI audio message loaded.');
+      console.log('[INIT] Initial AI audio message loaded. sessionId:', data.sessionId);
     } catch (error) {
       console.error("[INIT] Error fetching initial AI audio:", error);
     } finally {
@@ -121,34 +123,30 @@ export default function VoiceInterviewPage() {
 
   const handleRespond = async (userResponse: string) => {
     console.log("[RESPOND] handleRespond called with:", userResponse);
-    console.log(
-      " [handleRespond] preparing to send response to api:",
-      userResponse
-    );
-    // if (!sessionId) return;
-
     setIsLoading(true);
-    console.log("[RESPOND] Loading state set to true");
-    console.log("Sending user response to backend:", userResponse);
-
     try {
-      console.log("[RESPOND] session id ref:", sessionIdRef.current);
+      const sid = sessionIdRef.current || sessionId;
+      if (!sid) {
+        throw new Error("No sessionId available for response!");
+      }
       // userResponse is the user's voice note base64 (WAV)
       // Send to backend for STT+TTS (voiceAPI.stream returns { aiResponse, audioBase64 })
-      const data = await voiceAPI.stream(userResponse, sessionIdRef.current!);
+      const data = await voiceAPI.stream(userResponse, sid);
       // Add user voice note and AI response (text + audio) to chat
       setChatHistory((prev) => [
         ...prev,
         { from: "user" as const, text: '', audioBase64: userResponse },
         ...(data.audioBase64 && data.aiResponse ? [{ from: "ai" as const, text: data.aiResponse, audioBase64: data.audioBase64 }] : []),
       ]);
-
+      // Update sessionId if backend returns it (for robustness)
+      if (data.sessionId) {
+        setSessionId(data.sessionId);
+        sessionIdRef.current = data.sessionId;
+      }
     } catch (error) {
       console.error("[RESPOND] Error in handleRespond:", error);
-      // Removed setAiResponse, not needed for voice note chat
     } finally {
       setIsLoading(false);
-      console.log("[RESPOND] Loading state set to false");
     }
   };
 
