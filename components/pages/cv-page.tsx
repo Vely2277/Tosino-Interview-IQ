@@ -59,7 +59,6 @@ export default function CvPage() {
         selectedFile || undefined
       );
 setOptimizationResult(data.optimization);
-console.log("Optimized CV:", data.optimization);
     } catch (err) {
       console.error(err);
       setError(

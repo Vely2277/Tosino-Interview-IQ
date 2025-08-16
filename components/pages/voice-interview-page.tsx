@@ -118,8 +118,7 @@ export default function VoiceInterviewPage() {
   };
 
   // Respond to the interview: send user audio to backend (using interviewAPI.respond)
-  const handleRespond = async (userResponse: string) => {
-  // [RESPOND] handleRespond called
+  const handleRespond = async (userResponse: string, userDataUrl?: string) => {
     setIsLoading(true);
     try {
       const sid = sessionIdRef.current || sessionId;
@@ -133,7 +132,7 @@ export default function VoiceInterviewPage() {
         {
           from: "user" as const,
           text: '',
-          audioBase64: userResponse,
+          audioBase64: userDataUrl || '', // Save full Data URL for playback
           grade: data.grade ?? null,
           reasoning: data.reasoning ?? null,
         },
@@ -141,7 +140,10 @@ export default function VoiceInterviewPage() {
       ]);
       // Auto-play AI response if present
       if (data.audioBase64 || data.aiResponse) {
-        speakResponse(data.audioBase64, data.aiResponse);
+        // Always auto-play the latest AI response
+        setTimeout(() => {
+          speakResponse(data.audioBase64, data.aiResponse, chatHistory.length + 1);
+        }, 300);
       }
       if (data.sessionId) {
         setSessionId(data.sessionId);
@@ -209,26 +211,24 @@ const toggleListening = async () => {
       const reader = new FileReader();
       reader.onloadend = async () => {
         const result = reader.result;
+        let dataUrl = '';
         let base64 = '';
         if (typeof result === 'string') {
-          base64 = result.split(',')[1]; // Remove data URI prefix
+          dataUrl = result; // Full data URL for playback
+          base64 = result.split(',')[1]; // Only base64 for backend
         }
-  // [VOICE] base64 length
         if (!base64) {
-          // [VOICE] No base64 audio to send
           setMicDisabled(false);
           setAudioStream(null);
           return;
         }
         try {
-          // [VOICE] RECORDING SENT. Sending audio to backend
-          // Send the WAV base64 directly as the user response
-          await handleRespond(base64);
+          // Send only base64 to backend, but save full dataUrl for playback
+          await handleRespond(base64, dataUrl);
         } catch (err: any) {
           // [VOICE] Error sending audio
         }
         setMicDisabled(false);
-        // Clean up audio stream after recording
         try {
           stream.getTracks().forEach((track) => track.stop());
         } catch (e) {}
@@ -330,22 +330,21 @@ const toggleListening = async () => {
       return;
     }
     try {
-      // Decode base64 to ArrayBuffer
-      const binary = atob(audioBase64);
-      const wavBuffer = new ArrayBuffer(binary.length);
-      const view = new Uint8Array(wavBuffer);
-      for (let i = 0; i < binary.length; i++) view[i] = binary.charCodeAt(i);
-      // Create Blob and play
-      const wavBlob = new Blob([wavBuffer], { type: 'audio/wav' });
-      const url = URL.createObjectURL(wavBlob);
-      const audio = new Audio(url);
+      let audioUrl = '';
+      if (audioBase64.startsWith('data:audio/')) {
+        // User's own audio, already a Data URL
+        audioUrl = audioBase64;
+      } else {
+        // AI response: backend returns base64, convert to Data URL
+        audioUrl = `data:audio/wav;base64,${audioBase64}`;
+      }
+      const audio = new Audio(audioUrl);
       setAudioPlayer(audio);
       audio.onended = () => {
         setCurrentlyPlayingIdx(null);
         setAudioPlayer(null);
       };
       audio.play().catch((err) => {
-        // Fallback: Use browser TTS if playback fails
         setAudioPlayer(null);
         setCurrentlyPlayingIdx(null);
         if (text) speakWithBrowserTTS(text);
@@ -354,7 +353,6 @@ const toggleListening = async () => {
     } catch (err) {
       setCurrentlyPlayingIdx(null);
       setAudioPlayer(null);
-      // Fallback: Use browser TTS if decoding fails
       if (text) speakWithBrowserTTS(text);
       else alert('Could not play audio.');
     }

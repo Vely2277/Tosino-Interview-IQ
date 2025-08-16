@@ -53,7 +53,6 @@ export default function TextInterviewPage() {
       );
       setSessionId(data.sessionId);
       sessionIdRef.current = data.sessionId;
-      console.log("Log session id:", data.sessionId);
       setAiResponse(data.initialMessage); // Set the initial AI message
       setChatHistory((prev) => [
         ...prev,
@@ -67,27 +66,15 @@ export default function TextInterviewPage() {
   };
 
   const handleRespond = async (userResponse: string) => {
-    console.log(
-      " [handleRespond] preparing to send response to api:",
-      userResponse
-    );
 
     setIsLoading(true);
-    console.log("Sending user response to backend:", userResponse);
 
     try {
-      console.log("session id ref:", sessionIdRef.current);
       const data = await interviewAPI.respond(
         sessionIdRef.current!,
         userResponse,
         "text"
       );
-
-      console.log(
-        " [handleRespond] api call sent. we are waiting for response.."
-      );
-
-      console.log("Received response from backend:", data);
 
       setChatHistory((prev) => [
         ...prev,
@@ -122,7 +109,6 @@ export default function TextInterviewPage() {
     setIsLoading(true);
     try {
       const data = await interviewAPI.end(sessionId);
-      console.log("Interview Summary:", data.summary); // Handle the summary data
       setSummary(data.summary); // Store the summary in state
     } catch (error) {
       console.error("Error ending interview:", error);
