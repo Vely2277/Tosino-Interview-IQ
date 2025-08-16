@@ -599,10 +599,9 @@ const toggleListening = async () => {
                 <Button
                   onClick={() => {
                     // Stop any playing audio or TTS when starting recording
-                    if (audioPlayer) {
-                      audioPlayer.pause();
-                      audioPlayer.currentTime = 0;
-                      setAudioPlayer(null);
+                    if (audioRef.current) {
+                      audioRef.current.pause();
+                      audioRef.current.currentTime = 0;
                     }
                     if (window.speechSynthesis && window.speechSynthesis.speaking) {
                       window.speechSynthesis.cancel();
