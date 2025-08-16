@@ -1,61 +1,4 @@
 "use client";
-import lamejs from 'lamejs';
-// Utility: Convert WAV ArrayBuffer to MP3 Uint8Array
-function wavToMp3(wavBuffer) {
-  console.log('[LAMEJS] wavToMp3 called. Buffer length:', wavBuffer.byteLength);
-  function readInt16LE(buffer, offset) {
-    return buffer[offset] | (buffer[offset + 1] << 8);
-  }
-  const wav = new DataView(wavBuffer);
-  let offset = 12;
-  let fmtChunkOffset = -1, dataChunkOffset = -1, dataChunkSize = 0, numChannels = 1, sampleRate = 16000, bitsPerSample = 16;
-  while (offset < wav.byteLength) {
-    const chunkId = String.fromCharCode(
-      wav.getUint8(offset), wav.getUint8(offset + 1), wav.getUint8(offset + 2), wav.getUint8(offset + 3)
-    );
-    const chunkSize = wav.getUint32(offset + 4, true);
-    console.log(`[LAMEJS] Found chunk: ${chunkId} at offset ${offset}, size ${chunkSize}`);
-    if (chunkId === 'fmt ') {
-      fmtChunkOffset = offset + 8;
-      numChannels = wav.getUint16(fmtChunkOffset + 2, true);
-      sampleRate = wav.getUint32(fmtChunkOffset + 4, true);
-      bitsPerSample = wav.getUint16(fmtChunkOffset + 14, true);
-      console.log(`[LAMEJS] fmt chunk: numChannels=${numChannels}, sampleRate=${sampleRate}, bitsPerSample=${bitsPerSample}`);
-    } else if (chunkId === 'data') {
-      dataChunkOffset = offset + 8;
-      dataChunkSize = chunkSize;
-      console.log(`[LAMEJS] data chunk: offset=${dataChunkOffset}, size=${dataChunkSize}`);
-      break;
-    }
-    offset += 8 + chunkSize;
-  }
-  if (dataChunkOffset === -1) {
-    console.error('[LAMEJS] WAV: data chunk not found');
-    throw new Error('WAV: data chunk not found');
-  }
-  const samples = new Int16Array(wavBuffer, dataChunkOffset, dataChunkSize / 2);
-  console.log(`[LAMEJS] PCM samples extracted. Length: ${samples.length}`);
-  console.log(`[LAMEJS] Encoding to MP3: numChannels=${numChannels}, sampleRate=${sampleRate}, bitsPerSample=${bitsPerSample}`);
-  const mp3Encoder = new lamejs.Mp3Encoder(numChannels, sampleRate, 128);
-  const mp3Data = [];
-  let sampleBlockSize = 1152;
-  for (let i = 0; i < samples.length; i += sampleBlockSize) {
-    const sampleChunk = samples.subarray(i, i + sampleBlockSize);
-    const mp3buf = mp3Encoder.encodeBuffer(sampleChunk);
-    if (mp3buf.length > 0) mp3Data.push(new Uint8Array(mp3buf));
-  }
-  const mp3buf = mp3Encoder.flush();
-  if (mp3buf.length > 0) mp3Data.push(new Uint8Array(mp3buf));
-  let totalLength = mp3Data.reduce((acc, cur) => acc + cur.length, 0);
-  let mp3 = new Uint8Array(totalLength);
-  let offsetMp3 = 0;
-  for (let b of mp3Data) {
-    mp3.set(b, offsetMp3);
-    offsetMp3 += b.length;
-  }
-  console.log('[LAMEJS] MP3 encoding complete. MP3 length:', mp3.length);
-  return mp3;
-}
 
 
 
@@ -125,7 +68,7 @@ export default function VoiceInterviewPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [micDisabled, setMicDisabled] = useState(false);
-  const [aiResponse, setAiResponse] = useState("");
+  // Removed aiResponse state, not needed for voice note chat
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const sessionIdRef = useRef<string | null>(null);
@@ -134,18 +77,14 @@ export default function VoiceInterviewPage() {
   const [chatHistory, setChatHistory] = useState<
     {
       from: "user" | "ai";
-      text: string;
-      grade?: number | null;
-      reasoning?: string | null;
-      audioBase64?: string;
+      audioBase64: string;
     }[]
   >([]);
-  const [transcript, setTranscript] = useState("");
+  // Removed transcript state, not needed for voice note chat
   const [audioStream, setAudioStream] = useState<MediaStream | null>(null);
   // Remove all WebRTC state
   const [audioPlayer, setAudioPlayer] = useState<HTMLAudioElement | null>(null);
-  // lastAIAudio is now an object with base64 and format, or null
-  const [lastAIAudio, setLastAIAudio] = useState<{ base64: string; format: string } | null>(null);
+  // Removed lastAIAudio state, not needed for voice note chat
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [recording, setRecording] = useState(false);
 
@@ -167,13 +106,13 @@ export default function VoiceInterviewPage() {
       console.log("Log session id:", data.sessionId);
       const id = data.sessionId;
       setSessionId(id);
-  setAiResponse(data.initialMessage); // Set the initial AI message
-  console.log("[INIT] Initial AI message:", data.initialMessage);
-      setChatHistory((prev) => [
-        // ...existing code...
-        ...prev,
-        { from: "ai", text: data.initialMessage },
-      ]);
+      // Expecting backend to return initial audioBase64 for AI's first message
+      if (data.audioBase64) {
+        setChatHistory((prev) => [
+          ...prev,
+          { from: "ai", audioBase64: data.audioBase64 },
+        ]);
+      }
     } catch (error) {
       console.error("[INIT] Error starting interview:", error);
     } finally {
@@ -205,40 +144,17 @@ export default function VoiceInterviewPage() {
       console.log("[RESPOND] api call sent. waiting for response...");
       console.log("[RESPOND] Received response from backend:", data);
 
-      // If backend returns audioBase64, set it for playback
-      if (data.audioBase64) {
-        console.log('[AUDIO] Received audioBase64 from backend, length:', data.audioBase64.length, 'format:', data.audioFormat);
-        setLastAIAudio({
-          base64: data.audioBase64,
-          format: data.audioFormat || 'mp3',
-        });
-      } else {
-        setLastAIAudio(null);
-      }
 
+      // Add user voice note and AI voice note to chat history
       setChatHistory((prev) => [
         ...prev,
-        {
-          from: "user",
-          text: userResponse,
-          grade: data.grade ?? null,
-          reasoning: data.reasoning ?? null,
-        },
-        {
-          from: "ai",
-          text: data.aiResponse,
-          audioBase64: data.audioBase64 || undefined,
-        },
+        { from: "user" as const, audioBase64: userResponse },
+        ...(data.audioBase64 ? [{ from: "ai" as const, audioBase64: data.audioBase64 }] : []),
       ]);
-
-      setAiResponse(data.aiResponse);
-      console.log("[RESPOND] AI response set:", data.aiResponse);
-      setTranscript("");
-      console.log("[RESPOND] Transcript cleared");
 
     } catch (error) {
       console.error("[RESPOND] Error in handleRespond:", error);
-      setAiResponse("Hmm... I couldn't process that. Try again?");
+      // Removed setAiResponse, not needed for voice note chat
     } finally {
       setIsLoading(false);
       console.log("[RESPOND] Loading state set to false");
@@ -313,14 +229,10 @@ const toggleListening = async () => {
         }
         try {
           console.log('[VOICE] RECORDING SENT. Sending audio to backend...');
-          const data = await voiceAPI.stream(base64, sessionIdRef.current!);
-          console.log('[VOICE] Backend response:', data);
-          setTranscript('Voice input');
-          setChatHistory((prev) => [...prev, { from: "user", text: 'Voice input' }, { from: "ai", text: data.aiResponse }]);
-          setAiResponse(data.aiResponse);
+          // Send the WAV base64 directly as the user response
+          await handleRespond(base64);
         } catch (err: any) {
           console.error('[VOICE] Error sending audio:', err);
-          setAiResponse("Error: " + (err?.message || "Unknown error"));
         }
         setMicDisabled(false);
         // Clean up audio stream after recording
@@ -390,41 +302,29 @@ const toggleListening = async () => {
   };
 
 
-  // Play AI response audio from backend (gTTS)
-  // Play AI response audio: convert WAV to MP3 in browser using lamejs
-  const speakResponse = async (audioObj?: { base64: string; format: string }) => {
-    if (!audioObj || !audioObj.base64) {
+  // Play WAV audio from base64
+  const speakResponse = async (audioBase64?: string) => {
+    if (!audioBase64) {
       alert("No audio available for this response.");
       return;
     }
     try {
-      console.log('[AUDIO] Received audio for playback, base64 length:', audioObj.base64.length, 'format:', audioObj.format);
       // Decode base64 to ArrayBuffer
-      const binary = atob(audioObj.base64);
+      const binary = atob(audioBase64);
       const wavBuffer = new ArrayBuffer(binary.length);
       const view = new Uint8Array(wavBuffer);
       for (let i = 0; i < binary.length; i++) view[i] = binary.charCodeAt(i);
-      console.log('[AUDIO] WAV buffer created. Length:', wavBuffer.byteLength);
-      // Convert WAV to MP3
-      console.log('[AUDIO] Converting WAV to MP3 using lamejs...');
-      const mp3Uint8 = wavToMp3(wavBuffer);
-      console.log('[AUDIO] MP3 conversion complete, size:', mp3Uint8.length);
       // Create Blob and play
-      const mp3Blob = new Blob([mp3Uint8], { type: 'audio/mp3' });
-      const url = URL.createObjectURL(mp3Blob);
-      console.log('[AUDIO] MP3 Blob URL created:', url);
+      const wavBlob = new Blob([wavBuffer], { type: 'audio/wav' });
+      const url = URL.createObjectURL(wavBlob);
       const audio = new Audio(url);
-      audio.play()
-        .then(() => {
-          console.log('[AUDIO] MP3 playback started successfully.');
-        })
-        .catch((err) => {
-          console.error("Audio playback error:", err);
-          alert("Could not play audio. Please check your device's audio settings.");
-        });
+      audio.play().catch((err) => {
+        console.error("Audio playback error:", err);
+        alert("Could not play audio. Please check your device's audio settings.");
+      });
     } catch (err) {
-      console.error('[AUDIO] Error during WAV→MP3 conversion or playback:', err);
-      alert('Could not play audio. Conversion failed.');
+      console.error('[AUDIO] Error during WAV playback:', err);
+      alert('Could not play audio.');
     }
   };
 
@@ -436,14 +336,6 @@ const toggleListening = async () => {
   useEffect(() => {
     initializeInterview();
   }, []);
-
-  // Optionally, auto-play the latest AI audio when it arrives
-  useEffect(() => {
-    if (lastAIAudio) {
-      console.log('[AUDIO] Auto-playing AI audio as soon as it arrives:', lastAIAudio);
-      speakResponse(lastAIAudio);
-    }
-  }, [lastAIAudio]);
 
   return (
     <div className="min-h-screen w-screen overflow-x-hidden" style={{ backgroundColor: "#f5f5dc" }}>
@@ -643,60 +535,20 @@ const toggleListening = async () => {
                 return (
                   <div
                     key={idx}
-                    className={`flex mb-2 ${
-                      isAI ? "justify-start" : "justify-end"
-                    } items-center gap-2`}
+                    className={`flex mb-2 ${isAI ? "justify-start" : "justify-end"} items-center gap-2`}
                   >
-                    {!isAI && (
-                      <div className="relative mr-2 group">
-                        <span className="text-sm cursor-pointer">ℹ️</span>
-                        <div className="absolute bottom-full mb-2 left-0 w-52 bg-white border border-gray-300 text-gray-800 text-xs p-2 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20">
-                          {msg.grade == null ? (
-                            <p>NULL</p>
-                          ) : (
-                            <>
-                              <p>
-                                <strong>Grade:</strong> {msg.grade}/10
-                              </p>
-                              <p>
-                                <strong>Reason:</strong> {msg.reasoning}
-                              </p>
-                            </>
-                          )}
-                        </div>
-                      </div>
-                    )}
-
                     <div
-                      className={`p-4 rounded-lg ${
-                        isAI
-                          ? "bg-blue-50 text-blue-900"
-                          : msg.grade == null
-                          ? "bg-gray-100 text-gray-900"
-                          : msg.grade < 5
-                          ? "bg-red-100 text-red-900"
-                          : "bg-green-100 text-green-900"
-                      }`}
+                      className={`p-4 rounded-lg flex items-center gap-3 ${isAI ? "bg-blue-50 text-blue-900" : "bg-green-100 text-green-900"}`}
                     >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-sm font-semibold">
-                          {isAI ? "AI Interviewer" : "You"}
-                        </span>
-                        {isAI && msg.audioBase64 && (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => speakResponse({ base64: msg.audioBase64!, format: 'mp3' })}
-                            title="Play AI audio"
-                          >
-                            {/* Volume icon for play button */}
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M9 9v6h4l5 5V4l-5 5H9z" />
-                            </svg>
-                          </Button>
-                        )}
-                      </div>
-                      <p className="text-sm">{msg.text}</p>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => speakResponse(msg.audioBase64)}
+                        title={isAI ? "Play AI voice note" : "Play your voice note"}
+                      >
+                        <Volume2 className="w-6 h-6" />
+                      </Button>
+                      <span className="text-xs font-semibold">{isAI ? "AI" : "You"}</span>
                     </div>
                   </div>
                 );
@@ -716,14 +568,7 @@ const toggleListening = async () => {
           </div>
           */}
 
-              {transcript && (
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <span className="text-sm font-medium text-gray-800">
-                    Your Response
-                  </span>
-                  <p className="text-gray-900 mt-1">{transcript}</p>
-                </div>
-              )}
+              {/* transcript removed: no longer used in voice note chat */}
 
               <div className="flex justify-center">
                 <Button
