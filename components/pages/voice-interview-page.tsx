@@ -79,6 +79,8 @@ export default function VoiceInterviewPage() {
       from: "user" | "ai";
       text: string;
       audioBase64?: string;
+      grade?: number | null;
+      reasoning?: string | null;
     }[]
   >([]);
   // Removed transcript state, not needed for voice note chat
@@ -131,9 +133,19 @@ export default function VoiceInterviewPage() {
       const data = await interviewAPI.respond(sid, userResponse, 'voice');
       setChatHistory((prev) => [
         ...prev,
-        { from: "user" as const, text: '', audioBase64: userResponse },
+        {
+          from: "user" as const,
+          text: '',
+          audioBase64: userResponse,
+          grade: data.grade ?? null,
+          reasoning: data.reasoning ?? null,
+        },
         ...(data.audioBase64 && data.aiResponse ? [{ from: "ai" as const, text: data.aiResponse, audioBase64: data.audioBase64 }] : []),
       ]);
+      // Auto-play AI response if present
+      if (data.audioBase64) {
+        speakResponse(data.audioBase64);
+      }
       if (data.sessionId) {
         setSessionId(data.sessionId);
         sessionIdRef.current = data.sessionId;
@@ -521,6 +533,25 @@ const toggleListening = async () => {
                     key={idx}
                     className={`flex mb-2 ${isAI ? "justify-start" : "justify-end"} items-center gap-2`}
                   >
+                    {!isAI && (msg.grade !== undefined || msg.reasoning !== undefined) && (
+                      <div className="relative mr-2 group">
+                        <span className="text-sm cursor-pointer">ℹ️</span>
+                        <div className="absolute bottom-full mb-2 left-0 w-52 bg-white border border-gray-300 text-gray-800 text-xs p-2 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20">
+                          {msg.grade == null ? (
+                            <p>NULL</p>
+                          ) : (
+                            <>
+                              <p>
+                                <strong>Grade:</strong> {msg.grade}/10
+                              </p>
+                              <p>
+                                <strong>Reason:</strong> {msg.reasoning}
+                              </p>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    )}
                     <div
                       className={`p-4 rounded-lg flex items-center gap-3 ${isAI ? "bg-blue-50 text-blue-900" : "bg-green-100 text-green-900"}`}
                     >
