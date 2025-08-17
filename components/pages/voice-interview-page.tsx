@@ -76,6 +76,7 @@ export default function VoiceInterviewPage() {
       audioBase64?: string;
       grade?: number | null;
       reasoning?: string | null;
+      file_present?: boolean;
     }[]
   >([]);
   // Removed transcript state, not needed for voice note chat
@@ -103,12 +104,17 @@ export default function VoiceInterviewPage() {
       }
       setSessionId(data.sessionId);
       sessionIdRef.current = data.sessionId;
-      if (data.audioBase64 && data.initialMessage) {
+      if (data.initialMessage) {
         setChatHistory((prev) => [
           ...prev,
-          { from: "ai" as const, text: data.initialMessage, audioBase64: data.audioBase64 },
+          {
+            from: "ai" as const,
+            text: data.initialMessage,
+            audioBase64: data.audioBase64,
+            file_present: data.file_present,
+          },
         ]);
-        speakResponse(data.audioBase64, data.initialMessage);
+        speakResponse(data.audioBase64, data.initialMessage, undefined, data.file_present);
       }
   // [INIT] Initial AI audio message loaded
     } catch (error) {
@@ -137,7 +143,14 @@ export default function VoiceInterviewPage() {
           grade: data.grade ?? null,
           reasoning: data.reasoning ?? null,
         },
-        ...(data.aiResponse ? [{ from: "ai" as const, text: data.aiResponse, audioBase64: data.audioBase64 }] : []),
+        ...(data.aiResponse
+          ? [{
+              from: "ai" as const,
+              text: data.aiResponse,
+              audioBase64: data.audioBase64,
+              file_present: data.file_present,
+            }]
+          : []),
       ]);
       if (data.sessionId) {
         setSessionId(data.sessionId);
@@ -236,8 +249,8 @@ const toggleListening = async () => {
   useEffect(() => {
     if (chatHistory.length === 0) return;
     const lastMsg = chatHistory[chatHistory.length - 1];
-    if (lastMsg.from === 'ai' && lastMsg.audioBase64) {
-      speakResponse(lastMsg.audioBase64, lastMsg.text, chatHistory.length - 1);
+    if (lastMsg.from === 'ai') {
+      speakResponse(lastMsg.audioBase64, lastMsg.text, chatHistory.length - 1, lastMsg.file_present);
     }
   }, [chatHistory]);
 
@@ -269,7 +282,12 @@ const toggleListening = async () => {
   // Play WAV audio from base64
   // Play WAV audio from base64, fallback to browser TTS if error or missing
   // Play WAV audio from base64, fallback to browser TTS if error or missing
-  const speakResponse = async (audioBase64?: string, text?: string, idx?: number) => {
+  const speakResponse = async (
+    audioBase64?: string,
+    text?: string,
+    idx?: number,
+    file_present?: boolean
+  ) => {
     // Stop any ongoing audio or TTS
     if (audioRef.current) {
       audioRef.current.pause();
@@ -281,42 +299,45 @@ const toggleListening = async () => {
 
     setCurrentlyPlayingIdx(idx ?? null);
 
-    // Helper: Use browser SpeechSynthesis
-    const speakWithBrowserTTS = (txt: string) => {
-      if (!txt) return;
-      try {
-        const utterance = new window.SpeechSynthesisUtterance(txt);
+    // Only use TTS if file_present is strictly false
+    if (file_present === false) {
+      if (text && "speechSynthesis" in window) {
+        const utterance = new window.SpeechSynthesisUtterance(text);
         utterance.onend = () => setCurrentlyPlayingIdx(null);
         window.speechSynthesis.speak(utterance);
-      } catch (e) {
-        setCurrentlyPlayingIdx(null);
-      }
-    };
-
-    if (!audioBase64) {
-      if (text) speakWithBrowserTTS(text);
-      else alert("No audio or text available for this response.");
+      } 
       return;
     }
-    try {
-      let audioUrl = '';
-      if (audioBase64.startsWith('data:audio/')) {
-        audioUrl = audioBase64;
-      } else {
-        audioUrl = `data:audio/wav;base64,${audioBase64}`;
-      }
-      if (audioRef.current) {
-        audioRef.current.src = audioUrl;
-        audioRef.current.onended = () => {
+
+    // Only play audio if file_present is strictly true
+    if (file_present === true) {
+      try {
+        let audioUrl = '';
+        if (audioBase64 && audioBase64.startsWith('data:audio/')) {
+          audioUrl = audioBase64;
+        } else if (audioBase64) {
+          audioUrl = `data:audio/wav;base64,${audioBase64}`;
+        } else {
+          alert('No audio available for this response.');
           setCurrentlyPlayingIdx(null);
-        };
-        await audioRef.current.play();
+          return;
+        }
+        if (audioRef.current) {
+          audioRef.current.src = audioUrl;
+          audioRef.current.onended = () => {
+            setCurrentlyPlayingIdx(null);
+          };
+          await audioRef.current.play();
+        }
+      } catch (err) {
+        setCurrentlyPlayingIdx(null);
+        alert('Could not play audio.');
       }
-    } catch (err) {
-      setCurrentlyPlayingIdx(null);
-      if (text) speakWithBrowserTTS(text);
-      else alert('Could not play audio.');
+      return;
     }
+
+    // If file_present is neither true nor false, do nothing
+    setCurrentlyPlayingIdx(null);
   };
 
 
@@ -565,7 +586,7 @@ const toggleListening = async () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => speakResponse(msg.audioBase64, msg.text, idx)}
+                          onClick={() => speakResponse(msg.audioBase64, msg.text, idx, msg.file_present)}
                           title={isAI ? "Play AI voice note" : "Play your voice note"}
                           disabled={recording || (currentlyPlayingIdx !== null && currentlyPlayingIdx !== idx)}
                         >
