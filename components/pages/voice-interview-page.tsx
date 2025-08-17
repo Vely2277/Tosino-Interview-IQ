@@ -318,7 +318,6 @@ const toggleListening = async () => {
         } else if (audioBase64) {
           audioUrl = `data:audio/wav;base64,${audioBase64}`;
         } else {
-          alert('No audio available for this response.');
           setCurrentlyPlayingIdx(null);
           return;
         }
@@ -331,7 +330,6 @@ const toggleListening = async () => {
         }
       } catch (err) {
         setCurrentlyPlayingIdx(null);
-        alert('Could not play audio.');
       }
       return;
     }
