@@ -571,7 +571,7 @@ const toggleListening = async () => {
                     {!isAI && (msg.grade !== undefined || msg.reasoning !== undefined) && (
                       <div className="relative mr-2 group">
                         <span className="text-sm cursor-pointer">ℹ️</span>
-                        <div className="absolute bottom-full mb-2 left-0 w-52 bg-white border border-gray-300 text-gray-800 text-xs p-2 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20">
+                        <div className={`absolute bottom-full mb-2 ${isAI ? "left-0" : "right-0"} w-52 bg-white border border-gray-300 text-gray-800 text-xs p-2 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20`}>
                           {msg.grade == null ? (
                             <p>NULL</p>
                           ) : (
