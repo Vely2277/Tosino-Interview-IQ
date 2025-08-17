@@ -602,7 +602,14 @@ const toggleListening = async () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => speakResponse(msg.audioBase64, msg.text, idx, msg.file_present)}
+                          onClick={() =>
+                            speakResponse(
+                              msg.audioBase64,
+                              msg.text,
+                              idx,
+                              isAI ? msg.file_present : true
+                            )
+                          }
                           title={isAI ? "Play AI voice note" : "Play your voice note"}
                           disabled={recording || (currentlyPlayingIdx !== null && currentlyPlayingIdx !== idx)}
                         >
