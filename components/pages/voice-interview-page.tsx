@@ -57,6 +57,24 @@ import Image from "next/image";
 
 
 export default function VoiceInterviewPage() {
+  // Cleanup effect: stop recorder and mic on unmount
+  useEffect(() => {
+    return () => {
+      if (mediaRecorder) {
+        try {
+          mediaRecorder.stop();
+        } catch {}
+      }
+      if (audioStreamRef.current) {
+        audioStreamRef.current.getTracks().forEach((track) => track.stop());
+        audioStreamRef.current = null;
+      }
+      setIsListening(false);
+      setRecording(false);
+      setMicDisabled(false);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const { user, signOut } = useAuth();
   const router = useRouter();
   const { interviewData } = useInterview();
