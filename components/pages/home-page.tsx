@@ -308,12 +308,12 @@ export default function HomePage() {
 
               <div className="flex items-center space-x-8 pt-6">
                 <div className="text-center">
-                  <div className="text-2xl font-bold">10K+</div>
-                  <div className="text-blue-200 text-sm">Success Stories</div>
+                  <div className="text-2xl font-bold">500+</div>
+                  <div className="text-blue-200 text-sm">Interviews Practiced</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold">95%</div>
-                  <div className="text-blue-200 text-sm">Success Rate</div>
+                  <div className="text-2xl font-bold">90%</div>
+                  <div className="text-blue-200 text-sm">User Satisfaction</div>
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-bold">24/7</div>
@@ -374,12 +374,12 @@ export default function HomePage() {
                   : "opacity-0 transform -translate-x-12"
               }`}
             >
-              <CardContent className="space-y-4">
-                <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center">
-                  <Sparkles className="h-8 w-8 text-blue-600" />
+              <CardContent className="space-y-4 flex flex-col items-center justify-center">
+                <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
+                  <Star className="h-8 w-8 text-blue-600" />
                 </div>
-                <h3 className="text-xl font-semibold">AI-Powered Coaching</h3>
-                <p className="text-gray-600">
+                <h3 className="text-xl font-semibold text-center">AI-Powered Coaching</h3>
+                <p className="text-gray-600 text-center">
                   Real-time AI feedback and personalized coaching sessions
                 </p>
               </CardContent>
@@ -393,13 +393,13 @@ export default function HomePage() {
                   : "opacity-0 transform translate-x-12"
               }`}
             >
-              <CardContent className="space-y-4">
-                <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center">
-                  <Users className="h-8 w-8 text-green-600" />
+              <CardContent className="space-y-4 flex flex-col items-center justify-center">
+                <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
+                  <ChevronRight className="h-8 w-8 text-green-600" />
                 </div>
-                <h3 className="text-xl font-semibold">Expert Community</h3>
-                <p className="text-gray-600">
-                  Connect with industry professionals and career experts
+                <h3 className="text-xl font-semibold text-center">Practice Real Question</h3>
+                <p className="text-gray-600 text-center">
+                  Practice role-specific questions based on your dream job — not generic internet lists
                 </p>
               </CardContent>
             </Card>
@@ -412,13 +412,13 @@ export default function HomePage() {
                   : "opacity-0 transform -translate-x-12"
               }`}
             >
-              <CardContent className="space-y-4">
-                <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center">
+              <CardContent className="space-y-4 flex flex-col items-center justify-center">
+                <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
                   <Award className="h-8 w-8 text-purple-600" />
                 </div>
-                <h3 className="text-xl font-semibold">Proven Results</h3>
-                <p className="text-gray-600">
-                  95% success rate with thousands of satisfied users
+                <h3 className="text-xl font-semibold text-center">CV Suggestions That Matter</h3>
+                <p className="text-gray-600 text-center">
+                  Receive targeted edits to your existing CV — plus a better version, role-matched
                 </p>
               </CardContent>
             </Card>
@@ -431,12 +431,12 @@ export default function HomePage() {
                   : "opacity-0 transform translate-x-12"
               }`}
             >
-              <CardContent className="space-y-4">
-                <div className="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center">
+              <CardContent className="space-y-4 flex flex-col items-center justify-center">
+                <div className="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
                   <Target className="h-8 w-8 text-orange-600" />
                 </div>
-                <h3 className="text-xl font-semibold">Targeted Practice</h3>
-                <p className="text-gray-600">
+                <h3 className="text-xl font-semibold text-center">Targeted Practice</h3>
+                <p className="text-gray-600 text-center">
                   Industry-specific questions and role-based preparation
                 </p>
               </CardContent>
@@ -583,103 +583,6 @@ export default function HomePage() {
                       Sign up for early access
                     </Button>
                   )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      {/* Why Choose InterviewIQ Section */}
-      <section className="py-20 bg-[#f0efe1]">
-        <div className="w-full px-4 sm:px-6 lg:px-8">
-          <Card className="shadow-xl border-0">
-            <CardContent className="p-12">
-              <div className="grid lg:grid-cols-2 gap-16 items-center">
-                {/* Text Content - Left Side */}
-                <div className="space-y-10 order-1 lg:order-1">
-                  <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-12">
-                    Why Should You Choose InterviewIQ?
-                  </h2>
-
-                  <div className="space-y-10 text-lg text-gray-700">
-                    <div className="flex items-start space-x-6 pl-8 relative">
-                      <span className="font-bold text-3xl text-blue-600 mt-1 absolute right-0">•</span>
-                      <div className="pr-12">
-                        <span className="font-semibold text-gray-900">
-                          Practice Real Question:
-                        </span>{" "}
-                        Practice role-specific questions based on your dream job —
-                        not generic internet lists
-                      </div>
-                    </div>
-
-                    <div className="flex items-start space-x-6 pl-8 relative">
-                      <span className="font-bold text-3xl text-green-600 mt-1 absolute right-0">•</span>
-                      <div className="pr-12">
-                        <span className="font-semibold text-gray-900">
-                          CV Suggestions That Matter:
-                        </span>{" "}
-                        Receive targeted edits to your existing CV — plus a better
-                        version, role-matched
-                      </div>
-                    </div>
-
-                    <div className="flex items-start space-x-6 pl-8 relative">
-                      <span className="font-bold text-3xl text-purple-600 mt-1 absolute right-0">•</span>
-                      <div className="pr-12">
-                        <span className="font-semibold text-gray-900">
-                          Start, Pause, Resume:
-                        </span>{" "}
-                        Work at your own pace. Your sessions and feedback are always
-                        saved.
-                      </div>
-                    </div>
-
-                    <div className="flex items-start space-x-6 pl-8 relative">
-                      <span className="font-bold text-3xl text-orange-600 mt-1 absolute right-0">•</span>
-                      <div className="pr-12">
-                        <span className="font-semibold text-gray-900">
-                          Free to Start:
-                        </span>{" "}
-                        No pressure. Try it for free and upgrade only if it works
-                        for you
-                      </div>
-                    </div>
-
-                    <p className="mt-12 text-lg text-gray-700 font-medium">
-                      There's more, find out yourself by signing up now!
-                    </p>
-                  </div>
-
-                  <div className="w-full pt-6">
-                    {user ? (
-                      <Button 
-                        onClick={() => router.push("/cv")}
-                        className="bg-gradient-to-r from-teal-400 to-blue-500 hover:from-teal-500 hover:to-blue-600 text-white px-12 py-4 text-lg font-semibold rounded-full shadow-lg hover:shadow-xl transition-transform"
-                      >
-                        Optimize CV
-                      </Button>
-                    ) : (
-                      <Button 
-                        onClick={() => router.push("/auth/signup")}
-                        className="bg-gradient-to-r from-teal-400 to-blue-500 hover:from-teal-500 hover:to-blue-600 text-white px-12 py-4 text-lg font-semibold rounded-full shadow-lg hover:shadow-xl transition-transform"
-                      >
-                        Sign up for early access
-                      </Button>
-                    )}
-                  </div>
-                </div>
-
-                {/* Image - Right Side */}
-                <div className="relative order-2 lg:order-2">
-                  <Image
-                    src="/image4.jpg?height=400&width=500&text=AI+Interview+Coach"
-                    alt="AI Interview Coach"
-                    width={500}
-                    height={400}
-                    className="rounded-lg shadow-lg w-full"
-                  />
                 </div>
               </div>
             </CardContent>

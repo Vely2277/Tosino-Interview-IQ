@@ -308,7 +308,10 @@ export default function PricingPage() {
                   We'll notify you when pricing launches. Until then, enjoy
                   unlimited access!
                 </p>
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg">
+                <Button
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg"
+                  onClick={() => router.push("/practice")}
+                >
                   Get Started Free
                 </Button>
               </CardContent>
