@@ -62,6 +62,7 @@ import Image from "next/image";
 
 
 export default function VoiceInterviewPage() {
+  // ...existing code...
   // Cleanup effect: stop recorder and mic on unmount
   useEffect(() => {
     return () => {
@@ -204,7 +205,7 @@ const toggleListening = async () => {
     try {
       if (mediaRecorder) {
         mediaRecorder.stop();
-        setMediaRecorder(null);
+        // setMediaRecorder(null) will be called in onstop
       }
       // Do not stop audioStream here; keep it for reuse
     } catch (e) {
@@ -225,32 +226,38 @@ const toggleListening = async () => {
     setIsListening(true);
     setRecording(true);
     setMicDisabled(false);
-    const rec = recordAudioStream(stream, (audioBuffer) => {
-      setIsListening(false);
-      setRecording(false);
-      setMicDisabled(true);
-      const mimeType = getSupportedMimeType();
-      const blob = new Blob([audioBuffer], { type: mimeType });
-      const reader = new FileReader();
-      reader.onloadend = async () => {
-        const result = reader.result;
-        let dataUrl = '';
-        let base64 = '';
-        if (typeof result === 'string') {
-          dataUrl = result;
-          base64 = result.split(',')[1];
-        }
-        if (!base64) {
+    const rec = recordAudioStream(
+      stream,
+      (audioBuffer) => {
+        setIsListening(false);
+        setRecording(false);
+        setMicDisabled(true);
+        const mimeType = getSupportedMimeType();
+        const blob = new Blob([audioBuffer], { type: mimeType });
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+          const result = reader.result;
+          let dataUrl = '';
+          let base64 = '';
+          if (typeof result === 'string') {
+            dataUrl = result;
+            base64 = result.split(',')[1];
+          }
+          if (!base64) {
+            setMicDisabled(false);
+            return;
+          }
+          try {
+            await handleRespond(base64, dataUrl);
+          } catch (err: any) {}
           setMicDisabled(false);
-          return;
-        }
-        try {
-          await handleRespond(base64, dataUrl);
-        } catch (err: any) {}
-        setMicDisabled(false);
-      };
-      reader.readAsDataURL(blob);
-    });
+        };
+        reader.readAsDataURL(blob);
+      },
+      () => {
+        setMediaRecorder(null);
+      }
+    );
     if (!rec) {
       setIsListening(false);
       setMicDisabled(false);
@@ -821,4 +828,5 @@ const toggleListening = async () => {
       </footer>
     </div>
   );
+// ...existing code...
 }
