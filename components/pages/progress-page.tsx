@@ -362,7 +362,7 @@ export default function ProgressPage() {
               {loading ? (
                 <span className="animate-pulse">Welcome back...</span>
               ) : (
-                `Welcome back, ${user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'User'}`
+                `Welcome back, ${user?.user_metadata?.full_name?.split(' ')[0] || user?.email?.split('@')[0] || 'User'}!`
               )}
             </p>
           </div>

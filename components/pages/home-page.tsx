@@ -22,6 +22,28 @@ import { useAuth } from "@/contexts/auth-context";
 import Footer from "@/components/footer";
 
 export default function HomePage() {
+  // Animated counter for "500+"
+  const [counter, setCounter] = useState(0);
+  useEffect(() => {
+    const end = 500;
+    const duration = 7000; // 7 seconds
+    const frameDuration = 16; // ms
+    const totalFrames = Math.round(duration / frameDuration);
+    let frame = 0;
+    let timer: NodeJS.Timeout;
+    function animate() {
+      frame++;
+      const progress = Math.min(frame / totalFrames, 1);
+      setCounter(Math.floor(progress * end));
+      if (progress < 1) {
+        timer = setTimeout(animate, frameDuration);
+      } else {
+        setCounter(end);
+      }
+    }
+    animate();
+    return () => clearTimeout(timer);
+  }, []);
   const router = useRouter();
   const { user, signOut } = useAuth();
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -308,7 +330,7 @@ export default function HomePage() {
 
               <div className="flex items-center space-x-8 pt-6">
                 <div className="text-center">
-                  <div className="text-2xl font-bold">500+</div>
+                  <div className="text-2xl font-bold">{counter}+</div>
                   <div className="text-blue-200 text-sm">Interviews Practiced</div>
                 </div>
                 <div className="text-center">
