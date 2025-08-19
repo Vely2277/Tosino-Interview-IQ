@@ -22,7 +22,11 @@ function getSupportedMimeType() {
   return '';
 }
 
-function recordAudioStream(stream: MediaStream, onStop: (audioBuffer: ArrayBuffer) => void) {
+function recordAudioStream(
+  stream: MediaStream,
+  onStop: (audioBuffer: ArrayBuffer) => void,
+  onRecorderStop?: () => void
+) {
   const mimeType = getSupportedMimeType();
   if (!mimeType) {
     alert('Your browser does not support audio recording.');
@@ -37,6 +41,7 @@ function recordAudioStream(stream: MediaStream, onStop: (audioBuffer: ArrayBuffe
     const blob = new Blob(chunks, { type: mimeType });
     const arrayBuffer = await blob.arrayBuffer();
     onStop(arrayBuffer);
+    if (onRecorderStop) onRecorderStop();
   };
   mediaRecorder.onerror = (e) => {
     console.error('[VOICE] mediaRecorder.onerror:', e);
@@ -107,6 +112,9 @@ export default function VoiceInterviewPage() {
   const [mediaRecorder, setMediaRecorder] = useState<MediaRecorder | null>(null);
   const [recording, setRecording] = useState(false);
 
+      () => {
+        setMediaRecorder(null);
+      }
   // Initialize the interview session: fetch start message audio from backend (using interviewAPI.start)
   const initializeInterview = async () => {
   // [INIT] Fetching initial AI audio message from backend
