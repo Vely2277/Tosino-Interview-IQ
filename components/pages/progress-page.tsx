@@ -51,6 +51,8 @@ export default function ProgressPage() {
       // Update user profile in DB
   // Update user_metadata for profile_picture_url
   await supabase.auth.updateUser({ data: { profile_picture_url: publicUrl } });
+  // Also update the users table profile_picture_url column
+  await supabase.from('users').update({ profile_picture_url: publicUrl }).eq('id', user.id);
       setProfilePic(publicUrl);
     } catch (err) {
       alert('Failed to upload profile picture. Please try again.');
