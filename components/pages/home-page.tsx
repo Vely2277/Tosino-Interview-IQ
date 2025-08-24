@@ -344,16 +344,59 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Image1.jpg moved to right side */}
             <div className="relative lg:pl-8">
               <div className="relative w-full">
-                <Image
-                  src="/image1.jpg"
-                  alt="Interview Coaching Preview"
-                  width={500}
-                  height={350}
-                  className="rounded-lg shadow-lg w-full h-auto"
-                />
+                {/* Video Player with Controls */}
+                <div className="rounded-lg shadow-lg w-full h-auto overflow-hidden bg-black relative" style={{ aspectRatio: '16/9', minHeight: 200 }}>
+                  <iframe
+                    id="hero-video"
+                    src="https://www.youtube.com/embed/rpx0fSSdkWA?si=BXO1swAk97rMwEbe&enablejsapi=1&rel=0&showinfo=0"
+                    title="Interview Coaching Video"
+                    allow="autoplay; encrypted-media"
+                    allowFullScreen
+                    className="w-full h-full min-h-[200px]"
+                  ></iframe>
+                  {/* Overlay Controls */}
+                  <div id="video-controls" className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-3 z-10">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const iframe = document.getElementById('hero-video') as HTMLIFrameElement | null;
+                        if (iframe && iframe.contentWindow) {
+                          iframe.contentWindow.postMessage('{"event":"command","func":"playVideo","args":""}', '*');
+                        }
+                      }}
+                      className="bg-white/80 hover:bg-white text-blue-700 font-bold py-2 px-4 rounded shadow"
+                    >
+                      Play
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const iframe = document.getElementById('hero-video') as HTMLIFrameElement | null;
+                        if (iframe && iframe.contentWindow) {
+                          iframe.contentWindow.postMessage('{"event":"command","func":"pauseVideo","args":""}', '*');
+                        }
+                      }}
+                      className="bg-white/80 hover:bg-white text-blue-700 font-bold py-2 px-4 rounded shadow"
+                    >
+                      Pause
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const iframe = document.getElementById('hero-video') as HTMLIFrameElement | null;
+                        if (iframe && iframe.contentWindow) {
+                          // Toggle mute/unmute
+                          iframe.contentWindow.postMessage('{"event":"command","func":"unMute","args":""}', '*');
+                        }
+                      }}
+                      className="bg-white/80 hover:bg-white text-blue-700 font-bold py-2 px-4 rounded shadow"
+                    >
+                      Unmute
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
