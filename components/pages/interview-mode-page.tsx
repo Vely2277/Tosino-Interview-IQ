@@ -20,7 +20,7 @@ export default function InterviewModePage() {
     <div className="min-h-screen bg-[#f0efe1]">
       {/* Header Navigation */}
       <header className="bg-blue-900 text-white sticky top-0 z-50 w-full">
-  <div className="w-full">
+        <div className="container mx-auto w-full">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center space-x-3">
@@ -130,34 +130,19 @@ export default function InterviewModePage() {
                   Contact
                 </a>
                 <div className="flex space-x-3 px-3 pt-3 border-t border-blue-800">
-                  {user ? (
-                    <Button
-                      variant="ghost"
-                      className="bg-white text-blue-600 hover:bg-gray-100"
-                      size="sm"
-                      onClick={signOut}
-                    >
-                      Sign Out
-                    </Button>
-                  ) : (
-                    <>
-                      <Button
-                        variant="ghost"
-                        className="text-white hover:bg-blue-800"
-                        size="sm"
-                        onClick={() => router.push("/auth/login")}
-                      >
-                        Sign In
-                      </Button>
-                      <Button
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
-                        size="sm"
-                        onClick={() => router.push("/auth/signup")}
-                      >
-                        Sign Up
-                      </Button>
-                    </>
-                  )}
+                  <Button
+                    variant="ghost"
+                    className="text-white hover:bg-blue-800"
+                    size="sm"
+                  >
+                    Sign In
+                  </Button>
+                  <Button
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    size="sm"
+                  >
+                    Sign Up
+                  </Button>
                 </div>
               </div>
             </div>
@@ -201,81 +186,77 @@ export default function InterviewModePage() {
 
       {/* Main Content */}
       <section className="py-12 bg-[#f0efe1] w-full">
-  <div className="w-full flex justify-center">
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-3xl">
-      {/* Voice Interview Card */}
-      <div className="w-full flex">
-        <Card
-          className="w-full h-full flex flex-col justify-between cursor-pointer hover:shadow-2xl transition-all transform hover:scale-105 bg-white shadow-lg border-0"
-          onClick={() => router.push("/voice-interview")}
-        >
-          <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white w-full rounded-t-xl">
-            <CardTitle className="flex items-center space-x-3 text-2xl w-full">
-              <div className="bg-blue-500 p-3 rounded-full">
-                <Mic className="h-8 w-8 text-white" />
-              </div>
-              <span>Start Interview with Voice</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="flex-1 flex flex-col justify-between p-8 bg-gradient-to-br from-white to-blue-50 w-full rounded-b-xl">
-            <p className="text-gray-700 text-lg mb-4 text-center">
-              Mic-enabled interaction with voice responses from AI interviewer
-            </p>
-            <ul className="space-y-2 text-gray-600">
-              <li className="flex items-center space-x-2">
-                <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-                <span>Uses speech recognition</span>
-              </li>
-              <li className="flex items-center space-x-2">
-                <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-                <span>AI speaks back to you</span>
-              </li>
-              <li className="flex items-center space-x-2">
-                <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-                <span>More realistic experience</span>
-              </li>
-            </ul>
-          </CardContent>
-        </Card>
-      </div>
+        <div className="container mx-auto w-full">
+          <div className="flex flex-row w-full">
+            {/* Voice Interview Card */}
+            <Card
+              className="w-full cursor-pointer hover:shadow-xl transition-all transform hover:scale-105 bg-white shadow-lg border-0"
+              onClick={() => router.push("/voice-interview")}
+            >
+              <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white w-full">
+                <CardTitle className="flex items-center space-x-3 text-2xl w-full">
+                  <div className="bg-blue-500 p-3 rounded-full">
+                    <Mic className="h-8 w-8 text-white" />
+                  </div>
+                  <span>Start Interview with Voice</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-8 bg-gradient-to-br from-white to-blue-50 w-full">
+                <p className="text-gray-700 text-lg mb-4">
+                  Mic-enabled interaction with voice responses from AI interviewer
+                </p>
+                <ul className="space-y-2 text-gray-600">
+                  <li className="flex items-center space-x-2">
+                    <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                    <span>Uses speech recognition</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                    <span>AI speaks back to you</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                    <span>More realistic experience</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
 
-      {/* Text Interview Card */}
-      <div className="w-full flex">
-        <Card
-          className="w-full h-full flex flex-col justify-between cursor-pointer hover:shadow-2xl transition-all transform hover:scale-105 bg-white shadow-lg border-0"
-          onClick={() => router.push("/text-interview")}
-        >
-          <CardHeader className="bg-gradient-to-r from-green-600 to-green-700 text-white w-full rounded-t-xl">
-            <CardTitle className="flex items-center space-x-3 text-2xl w-full">
-              <div className="bg-green-500 p-3 rounded-full">
-                <MessageCircle className="h-8 w-8 text-white" />
-              </div>
-              <span>Start Interview with Text</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="flex-1 flex flex-col justify-between p-8 bg-gradient-to-br from-white to-green-50 w-full rounded-b-xl">
-            <p className="text-gray-700 text-lg mb-4 text-center">
-              Chat interface with text-based responses
-            </p>
-            <ul className="space-y-2 text-gray-600">
-              <li className="flex items-center space-x-2">
-                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                <span>Type your responses</span>
-              </li>
-              <li className="flex items-center space-x-2">
-                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                <span>Read AI feedback</span>
-              </li>
-              <li className="flex items-center space-x-2">
-                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                <span>Great for quiet environments</span>
-              </li>
-            </ul>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  </div>
+            {/* Text Interview Card */}
+            <Card
+              className="w-full cursor-pointer hover:shadow-xl transition-all transform hover:scale-105 bg-white shadow-lg border-0"
+              onClick={() => router.push("/text-interview")}
+            >
+              <CardHeader className="bg-gradient-to-r from-green-600 to-green-700 text-white w-full">
+                <CardTitle className="flex items-center space-x-3 text-2xl w-full">
+                  <div className="bg-green-500 p-3 rounded-full">
+                    <MessageCircle className="h-8 w-8 text-white" />
+                  </div>
+                  <span>Start Interview with Text</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-8 bg-gradient-to-br from-white to-green-50 w-full">
+                <p className="text-gray-700 text-lg mb-4">
+                  Chat interface with text-based responses
+                </p>
+                <ul className="space-y-2 text-gray-600">
+                  <li className="flex items-center space-x-2">
+                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                    <span>Type your responses</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                    <span>Read AI feedback</span>
+                  </li>
+                  <li className="flex items-center space-x-2">
+                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                    <span>Great for quiet environments</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </section>
 
       <Footer />

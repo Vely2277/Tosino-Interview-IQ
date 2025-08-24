@@ -3,7 +3,6 @@
 import type React from "react";
 
 import { useState } from "react";
-import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cvAPI } from "@/lib/api";
+import Footer from "@/components/footer";
 import {
   FileText,
   Upload,
@@ -26,7 +26,6 @@ import Image from "next/image";
 
 export default function CvPage() {
   const router = useRouter();
-  const { user, signOut } = useAuth();
   const [cvText, setCvText] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isOptimizing, setIsOptimizing] = useState(false);
@@ -58,7 +57,7 @@ export default function CvPage() {
         cvText.trim() || undefined,
         selectedFile || undefined
       );
-setOptimizationResult(data.optimization);
+      setOptimizationResult(data.optimization);
     } catch (err) {
       console.error(err);
       setError(
@@ -114,34 +113,21 @@ setOptimizationResult(data.optimization);
 
             {/* Auth Buttons */}
             <div className="hidden md:flex items-center space-x-3">
-              {user ? (
-                <Button
-                  variant="ghost"
-                  className="bg-white text-blue-600 hover:bg-gray-100"
-                  size="sm"
-                  onClick={signOut}
-                >
-                  Sign Out
-                </Button>
-              ) : (
-                <>
-                  <Button
-                    variant="ghost"
-                    className="text-white hover:bg-blue-800"
-                    size="sm"
-                    onClick={() => router.push("/auth/login")}
-                  >
-                    Sign In
-                  </Button>
-                  <Button
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                    size="sm"
-                    onClick={() => router.push("/auth/signup")}
-                  >
-                    Sign Up
-                  </Button>
-                </>
-              )}
+              <Button
+                variant="ghost"
+                className="text-white hover:bg-blue-800"
+                size="sm"
+                onClick={() => router.push("/auth/login")}
+              >
+                Sign In
+              </Button>
+              <Button
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+                size="sm"
+                onClick={() => router.push("/auth/signup")}
+              >
+                Sign Up
+              </Button>
             </div>
 
             {/* Mobile menu button */}
@@ -183,34 +169,19 @@ setOptimizationResult(data.optimization);
                   Contact
                 </a>
                 <div className="flex space-x-3 px-3 pt-3 border-t border-blue-800">
-                  {user ? (
-                    <Button
-                      variant="ghost"
-                      className="bg-white text-blue-600 hover:bg-gray-100"
-                      size="sm"
-                      onClick={signOut}
-                    >
-                      Sign Out
-                    </Button>
-                  ) : (
-                    <>
-                      <Button
-                        variant="ghost"
-                        className="text-white hover:bg-blue-800"
-                        size="sm"
-                        onClick={() => router.push("/auth/login")}
-                      >
-                        Sign In
-                      </Button>
-                      <Button
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
-                        size="sm"
-                        onClick={() => router.push("/auth/signup")}
-                      >
-                        Sign Up
-                      </Button>
-                    </>
-                  )}
+                  <Button
+                    variant="ghost"
+                    className="text-white hover:bg-blue-800"
+                    size="sm"
+                  >
+                    Sign In
+                  </Button>
+                  <Button
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    size="sm"
+                  >
+                    Sign Up
+                  </Button>
                 </div>
               </div>
             </div>
@@ -324,33 +295,7 @@ setOptimizationResult(data.optimization);
                 size="lg"
               >
                 <Wrench className="mr-2 h-5 w-5" />
-                {isOptimizing ? (
-                  <span className="flex items-center justify-center">
-                    Optimizing CV...
-                    <svg
-                      className="animate-spin ml-2 h-5 w-5 text-white"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                      />
-                    </svg>
-                  </span>
-                ) : (
-                  "Optimize CV with AI"
-                )}
+                {isOptimizing ? "Optimizing CV..." : "Optimize CV with AI"}
               </Button>
 
               <Button
@@ -397,106 +342,8 @@ setOptimizationResult(data.optimization);
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="space-y-4">
-              <div className="flex items-center space-x-3">
-                <div className="bg-blue-600 p-2 rounded-lg">
-                  <img
-                    src="/interview-IQ-logo.jpg"
-                    alt="InterviewIQ"
-                    className="h-8 w-8 object-cover rounded"
-                  />
-                </div>
-                <span className="text-xl font-bold">InterviewIQ</span>
-              </div>
-              <p className="text-gray-400">
-                AI-powered interview preparation and CV optimization platform.
-              </p>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Product</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Mock Interviews
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    CV Optimizer
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Practice Hub
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Progress Tracking
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Company</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    About Us
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Careers
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Blog
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Contact
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Support</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Help Center
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Privacy Policy
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Terms of Service
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Cookie Policy
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 InterviewIQ. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+  <Footer />
+
     </div>
   );
 }

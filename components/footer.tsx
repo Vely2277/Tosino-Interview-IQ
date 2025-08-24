@@ -90,12 +90,6 @@ export default function Footer() {
               Join thousands of professionals who have successfully landed
               their dream jobs using InterviewIQ.
             </p>
-            <Button 
-              onClick={() => router.push("/about")}
-              className="bg-blue-600 hover:bg-blue-700"
-            >
-              Read Success Stories
-            </Button>
           </div>
         </div>
 
