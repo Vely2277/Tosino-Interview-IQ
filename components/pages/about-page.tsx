@@ -13,31 +13,8 @@ export default function AboutPage() {
   const router = useRouter();
   const { user, signOut } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [currentSlide, setCurrentSlide] = useState(0);
 
-  // Slideshow images (using image2 for all as placeholder)
-  const slides = [
-    "/image2.jpg",
-    "/image2.jpg", 
-    "/image2.jpg",
-    "/image2.jpg"
-  ];
 
-  // Auto-advance slideshow every 2 seconds
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 2000);
-    return () => clearInterval(timer);
-  }, [slides.length]);
-
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % slides.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
-  };
 
   return (
     <div className="min-h-screen bg-[#f0efe1]">
@@ -230,55 +207,18 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Slideshow Section */}
+      {/* Video Section (replaces slideshow) */}
       <section className="py-8 bg-[#f0efe1]">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative overflow-hidden rounded-2xl shadow-2xl">
-            <div
-              className="flex transition-transform duration-700 ease-in-out"
-              style={{ transform: `translateX(-${currentSlide * 100}%)` }}
-            >
-              {slides.map((slide, index) => (
-                <div key={index} className="w-full flex-shrink-0">
-                  <Image
-                    src={slide}
-                    alt={`About ${index + 1}`}
-                    width={1200}
-                    height={400}
-                    className="w-full h-64 md:h-80 lg:h-96 object-cover"
-                  />
-                </div>
-              ))}
-            </div>
-
-            {/* Navigation */}
-            <button
-              onClick={prevSlide}
-              className="absolute left-6 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-3 shadow-lg transition-all"
-            >
-              <ArrowLeft className="h-6 w-6 text-gray-800" />
-            </button>
-            <button
-              onClick={nextSlide}
-              className="absolute right-6 top-1/2 transform -translate-y-1/2 bg-white/90 hover:bg-white rounded-full p-3 shadow-lg transition-all"
-            >
-              <ArrowLeft className="h-6 w-6 text-gray-800 rotate-180" />
-            </button>
-
-            {/* Indicators */}
-            <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-3">
-              {slides.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentSlide(index)}
-                  className={`w-3 h-3 rounded-full transition-all ${
-                    index === currentSlide
-                      ? "bg-white scale-125"
-                      : "bg-white/60"
-                  }`}
-                />
-              ))}
-            </div>
+          <div className="rounded-2xl shadow-2xl overflow-hidden bg-black relative" style={{ aspectRatio: '16/9', minHeight: 200 }}>
+            <iframe
+              id="about-video"
+              src="https://www.youtube.com/embed/rpx0fSSdkWA?si=BXO1swAk97rMwEbe&enablejsapi=1&rel=0&showinfo=0"
+              title="Interview Coaching Video"
+              allow="autoplay; encrypted-media"
+              allowFullScreen
+              className="w-full h-full min-h-[200px]"
+            ></iframe>
           </div>
         </div>
       </section>
