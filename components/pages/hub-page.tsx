@@ -32,6 +32,8 @@ const TOP_CAREERS = [
   "AI Developer",
   "Cybersecurity",
   "Youtube Creator",
+   "Copywriting",
+    "Proofreading",
   "Digital Marketing"
 ];
 
