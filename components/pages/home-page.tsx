@@ -173,9 +173,9 @@ export default function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f0efe1]">
+  <div className="min-h-screen bg-[#f0efe1] dark:bg-gray-900">
       {/* Header Navigation */}
-      <header className="bg-blue-900 text-white sticky top-0 z-50 w-full">
+  <header className="bg-blue-900 text-white dark:bg-gray-950 dark:text-gray-100 sticky top-0 z-50 w-full">
         <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -323,7 +323,7 @@ export default function HomePage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-blue-500 via-blue-600 to-white text-white overflow-hidden">
+  <section className="relative bg-gradient-to-br from-blue-500 via-blue-600 to-white dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 text-white dark:text-gray-100 overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="relative w-full px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -388,12 +388,12 @@ export default function HomePage() {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-12 bg-[#fafaf5] overflow-hidden">
+  <section id="features" className="py-12 bg-[#fafaf5] dark:bg-gray-950 overflow-hidden">
         <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2
               data-animate="title"
-              className={`text-3xl lg:text-4xl font-bold text-gray-900 mb-4 transition-transform duration-1000 ${
+              className={`text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4 transition-transform duration-1000 ${
                 animatedElements.has("title")
                   ? "opacity-100 transform translate-x-0"
                   : "opacity-0 transform -translate-x-12"
@@ -403,7 +403,7 @@ export default function HomePage() {
             </h2>
             <p
               data-animate="subtitle"
-              className={`text-xl text-gray-600 transition-transform duration-1000 delay-200 ${
+              className={`text-xl text-gray-600 dark:text-gray-300 transition-transform duration-1000 delay-200 ${
                 animatedElements.has("subtitle")
                   ? "opacity-100 transform translate-x-0"
                   : "opacity-0 transform translate-x-12"
@@ -417,18 +417,18 @@ export default function HomePage() {
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             <Card
               data-animate="card1"
-              className={`text-center p-6 hover:shadow-lg transition-transform duration-1000 delay-300 ${
+              className={`text-center p-6 hover:shadow-lg bg-white dark:bg-gray-800 transition-transform duration-1000 delay-300 ${
                 animatedElements.has("card1")
                   ? "opacity-100 transform translate-x-0"
                   : "opacity-0 transform -translate-x-12"
               }`}
             >
               <CardContent className="space-y-4 flex flex-col items-center justify-center">
-                <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
-                  <Star className="h-8 w-8 text-blue-600" />
+                <div className="bg-blue-100 dark:bg-blue-900 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
+                  <Star className="h-8 w-8 text-blue-600 dark:text-blue-300" />
                 </div>
-                <h3 className="text-xl font-semibold text-center">AI-Powered Coaching</h3>
-                <p className="text-gray-600 text-center">
+                <h3 className="text-xl font-semibold text-center dark:text-gray-100">AI-Powered Coaching</h3>
+                <p className="text-gray-600 dark:text-gray-300 text-center">
                   Real-time AI feedback and personalized coaching sessions
                 </p>
               </CardContent>
@@ -436,18 +436,18 @@ export default function HomePage() {
 
             <Card
               data-animate="card2"
-              className={`text-center p-6 hover:shadow-lg transition-transform duration-1000 delay-400 ${
+              className={`text-center p-6 hover:shadow-lg bg-white dark:bg-gray-800 transition-transform duration-1000 delay-400 ${
                 animatedElements.has("card2")
                   ? "opacity-100 transform translate-x-0"
-                  : "opacity-0 transform translate-x-12"
+                  : "opacity-0 transform -translate-x-12"
               }`}
             >
               <CardContent className="space-y-4 flex flex-col items-center justify-center">
-                <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
-                  <ChevronRight className="h-8 w-8 text-green-600" />
+                <div className="bg-green-100 dark:bg-green-900 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
+                  <ChevronRight className="h-8 w-8 text-green-600 dark:text-green-300" />
                 </div>
-                <h3 className="text-xl font-semibold text-center">Practice Real Question</h3>
-                <p className="text-gray-600 text-center">
+                <h3 className="text-xl font-semibold text-center dark:text-gray-100">Practice Real Question</h3>
+                <p className="text-gray-600 dark:text-gray-300 text-center">
                   Practice role-specific questions based on your dream job — not generic internet lists
                 </p>
               </CardContent>
@@ -455,18 +455,18 @@ export default function HomePage() {
 
             <Card
               data-animate="card3"
-              className={`text-center p-6 hover:shadow-lg transition-transform duration-1000 delay-500 ${
+              className={`text-center p-6 hover:shadow-lg bg-white dark:bg-gray-800 transition-transform duration-1000 delay-500 ${
                 animatedElements.has("card3")
                   ? "opacity-100 transform translate-x-0"
                   : "opacity-0 transform -translate-x-12"
               }`}
             >
               <CardContent className="space-y-4 flex flex-col items-center justify-center">
-                <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
-                  <Award className="h-8 w-8 text-purple-600" />
+                <div className="bg-purple-100 dark:bg-purple-900 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
+                  <Award className="h-8 w-8 text-purple-600 dark:text-purple-300" />
                 </div>
-                <h3 className="text-xl font-semibold text-center">CV Suggestions That Matter</h3>
-                <p className="text-gray-600 text-center">
+                <h3 className="text-xl font-semibold text-center dark:text-gray-100">CV Suggestions That Matter</h3>
+                <p className="text-gray-600 dark:text-gray-300 text-center">
                   Receive targeted edits to your existing CV — plus a better version, role-matched
                 </p>
               </CardContent>
@@ -474,18 +474,18 @@ export default function HomePage() {
 
             <Card
               data-animate="card4"
-              className={`text-center p-6 hover:shadow-lg transition-transform duration-1000 delay-600 ${
+              className={`text-center p-6 hover:shadow-lg bg-white dark:bg-gray-800 transition-transform duration-1000 delay-600 ${
                 animatedElements.has("card4")
                   ? "opacity-100 transform translate-x-0"
-                  : "opacity-0 transform translate-x-12"
+                  : "opacity-0 transform -translate-x-12"
               }`}
             >
               <CardContent className="space-y-4 flex flex-col items-center justify-center">
-                <div className="bg-orange-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
-                  <Target className="h-8 w-8 text-orange-600" />
+                <div className="bg-orange-100 dark:bg-orange-900 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
+                  <Target className="h-8 w-8 text-orange-600 dark:text-orange-300" />
                 </div>
-                <h3 className="text-xl font-semibold text-center">Targeted Practice</h3>
-                <p className="text-gray-600 text-center">
+                <h3 className="text-xl font-semibold text-center dark:text-gray-100">Targeted Practice</h3>
+                <p className="text-gray-600 dark:text-gray-300 text-center">
                   Industry-specific questions and role-based preparation
                 </p>
               </CardContent>
@@ -564,44 +564,44 @@ export default function HomePage() {
       </section>
 
       {/* Detailed Features */}
-      <section className="py-12 bg-[#f0efe1]">
+  <section className="py-12 bg-[#f0efe1] dark:bg-gray-900">
         <div className="w-full px-4 sm:px-6 lg:px-8">
-          <Card className="shadow-xl border-0">
+          <Card className="shadow-xl border-0 bg-white dark:bg-gray-800">
             <CardContent className="p-8">
               <div className="grid lg:grid-cols-2 gap-8 items-center">
                 <div className="space-y-6">
                   <div className="flex items-center space-x-3">
                     <Sparkles className="h-8 w-8 text-yellow-500" />
-                    <h3 className="text-3xl font-bold text-gray-900">
+                    <h3 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
                       Master Every Interview
                     </h3>
                   </div>
-                  <p className="text-lg text-gray-600 leading-relaxed">
+                  <p className="text-lg text-gray-600 dark:text-gray-300 leading-relaxed">
                     Practice with our AI interviewer, get personalized feedback,
                     and boost your confidence for any job interview.
                   </p>
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="flex items-center space-x-3">
-                      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                      <span className="text-gray-700">
+                      <div className="w-3 h-3 bg-green-500 dark:bg-green-400 rounded-full"></div>
+                      <span className="text-gray-700 dark:text-gray-200">
                         Real-time AI feedback
                       </span>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                      <span className="text-gray-700">
+                      <div className="w-3 h-3 bg-green-500 dark:bg-green-400 rounded-full"></div>
+                      <span className="text-gray-700 dark:text-gray-200">
                         Voice and text practice modes
                       </span>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                      <span className="text-gray-700">
+                      <div className="w-3 h-3 bg-green-500 dark:bg-green-400 rounded-full"></div>
+                      <span className="text-gray-700 dark:text-gray-200">
                         CV optimization tools
                       </span>
                     </div>
                     <div className="flex items-center space-x-3">
-                      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                      <span className="text-gray-700">
+                      <div className="w-3 h-3 bg-green-500 dark:bg-green-400 rounded-full"></div>
+                      <span className="text-gray-700 dark:text-gray-200">
                         Career insights and tips
                       </span>
                     </div>
@@ -640,7 +640,7 @@ export default function HomePage() {
       </section>
 
       {/* FAQ Section */}
-      <section className="py-12 bg-[#f0efe1]">
+  <section className="py-12 bg-[#f0efe1] dark:bg-gray-900">
         <div className="w-full px-4 sm:px-6 lg:px-8">
           <h2 className="text-4xl font-bold text-center mb-12 text-black">
             FAQ
@@ -866,7 +866,7 @@ export default function HomePage() {
       {/* Motivational Section */}
       <section className="py-12 bg-[#f0efe1]">
         <div className="w-full px-4 sm:px-6 lg:px-8">
-          <Card className="shadow-xl border-0">
+          <Card className="shadow-xl border-0 bg-white dark:bg-gray-800">
             <CardContent className="p-8">
               <div className="grid lg:grid-cols-2 gap-12 items-center">
                 {/* Image - Left Side */}
@@ -882,24 +882,24 @@ export default function HomePage() {
 
                 {/* Text Content - Right Side */}
                 <div className="space-y-6 order-1 lg:order-2">
-                  <h2 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-teal-400 to-blue-500 bg-clip-text text-transparent leading-tight">
+                  <h2 className="text-4xl lg:text-5xl font-bold bg-gradient-to-r from-teal-400 to-blue-500 bg-clip-text text-transparent dark:bg-gradient-to-r dark:from-teal-300 dark:to-blue-400 leading-tight">
                     2025 can be your dream year, but not if you keep doing what
                     didn't work last time....
                   </h2>
 
-                  <div className="space-y-4 text-lg text-gray-700">
+                  <div className="space-y-4 text-lg text-gray-700 dark:text-gray-200">
                     <div className="flex items-start space-x-3">
-                      <span className="font-bold text-2xl text-teal-500 mt-1">•</span>
+                      <span className="font-bold text-2xl text-teal-500 dark:text-teal-300 mt-1">•</span>
                       <span>Sign up today,  make a decision you will never regret</span>
                     </div>
                     
                     <div className="flex items-start space-x-3">
-                      <span className="font-bold text-2xl text-blue-500 mt-1">•</span>
+                      <span className="font-bold text-2xl text-blue-500 dark:text-blue-300 mt-1">•</span>
                       <span>Say yes to growth, practice, and preparation that actually sticks</span>
                     </div>
                     
                     <div className="flex items-start space-x-3">
-                      <span className="font-bold text-2xl text-purple-500 mt-1">•</span>
+                      <span className="font-bold text-2xl text-purple-500 dark:text-purple-300 mt-1">•</span>
                       <span>100s are already ahead — don't fall behind again</span>
                     </div>
                   </div>
