@@ -1,3 +1,18 @@
+
+// Dark mode toggle button component (reusable)
+function DarkModeToggle() {
+  const { theme, toggleTheme } = useTheme();
+  return (
+    <Button
+      variant="ghost"
+      className="ml-2"
+      onClick={toggleTheme}
+      aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+    >
+      {theme === "dark" ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+    </Button>
+  );
+}
 "use client";
 
 import { useRouter } from "next/navigation";
@@ -20,6 +35,8 @@ import {
 import Image from "next/image";
 import { useAuth } from "@/contexts/auth-context";
 import Footer from "@/components/footer";
+import { useTheme } from "@/components/contexts/theme-context";
+import { Moon, Sun } from "lucide-react";
 
 export default function HomePage() {
   // Animated counter for "500+"
@@ -195,7 +212,7 @@ export default function HomePage() {
               </button>
             </nav>
 
-            {/* Auth Buttons */}
+            {/* Auth Buttons & Dark Mode Toggle */}
             <div className="hidden md:flex items-center space-x-3">
               {user ? (
                 <Button
@@ -225,7 +242,14 @@ export default function HomePage() {
                   </Button>
                 </>
               )}
+              {/* Dark Mode Toggle */}
+              <DarkModeToggle />
             </div>
+
+
+
+
+
 
             {/* Mobile menu button */}
             <button
