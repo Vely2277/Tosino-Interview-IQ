@@ -1,3 +1,30 @@
+"use client";
+
+import type React from "react";
+
+import { useState } from "react";
+import { useAuth } from "@/contexts/auth-context";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { hubAPI } from "@/lib/api";
+import Footer from "@/components/footer";
+import {
+  Search,
+  TrendingUp,
+  Users,
+  DollarSign,
+  Briefcase,
+  Menu,
+  X,
+  Star,
+  ArrowLeft,
+} from "lucide-react";
+import { renderMarkdownToHTML } from "@/lib/markdown";
+import DOMPurify from "dompurify";
+import Image from "next/image";
+
 // High-ranking careers for quick select
 const TOP_CAREERS = [
   "Graphic Designer",
@@ -42,32 +69,6 @@ const CAREER_OPTIONS = [
   "Legal Advisor",
   "Operations Manager"
 ];
-"use client";
-
-import type React from "react";
-
-import { useState } from "react";
-import { useAuth } from "@/contexts/auth-context";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { hubAPI } from "@/lib/api";
-import Footer from "@/components/footer";
-import {
-  Search,
-  TrendingUp,
-  Users,
-  DollarSign,
-  Briefcase,
-  Menu,
-  X,
-  Star,
-  ArrowLeft,
-} from "lucide-react";
-import { renderMarkdownToHTML } from "@/lib/markdown";
-import DOMPurify from "dompurify";
-import Image from "next/image";
 
 function stripHTML(html: string): string {
   const cleanHTML = DOMPurify.sanitize(html);
