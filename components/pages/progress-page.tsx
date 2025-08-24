@@ -21,10 +21,45 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { progressAPI } from "@/lib/api";
+import { createSupabaseClient } from "@/lib/supabase";
 
 export default function ProgressPage() {
   const router = useRouter();
   const { user, signOut } = useAuth();
+  // Profile picture state
+  // Get profile_picture_url from user.user_metadata if available
+  const initialProfilePic = user?.user_metadata?.profile_picture_url || null;
+  const [profilePic, setProfilePic] = useState<string | null>(initialProfilePic);
+  const [uploading, setUploading] = useState(false);
+
+  // Handle profile picture upload (production: upload to Supabase Storage and update DB)
+  const handleProfilePicChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    setUploading(true);
+    try {
+      const supabase = createSupabaseClient();
+      // Use user id for unique file name
+      const fileExt = file.name.split('.').pop();
+      const filePath = `profile-pictures/${user.id}.${fileExt}`;
+      // Upload to Supabase Storage (bucket: 'avatars')
+      const { error: uploadError } = await supabase.storage.from('avatars').upload(filePath, file, { upsert: true });
+      if (uploadError) throw uploadError;
+      // Get public URL
+      const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
+      const publicUrl = data.publicUrl;
+      // Update user profile in DB
+  // Update user_metadata for profile_picture_url
+  await supabase.auth.updateUser({ data: { profile_picture_url: publicUrl } });
+      setProfilePic(publicUrl);
+    } catch (err) {
+      alert('Failed to upload profile picture. Please try again.');
+      console.error(err);
+    } finally {
+      setUploading(false);
+    }
+  };
+  // (Removed duplicate declarations)
   const [currentSlide, setCurrentSlide] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
@@ -411,8 +446,28 @@ export default function ProgressPage() {
                 ) : (
                   <>
                     {/* Profile Picture */}
-                    <div className="w-24 h-24 bg-gray-100 rounded-full mx-auto mb-6 flex items-center justify-center border-4 border-blue-200">
-                      <Users className="h-12 w-12 text-gray-400" />
+                    <div className="w-24 h-24 mx-auto mb-6 relative group">
+                      {profilePic ? (
+                        <img
+                          src={profilePic}
+                          alt="Profile"
+                          className="w-24 h-24 rounded-full object-cover border-4 border-blue-200"
+                        />
+                      ) : (
+                        <div className="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center border-4 border-blue-200 cursor-pointer">
+                          <span className="text-blue-500 font-semibold text-center text-xs">
+                            Tap to upload image
+                          </span>
+                        </div>
+                      )}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="absolute inset-0 opacity-0 cursor-pointer"
+                        onChange={handleProfilePicChange}
+                        disabled={uploading}
+                        title="Upload profile picture"
+                      />
                     </div>
                     
                     {/* User Name */}
