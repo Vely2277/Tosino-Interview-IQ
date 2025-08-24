@@ -27,9 +27,29 @@ export default function ProgressPage() {
   const router = useRouter();
   const { user, signOut } = useAuth();
   // Profile picture state
-  // Get profile_picture_url from user.user_metadata if available
-  const initialProfilePic = user?.user_metadata?.profile_picture_url || null;
-  const [profilePic, setProfilePic] = useState<string | null>(initialProfilePic);
+  // Profile picture state
+  const [profilePic, setProfilePic] = useState<string | null>(null);
+
+  // Fetch profile_picture_url from users table on mount
+  useEffect(() => {
+    const fetchProfilePic = async () => {
+      if (!user) return;
+      const supabase = createSupabaseClient();
+      const { data, error } = await supabase
+        .from('users')
+        .select('profile_picture_url')
+        .eq('id', user.id)
+        .single();
+      if (data && data.profile_picture_url) {
+        setProfilePic(data.profile_picture_url);
+      } else if (user.user_metadata?.profile_picture_url) {
+        setProfilePic(user.user_metadata.profile_picture_url);
+      } else {
+        setProfilePic(null);
+      }
+    };
+    fetchProfilePic();
+  }, [user]);
   const [uploading, setUploading] = useState(false);
 
   // Handle profile picture upload (production: upload to Supabase Storage and update DB)
