@@ -9,6 +9,7 @@ const ThemeContext = createContext<{ theme: Theme; toggleTheme: () => void }>({
 
 export const useTheme = () => useContext(ThemeContext);
 
+
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const [theme, setTheme] = useState<Theme>("light");
 
@@ -16,8 +17,8 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     const stored = typeof window !== "undefined" ? localStorage.getItem("theme") : null;
     if (stored === "dark" || stored === "light") {
       setTheme(stored);
-    } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      setTheme("dark");
+    } else {
+      setTheme("light"); // Always default to light mode
     }
   }, []);
 
