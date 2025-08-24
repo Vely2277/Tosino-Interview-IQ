@@ -358,7 +358,7 @@ export default function AboutPage() {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="space-y-8">
             <Image
-              src="/image2.jpg"
+              src="/image32.jpg"
               alt="We will make it happen"
               width={600}
               height={400}

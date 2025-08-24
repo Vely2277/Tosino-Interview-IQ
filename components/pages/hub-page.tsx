@@ -1,3 +1,47 @@
+// High-ranking careers for quick select
+const TOP_CAREERS = [
+  "Graphic Designer",
+  "Website Developer",
+  "AI Developer",
+  "Content Creator",
+  "Mechanical Engineer",
+  "Medical Practitioner"
+];
+
+// Autocomplete options (expand as needed)
+const CAREER_OPTIONS = [
+  "Graphic Designer",
+  "Website Developer",
+  "AI Developer",
+  "Content Creator",
+  "Mechanical Engineer",
+  "Medical Practitioner",
+  "Data Analyst",
+  "Software Engineer",
+  "Product Manager",
+  "Digital Marketer",
+  "Civil Engineer",
+  "UX/UI Designer",
+  "Financial Analyst",
+  "Project Manager",
+  "Business Analyst",
+  "Cybersecurity Specialist",
+  "Cloud Architect",
+  "Mobile App Developer",
+  "Network Engineer",
+  "Teacher",
+  "Nurse",
+  "Pharmacist",
+  "Accountant",
+  "Sales Manager",
+  "HR Specialist",
+  "Copywriter",
+  "Social Media Manager",
+  "Video Editor",
+  "Research Scientist",
+  "Legal Advisor",
+  "Operations Manager"
+];
 "use client";
 
 import type React from "react";
@@ -9,6 +53,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { hubAPI } from "@/lib/api";
+import Footer from "@/components/footer";
 import {
   Search,
   TrendingUp,
@@ -31,6 +76,8 @@ function stripHTML(html: string): string {
 }
 
 export default function HubPage() {
+  const [showAutocomplete, setShowAutocomplete] = useState(false);
+  const [filteredCareers, setFilteredCareers] = useState<string[]>([]);
   const { user, signOut } = useAuth();
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
@@ -99,7 +146,30 @@ export default function HubPage() {
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
       handleSearch();
+      setShowAutocomplete(false);
     }
+  };
+
+  // Handle input change for autocomplete
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    if (value.length > 0) {
+      const filtered = CAREER_OPTIONS.filter((career) =>
+        career.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredCareers(filtered.slice(0, 6));
+      setShowAutocomplete(true);
+    } else {
+      setShowAutocomplete(false);
+    }
+  };
+
+  // Handle selecting an autocomplete option
+  const handleAutocompleteSelect = (career: string) => {
+    setSearchQuery(career);
+    setShowAutocomplete(false);
+    handleSearch();
   };
 
   return (
@@ -280,13 +350,51 @@ export default function HubPage() {
             <Card className="bg-white shadow-lg border-0">
               <CardContent className="p-4">
                 <div className="flex space-x-3">
-                  <Input
-                    placeholder="Type any role (e.g. Data Analyst, Software Engineer, Product Manager)"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyPress={handleKeyPress}
-                    className="flex-1 text-lg py-3 border-2 border-gray-300 focus:border-blue-500"
-                  />
+                  <div className="relative flex-1">
+                    <Input
+                      placeholder="Type any role (e.g. Data Analyst, Software Engineer, Product Manager)"
+                      value={searchQuery}
+                      onChange={handleInputChange}
+                      onKeyPress={handleKeyPress}
+                      onFocus={() => {
+                        if (searchQuery.length > 0 && filteredCareers.length > 0) setShowAutocomplete(true);
+                      }}
+                      onBlur={() => setTimeout(() => setShowAutocomplete(false), 150)}
+                      className="w-full text-lg py-3 border-2 border-gray-300 focus:border-blue-500"
+                    />
+                    {showAutocomplete && filteredCareers.length > 0 && (
+                      <div className="absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded shadow-lg z-20 max-h-56 overflow-y-auto">
+                        {filteredCareers.map((career) => (
+                          <div
+                            key={career}
+                            className="px-4 py-2 cursor-pointer hover:bg-blue-100 flex items-center justify-between"
+                            onMouseDown={() => handleAutocompleteSelect(career)}
+                          >
+                            <span>{career}</span>
+                            <TrendingUp className="h-4 w-4 text-green-500 ml-2" />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+            {/* High Ranking Careers Quick Select */}
+            <div className="flex flex-wrap gap-3 mb-6">
+              {TOP_CAREERS.map((career) => (
+                <button
+                  key={career}
+                  type="button"
+                  className="flex items-center px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-900 rounded-full shadow-sm border border-blue-200 transition-all text-base font-medium"
+                  onClick={() => {
+                    setSearchQuery(career);
+                    setShowAutocomplete(false);
+                    handleSearch();
+                  }}
+                >
+                  <span>{career}</span>
+                  <TrendingUp className="h-5 w-5 text-green-500 ml-2" />
+                </button>
+              ))}
+            </div>
                   <Button
                     onClick={handleSearch}
                     disabled={isLoading}
@@ -442,106 +550,7 @@ export default function HubPage() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-            <div className="space-y-4">
-              <div className="flex items-center space-x-3">
-                <div className="bg-blue-600 p-2 rounded-lg">
-                  <img
-                    src="/interview-IQ-logo.jpg"
-                    alt="InterviewIQ"
-                    className="h-8 w-8 object-cover rounded"
-                  />
-                </div>
-                <span className="text-xl font-bold">InterviewIQ</span>
-              </div>
-              <p className="text-gray-400">
-                AI-powered interview preparation and CV optimization platform.
-              </p>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Product</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Mock Interviews
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    CV Optimizer
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Practice Hub
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Progress Tracking
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Company</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    About Us
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Careers
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Blog
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Contact
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-4">Support</h3>
-              <ul className="space-y-2 text-gray-400">
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Help Center
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Privacy Policy
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Terms of Service
-                  </a>
-                </li>
-                <li>
-                  <a href="#" className="hover:text-white transition-colors">
-                    Cookie Policy
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-gray-800 mt-12 pt-8 text-center text-gray-400">
-            <p>&copy; 2024 InterviewIQ. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
