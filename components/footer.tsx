@@ -34,7 +34,7 @@ export default function Footer() {
                 />
               ))}
               <span className="text-gray-600 dark:text-gray-300 ml-2">
-                4.9/5 from 10,000+ users
+                4.9/5 from Satisfied users
               </span>
             </div>
           </div>

@@ -24,12 +24,12 @@ import Footer from "@/components/footer";
 import { useTheme } from "@/components/contexts/theme-context";
 import { Moon, Sun } from "lucide-react";
 // Dark mode toggle button component (reusable)
-function DarkModeToggle() {
+function DarkModeToggle({ className = "" }: { className?: string }) {
   const { theme, toggleTheme } = useTheme();
   return (
     <Button
       variant="ghost"
-      className="ml-2"
+      className={`ml-2 ${className}`}
       onClick={toggleTheme}
       aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
     >
@@ -290,8 +290,8 @@ export default function HomePage() {
                 >
                   Pricing
                 </button>
-                <div className="flex flex-row justify-start px-3">
-                  <DarkModeToggle className="scale-125" />
+                <div className="flex flex-row justify-start pl-0 pr-0">
+                  <DarkModeToggle className="scale-150 ml-0" />
                 </div>
                 <div className="flex space-x-3 px-3 pt-3 border-t border-blue-800">
                   {user ? (
