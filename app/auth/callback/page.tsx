@@ -23,7 +23,6 @@ export default function AuthCallbackPage() {
         const refreshToken = hashParams.get('refresh_token') || urlParams.get('refresh_token');
         const type = hashParams.get('type') || urlParams.get('type');
         
-        console.log('Callback params:', { accessToken: !!accessToken, refreshToken: !!refreshToken, type });
         
         if (accessToken && refreshToken) {
           // We have tokens - set the session
@@ -39,7 +38,6 @@ export default function AuthCallbackPage() {
           }
           
           if (data.session) {
-            console.log('Session set successfully:', data.session.user);
             
             // Check if this is a password recovery
             if (type === 'recovery') {
@@ -66,12 +64,10 @@ export default function AuthCallbackPage() {
         }
 
         if (data.session) {
-          console.log('Existing session found:', data.session.user);
           setTimeout(() => {
             router.push('/');
           }, 500);
         } else {
-          console.log('No session found after callback');
           router.push('/auth/login?message=please_sign_in');
         }
       } catch (error) {
