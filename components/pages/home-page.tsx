@@ -864,7 +864,7 @@ export default function HomePage() {
       </section>
 
       {/* Motivational Section */}
-      <section className="py-12 bg-[#f0efe1]">
+  <section className="py-12 bg-[#f0efe1] dark:bg-gray-900">
         <div className="w-full px-4 sm:px-6 lg:px-8">
           <Card className="shadow-xl border-0 bg-white dark:bg-gray-800">
             <CardContent className="p-8">
