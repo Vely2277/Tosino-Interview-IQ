@@ -69,9 +69,9 @@ export default function CvPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f0efe1]">
+  <div className="min-h-screen bg-[#f0efe1] dark:bg-gray-900">
       {/* Header Navigation */}
-      <header className="bg-blue-900 text-white sticky top-0 z-50">
+  <header className="bg-blue-900 text-white dark:bg-gray-950 dark:text-gray-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -190,7 +190,7 @@ export default function CvPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative h-96 overflow-hidden">
+  <section className="relative h-96 overflow-hidden">
         <Image
           src="/image23.jpg"
           alt="CV Optimizer Background"
@@ -198,9 +198,9 @@ export default function CvPage() {
           className="object-cover"
           priority
         />
-        <div className="absolute inset-0 bg-black/40"></div>
+  <div className="absolute inset-0 bg-black/40"></div>
         <div className="relative h-full flex items-center justify-center">
-          <div className="text-center space-y-4 text-white">
+          <div className="text-center space-y-4 text-white dark:text-gray-100">
             <div className="flex items-center justify-center space-x-2 mb-4">
               <Button
                 onClick={() => router.push("/")}
@@ -223,23 +223,23 @@ export default function CvPage() {
       </section>
 
       {/* Main Content */}
-      <section className="py-12 bg-[#f0efe1]">
+  <section className="py-12 bg-[#f0efe1] dark:bg-gray-900">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-8">
             {/* Enhanced CV Upload Section */}
             <div className="text-center space-y-4 mb-8">
-              <h2 className="text-3xl font-bold text-gray-900">
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
                 Optimize Your CV with AI
               </h2>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
                 Our AI-powered CV optimizer analyzes your resume and provides
                 personalized recommendations to improve your chances of landing
                 interviews.
               </p>
             </div>
 
-            <Card className="shadow-lg border-0 bg-gradient-to-r from-blue-50 to-indigo-50">
-              <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-t-lg">
+            <Card className="shadow-lg border-0 bg-gradient-to-r from-blue-50 to-indigo-50 dark:bg-gray-800 dark:bg-none">
+              <CardHeader className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white dark:bg-gray-900 dark:text-gray-100 rounded-t-lg">
                 <CardTitle className="flex items-center space-x-2">
                   <FileText className="h-5 w-5" />
                   <span>Option 1: Paste CV Text</span>
@@ -260,8 +260,8 @@ export default function CvPage() {
               </CardContent>
             </Card>
 
-            <Card className="shadow-lg border-0 bg-gradient-to-r from-green-50 to-emerald-50">
-              <CardHeader className="bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-t-lg">
+            <Card className="shadow-lg border-0 bg-gradient-to-r from-green-50 to-emerald-50 dark:bg-gray-800 dark:bg-none">
+              <CardHeader className="bg-gradient-to-r from-green-600 to-emerald-600 text-white dark:bg-gray-900 dark:text-gray-100 rounded-t-lg">
                 <CardTitle className="flex items-center space-x-2">
                   <Upload className="h-5 w-5" />
                   <span>Option 2: Upload File</span>
@@ -278,7 +278,7 @@ export default function CvPage() {
                     className="border-green-200 focus:border-green-400"
                   />
                   {selectedFile && (
-                    <p className="text-sm text-green-600 flex items-center space-x-2">
+                    <p className="text-sm text-green-600 dark:text-green-300 flex items-center space-x-2">
                       <Star className="h-4 w-4" />
                       <span>Selected: {selectedFile?.name}</span>
                     </p>
@@ -310,8 +310,8 @@ export default function CvPage() {
             </div>
 
             {optimizationResult && (
-              <Card className="mt-8 shadow-lg border-0 bg-gradient-to-r from-purple-50 to-pink-50">
-                <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-t-lg">
+              <Card className="mt-8 shadow-lg border-0 bg-gradient-to-r from-purple-50 to-pink-50 dark:bg-gray-800 dark:bg-none">
+                <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white dark:bg-gray-900 dark:text-gray-100 rounded-t-lg">
                   <CardTitle className="flex items-center space-x-2">
                     <Star className="h-5 w-5" />
                     <span>Optimization Result</span>
@@ -329,12 +329,12 @@ export default function CvPage() {
             )}
 
             {error && (
-              <Card className="mt-8 shadow-lg border-0 bg-gradient-to-r from-red-50 to-orange-50">
-                <CardHeader className="bg-gradient-to-r from-red-600 to-orange-600 text-white rounded-t-lg">
+              <Card className="mt-8 shadow-lg border-0 bg-gradient-to-r from-red-50 to-orange-50 dark:bg-gray-800 dark:bg-none">
+                <CardHeader className="bg-gradient-to-r from-red-600 to-orange-600 text-white dark:bg-gray-900 dark:text-gray-100 rounded-t-lg">
                   <CardTitle>Error</CardTitle>
                 </CardHeader>
                 <CardContent className="pt-6">
-                  <p className="text-red-600">{error}</p>
+                  <p className="text-red-600 dark:text-red-400">{error}</p>
                 </CardContent>
               </Card>
             )}
