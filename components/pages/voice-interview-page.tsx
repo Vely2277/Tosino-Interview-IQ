@@ -378,43 +378,43 @@ const toggleListening = async () => {
   }, []);
 
   return (
-    <div className="min-h-screen w-screen overflow-x-hidden" style={{ backgroundColor: "#f5f5dc" }}>
+  <div className="min-h-screen w-screen overflow-x-hidden bg-[#f5f5dc] dark:bg-[#181a20]">
       {/* Header Navigation */}
-      <header className="bg-blue-900 text-white sticky top-0 z-50 w-screen">
+  <header className="bg-blue-900 dark:bg-[#23263a] text-white sticky top-0 z-50 w-screen">
         <div className="w-screen px-0">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center space-x-3">
-              <div className="bg-blue-600 p-2 rounded-lg">
+              <div className="bg-blue-600 dark:bg-blue-800 p-2 rounded-lg">
                 <img
                   src="/interview-IQ-logo.jpg"
                   alt="InterviewIQ"
                   className="h-8 w-8 object-cover rounded"
                 />
               </div>
-              <span className="text-xl font-bold">InterviewIQ</span>
+              <span className="text-xl font-bold dark:text-blue-100">InterviewIQ</span>
             </div>
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-8">
               <button
                 onClick={() => router.push("/")}
-                className="text-gray-300 hover:text-white transition-colors"
+                className="text-gray-300 dark:text-blue-200 hover:text-white transition-colors"
               >
                 Home
               </button>
               <button
                 onClick={() => router.push("/practice")}
-                className="text-gray-300 hover:text-white transition-colors"
+                className="text-gray-300 dark:text-blue-200 hover:text-white transition-colors"
               >
                 Practice
               </button>
-              <a href="#" className="text-white font-semibold">
+              <a href="#" className="text-white dark:text-blue-100 font-semibold">
                 Voice Interview
               </a>
               <a
                 href="#"
-                className="text-gray-300 hover:text-white transition-colors"
+                className="text-gray-300 dark:text-blue-200 hover:text-white transition-colors"
               >
                 Contact
               </a>
@@ -425,7 +425,7 @@ const toggleListening = async () => {
               {user ? (
                 <Button
                   variant="ghost"
-                  className="bg-white text-blue-600 hover:bg-gray-100"
+                  className="bg-white dark:bg-blue-900 dark:text-blue-200 text-blue-600 hover:bg-gray-100 dark:hover:bg-blue-800"
                   size="sm"
                   onClick={signOut}
                 >
@@ -435,14 +435,14 @@ const toggleListening = async () => {
                 <>
                   <Button
                     variant="ghost"
-                    className="text-white hover:bg-blue-800"
+                    className="text-white dark:text-blue-200 hover:bg-blue-800 dark:hover:bg-blue-900"
                     size="sm"
                     onClick={() => router.push("/auth/login")}
                   >
                     Sign In
                   </Button>
                   <Button
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    className="bg-blue-600 dark:bg-blue-900 hover:bg-blue-700 dark:hover:bg-blue-800 text-white dark:text-blue-200"
                     size="sm"
                     onClick={() => router.push("/auth/signup")}
                   >
@@ -455,7 +455,7 @@ const toggleListening = async () => {
             {/* Mobile menu button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-md text-gray-300 hover:text-white hover:bg-blue-800"
+              className="md:hidden p-2 rounded-md text-gray-300 dark:text-blue-200 hover:text-white hover:bg-blue-800 dark:hover:bg-blue-900"
             >
               {mobileMenuOpen ? (
                 <X className="h-6 w-6" />
@@ -467,34 +467,34 @@ const toggleListening = async () => {
 
           {/* Mobile Navigation */}
           {mobileMenuOpen && (
-            <div className="md:hidden py-4 border-t border-blue-800">
+            <div className="md:hidden py-4 border-t border-blue-800 dark:border-blue-900">
               <div className="flex flex-col space-y-3">
                 <button
                   onClick={() => router.push("/")}
-                  className="text-gray-300 hover:text-white px-3 py-2 text-left"
+                  className="text-gray-300 dark:text-blue-200 hover:text-white px-3 py-2 text-left"
                 >
                   Home
                 </button>
                 <button
                   onClick={() => router.push("/practice")}
-                  className="text-gray-300 hover:text-white px-3 py-2 text-left"
+                  className="text-gray-300 dark:text-blue-200 hover:text-white px-3 py-2 text-left"
                 >
                   Practice
                 </button>
-                <a href="#" className="text-white font-semibold px-3 py-2">
+                <a href="#" className="text-white dark:text-blue-100 font-semibold px-3 py-2">
                   Voice Interview
                 </a>
                 <a
                   href="#"
-                  className="text-gray-300 hover:text-white px-3 py-2"
+                  className="text-gray-300 dark:text-blue-200 hover:text-white px-3 py-2"
                 >
                   Contact
                 </a>
-                <div className="flex space-x-3 px-3 pt-3 border-t border-blue-800">
+                <div className="flex space-x-3 px-3 pt-3 border-t border-blue-800 dark:border-blue-900">
                   {user ? (
                     <Button
                       variant="ghost"
-                      className="bg-white text-blue-600 hover:bg-gray-100"
+                      className="bg-white dark:bg-blue-900 dark:text-blue-200 text-blue-600 hover:bg-gray-100 dark:hover:bg-blue-800"
                       size="sm"
                       onClick={signOut}
                     >
@@ -504,14 +504,14 @@ const toggleListening = async () => {
                     <>
                       <Button
                         variant="ghost"
-                        className="text-white hover:bg-blue-800"
+                        className="text-white dark:text-blue-200 hover:bg-blue-800 dark:hover:bg-blue-900"
                         size="sm"
                         onClick={() => router.push("/auth/login")}
                       >
                         Sign In
                       </Button>
                       <Button
-                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        className="bg-blue-600 dark:bg-blue-900 hover:bg-blue-700 dark:hover:bg-blue-800 text-white dark:text-blue-200"
                         size="sm"
                         onClick={() => router.push("/auth/signup")}
                       >
@@ -532,10 +532,10 @@ const toggleListening = async () => {
           src="/image2.jpg"
           alt="Voice Interview Background"
           fill
-          className="object-cover"
+          className="object-cover dark:opacity-70"
           priority
         />
-        <div className="absolute inset-0 bg-black/40"></div>
+        <div className="absolute inset-0 bg-black/40 dark:bg-black/70"></div>
         <div className="relative h-full flex items-center justify-center">
           <div className="text-center space-y-4 text-white">
             <div className="flex items-center justify-center space-x-2 mb-4">
@@ -550,10 +550,10 @@ const toggleListening = async () => {
               </Button>
             </div>
             <h1 className="text-3xl lg:text-4xl font-bold">
-              Voice <span className="text-blue-200">Interview</span>
+              Voice <span className="text-blue-200 dark:text-blue-400">Interview</span>
             </h1>
-            <p className="text-lg text-blue-100">
-              {interviewData.jobTitle}{" "}
+            <p className="text-lg text-blue-100 dark:text-blue-200">
+              {interviewData.jobTitle} {" "}
               {interviewData.company && `at ${interviewData.company}`}
             </p>
           </div>
@@ -571,7 +571,7 @@ const toggleListening = async () => {
           {/* Voice Controls Card */}
 
 
-          <Card>
+          <Card className="dark:bg-[#23263a]">
             <CardContent className="p-6 space-y-4">
               {chatHistory.map((msg, idx) => {
                 const isAI = msg.from === "ai";
@@ -602,12 +602,12 @@ const toggleListening = async () => {
                     <div
                       className={`p-4 rounded-lg flex items-center gap-3 ${
                         isAI
-                          ? "bg-blue-50 text-blue-900"
+                          ? "bg-blue-50 dark:bg-blue-900 text-blue-900 dark:text-blue-100"
                           : msg.grade == null
-                          ? "bg-gray-100 text-gray-900"
+                          ? "bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-blue-100"
                           : msg.grade < 5
-                          ? "bg-red-100 text-red-900"
-                          : "bg-green-100 text-green-900"
+                          ? "bg-red-100 dark:bg-red-900 text-red-900 dark:text-red-200"
+                          : "bg-green-100 dark:bg-green-900 text-green-900 dark:text-green-200"
                       }`}
                     >
                       {(msg.audioBase64 || msg.text) && (
@@ -682,7 +682,7 @@ const toggleListening = async () => {
                 </Button>
               </div>
 
-              <p className="text-center text-sm text-gray-600">
+              <p className="text-center text-sm text-gray-600 dark:text-blue-200">
                 {isListening
                   ? "Listening... Tap to stop"
                   : isLoading
@@ -693,11 +693,11 @@ const toggleListening = async () => {
           </Card>
 
           {summary && (
-            <Card className="mt-4">
+            <Card className="mt-4 dark:bg-[#23263a]">
               <CardContent className="p-6 space-y-4">
-                <div className="bg-yellow-50 p-4 rounded-lg">
+                <div className="bg-yellow-50 dark:bg-yellow-900 p-4 rounded-lg">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-yellow-800">
+                    <span className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
                       Interview Summary
                     </span>
                   </div>
@@ -714,7 +714,7 @@ const toggleListening = async () => {
 
           <Button
             onClick={handleEndInterview}
-            className="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
+            className="w-full bg-gradient-to-r from-red-500 to-red-600 dark:from-red-900 dark:to-red-900 hover:from-red-600 hover:to-red-700 dark:hover:from-red-800 dark:hover:to-red-800 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
             size="lg"
             disabled={endDisabled || isLoading}
           >
