@@ -700,10 +700,10 @@ export default function HomePage() {
 
           <div className="space-y-4">
             {/* FAQ Item 1 */}
-            <div className="border border-gray-200 rounded-lg">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800">
               <button
                 onClick={() => toggleFAQ(0)}
-                className="w-full px-6 py-4 text-left flex items-center justify-between bg-gray-100 hover:bg-gray-200 transition-colors rounded-lg"
+                className="w-full px-6 py-4 text-left flex items-center justify-between bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors rounded-lg"
               >
                 <span className="text-lg font-semibold text-black dark:text-gray-100">
                   Is InterviewIQ just like ChatGPT?
@@ -728,10 +728,10 @@ export default function HomePage() {
             </div>
 
             {/* FAQ Item 2 */}
-            <div className="border border-gray-200 rounded-lg">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800">
               <button
                 onClick={() => toggleFAQ(1)}
-                className="w-full px-6 py-4 text-left flex items-center justify-between bg-gray-100 hover:bg-gray-200 transition-colors rounded-lg"
+                className="w-full px-6 py-4 text-left flex items-center justify-between bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors rounded-lg"
               >
                 <span className="text-lg font-semibold text-black dark:text-gray-100">
                   How does InterviewIQ know what to ask me?
@@ -754,10 +754,10 @@ export default function HomePage() {
             </div>
 
             {/* FAQ Item 3 */}
-            <div className="border border-gray-200 rounded-lg">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800">
               <button
                 onClick={() => toggleFAQ(2)}
-                className="w-full px-6 py-4 text-left flex items-center justify-between bg-gray-100 hover:bg-gray-200 transition-colors rounded-lg"
+                className="w-full px-6 py-4 text-left flex items-center justify-between bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors rounded-lg"
               >
                 <span className="text-lg font-semibold text-black dark:text-gray-100">
                   Are there any other features?
@@ -779,10 +779,10 @@ export default function HomePage() {
             </div>
 
             {/* FAQ Item 4 */}
-            <div className="border border-gray-200 rounded-lg">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800">
               <button
                 onClick={() => toggleFAQ(3)}
-                className="w-full px-6 py-4 text-left flex items-center justify-between bg-gray-100 hover:bg-gray-200 transition-colors rounded-lg"
+                className="w-full px-6 py-4 text-left flex items-center justify-between bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors rounded-lg"
               >
                 <span className="text-lg font-semibold text-black dark:text-gray-100">
                   Is this free? Will I need to pay?
@@ -806,10 +806,10 @@ export default function HomePage() {
             </div>
 
             {/* FAQ Item 5 */}
-            <div className="border border-gray-200 rounded-lg">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800">
               <button
                 onClick={() => toggleFAQ(4)}
-                className="w-full px-6 py-4 text-left flex items-center justify-between bg-gray-100 hover:bg-gray-200 transition-colors rounded-lg"
+                className="w-full px-6 py-4 text-left flex items-center justify-between bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors rounded-lg"
               >
                 <span className="text-lg font-semibold text-black dark:text-gray-100">
                   Who is this website for?
@@ -833,10 +833,10 @@ export default function HomePage() {
             </div>
 
             {/* FAQ Item 6 */}
-            <div className="border border-gray-200 rounded-lg">
+            <div className="border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800">
               <button
                 onClick={() => toggleFAQ(5)}
-                className="w-full px-6 py-4 text-left flex items-center justify-between bg-gray-100 hover:bg-gray-200 transition-colors rounded-lg"
+                className="w-full px-6 py-4 text-left flex items-center justify-between bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors rounded-lg"
               >
                 <span className="text-lg font-semibold text-black dark:text-gray-100">
                   What makes this better than interview courses?
