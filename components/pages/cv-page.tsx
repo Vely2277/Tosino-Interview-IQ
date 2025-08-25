@@ -115,18 +115,11 @@ export default function CvPage() {
             <div className="hidden md:flex items-center space-x-3">
               <Button
                 variant="ghost"
-                className="text-white hover:bg-blue-800"
+                className="bg-white text-blue-600 hover:bg-gray-100"
                 size="sm"
-                onClick={() => router.push("/auth/login")}
+                onClick={() => {/* sign out logic here, or pass signOut if available */}}
               >
-                Sign In
-              </Button>
-              <Button
-                className="bg-blue-600 hover:bg-blue-700 text-white"
-                size="sm"
-                onClick={() => router.push("/auth/signup")}
-              >
-                Sign Up
+                Sign Out
               </Button>
             </div>
 

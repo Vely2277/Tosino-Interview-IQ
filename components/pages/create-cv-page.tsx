@@ -304,8 +304,8 @@ export default function CreateCvPage() {
         <div className="w-full">
           {!generatedCV ? (
             <>
-              <Card className="border-gray-200 shadow-sm bg-white dark:bg-gray-800">
-                <CardHeader className="bg-blue-50 dark:bg-gray-900 border-b">
+              <Card className="border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800">
+                <CardHeader className="bg-blue-50 dark:bg-gray-900 border-b dark:border-gray-700">
                   <CardTitle className="flex items-center space-x-2 text-blue-900 dark:text-blue-200">
                     <User className="h-5 w-5" />
                     <span>Personal Information</span>
@@ -322,6 +322,7 @@ export default function CreateCvPage() {
                           handleInputChange("name", e.target.value)
                         }
                         placeholder="Your full name"
+                        className="dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
                       />
                     </div>
                     <div className="space-y-2">
@@ -333,14 +334,15 @@ export default function CreateCvPage() {
                           handleInputChange("role", e.target.value)
                         }
                         placeholder="e.g., Frontend Developer"
+                        className="dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
                       />
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="border-gray-200 shadow-sm bg-white dark:bg-gray-800">
-                <CardHeader className="bg-green-50 dark:bg-gray-900 border-b">
+              <Card className="border-gray-200 dark:border-gray-700 shadow-sm bg-white dark:bg-gray-800">
+                <CardHeader className="bg-green-50 dark:bg-gray-900 border-b dark:border-gray-700">
                   <CardTitle className="flex items-center space-x-2 text-green-900 dark:text-green-200">
                     <Briefcase className="h-5 w-5" />
                     <span>Professional Details</span>
@@ -357,6 +359,7 @@ export default function CreateCvPage() {
                       }
                       placeholder="Describe your work experience..."
                       rows={3}
+                      className="dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
                     />
                   </div>
                   <div className="space-y-2">
@@ -369,6 +372,7 @@ export default function CreateCvPage() {
                       }
                       placeholder="List your technical and soft skills..."
                       rows={3}
+                      className="dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
                     />
                   </div>
                   <div className="space-y-2">
@@ -381,6 +385,7 @@ export default function CreateCvPage() {
                       }
                       placeholder="Your educational background..."
                       rows={2}
+                      className="dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
                     />
                   </div>
                   <div className="space-y-2">
@@ -395,6 +400,7 @@ export default function CreateCvPage() {
                       }
                       placeholder="Companies you've worked for..."
                       rows={2}
+                      className="dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
                     />
                   </div>
                   <div className="space-y-2">
@@ -407,6 +413,7 @@ export default function CreateCvPage() {
                       }
                       placeholder="Your key achievements and accomplishments..."
                       rows={3}
+                      className="dark:bg-gray-800 dark:border-gray-700 dark:text-gray-100"
                     />
                   </div>
                 </CardContent>
@@ -415,7 +422,8 @@ export default function CreateCvPage() {
               <Button
                 onClick={handleGenerateCV}
                 disabled={isGenerating}
-                className="w-full bg-gradient-to-r from-purple-300 to-white hover:from-purple-400 hover:to-gray-100 text-purple-900 dark:text-purple-200 border-purple-200 shadow-md"
+                className="w-full bg-gradient-to-r from-purple-300 to-white hover:from-purple-400 hover:to-gray-100 text-purple-900 border-purple-200 shadow-md
+                  dark:bg-purple-700 dark:hover:bg-purple-800 dark:text-white dark:border-0"
                 size="lg"
               >
                 <Sparkles className="mr-2 h-5 w-5" />
