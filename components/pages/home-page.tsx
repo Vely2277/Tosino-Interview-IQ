@@ -329,8 +329,8 @@ export default function HomePage() {
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div className="space-y-8 lg:pr-8">
               <div className="space-y-6">
-                <h1 className="text-4xl lg:text-6xl font-bold leading-tight min-h-[80px]">
-                  <span className="text-white">{typewriterText}</span>
+                <h1 className="text-4xl lg:text-6xl font-bold leading-tight min-h-[80px] text-white dark:text-gray-100">
+                  <span>{typewriterText}</span>
                   {showCursor && (
                     <span className="animate-pulse text-blue-200">|</span>
                   )}
@@ -354,16 +354,16 @@ export default function HomePage() {
 
               <div className="flex items-center space-x-8 pt-6">
                 <div className="text-center">
-                  <div className="text-2xl font-bold">{counter}+</div>
-                  <div className="text-blue-200 text-sm">Interviews Practiced</div>
+                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{counter}+</div>
+                  <div className="text-blue-200 dark:text-blue-300 text-sm">Interviews Practiced</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold">90%</div>
-                  <div className="text-blue-200 text-sm">User Satisfaction</div>
+                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">90%</div>
+                  <div className="text-blue-200 dark:text-blue-300 text-sm">User Satisfaction</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold">24/7</div>
-                  <div className="text-blue-200 text-sm">AI Support</div>
+                  <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">24/7</div>
+                  <div className="text-blue-200 dark:text-blue-300 text-sm">AI Support</div>
                 </div>
               </div>
             </div>
@@ -498,10 +498,10 @@ export default function HomePage() {
       <section className="py-12">
         <div className="w-full px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-4">
               See InterviewIQ in Action
             </h2>
-            <p className="text-xl text-gray-600">
+            <p className="text-xl text-gray-600 dark:text-gray-300">
               Discover how our platform transforms interview preparation
             </p>
           </div>
@@ -557,7 +557,7 @@ export default function HomePage() {
 
         {/* Text after slideshow */}
         <div className="text-center mt-16">
-          <h3 className="text-2xl font-bold text-black">
+          <h3 className="text-2xl font-bold text-black dark:text-gray-100">
             We will get you ready!
           </h3>
         </div>
@@ -642,7 +642,7 @@ export default function HomePage() {
       {/* FAQ Section */}
   <section className="py-12 bg-[#f0efe1] dark:bg-gray-900">
         <div className="w-full px-4 sm:px-6 lg:px-8">
-          <h2 className="text-4xl font-bold text-center mb-12 text-black">
+          <h2 className="text-4xl font-bold text-center mb-12 text-black dark:text-gray-100">
             FAQ
           </h2>
           <div className="w-full px-4 sm:px-6 lg:px-8">
@@ -705,7 +705,7 @@ export default function HomePage() {
                 onClick={() => toggleFAQ(0)}
                 className="w-full px-6 py-4 text-left flex items-center justify-between bg-gray-100 hover:bg-gray-200 transition-colors rounded-lg"
               >
-                <span className="text-lg font-semibold text-black">
+                <span className="text-lg font-semibold text-black dark:text-gray-100">
                   Is InterviewIQ just like ChatGPT?
                 </span>
                 {openFAQ === 0 ? (
@@ -715,7 +715,7 @@ export default function HomePage() {
                 )}
               </button>
               {openFAQ === 0 && (
-                <div className="px-6 py-4 bg-white text-black">
+                <div className="px-6 py-4 bg-white dark:bg-gray-800 text-black dark:text-gray-100">
                   <p>
                     No. While ChatGPT gives generic answers, InterviewIQ is
                     focused on you — your role, your CV, and your actual
@@ -733,7 +733,7 @@ export default function HomePage() {
                 onClick={() => toggleFAQ(1)}
                 className="w-full px-6 py-4 text-left flex items-center justify-between bg-gray-100 hover:bg-gray-200 transition-colors rounded-lg"
               >
-                <span className="text-lg font-semibold text-black">
+                <span className="text-lg font-semibold text-black dark:text-gray-100">
                   How does InterviewIQ know what to ask me?
                 </span>
                 {openFAQ === 1 ? (
@@ -743,7 +743,7 @@ export default function HomePage() {
                 )}
               </button>
               {openFAQ === 1 && (
-                <div className="px-6 py-4 bg-white text-black">
+                <div className="px-6 py-4 bg-white dark:bg-gray-800 text-black dark:text-gray-100">
                   <p>
                     You simply enter your target job title, and the app pulls in
                     relevant questions and feedback based on real job roles and
@@ -759,7 +759,7 @@ export default function HomePage() {
                 onClick={() => toggleFAQ(2)}
                 className="w-full px-6 py-4 text-left flex items-center justify-between bg-gray-100 hover:bg-gray-200 transition-colors rounded-lg"
               >
-                <span className="text-lg font-semibold text-black">
+                <span className="text-lg font-semibold text-black dark:text-gray-100">
                   Are there any other features?
                 </span>
                 {openFAQ === 2 ? (
@@ -769,7 +769,7 @@ export default function HomePage() {
                 )}
               </button>
               {openFAQ === 2 && (
-                <div className="px-6 py-4 bg-white text-black">
+                <div className="px-6 py-4 bg-white dark:bg-gray-800 text-black dark:text-gray-100">
                   <p>
                     Yes, you even get full career insights, how to start, what
                     to do and real times jobs on our hub page.
@@ -784,7 +784,7 @@ export default function HomePage() {
                 onClick={() => toggleFAQ(3)}
                 className="w-full px-6 py-4 text-left flex items-center justify-between bg-gray-100 hover:bg-gray-200 transition-colors rounded-lg"
               >
-                <span className="text-lg font-semibold text-black">
+                <span className="text-lg font-semibold text-black dark:text-gray-100">
                   Is this free? Will I need to pay?
                 </span>
                 {openFAQ === 3 ? (
@@ -794,7 +794,7 @@ export default function HomePage() {
                 )}
               </button>
               {openFAQ === 3 && (
-                <div className="px-6 py-4 bg-white text-black">
+                <div className="px-6 py-4 bg-white dark:bg-gray-800 text-black dark:text-gray-100">
                   <p>
                     Right now, it's completely free while in early access. We're
                     planning to offer affordable plans soon, with extra features
@@ -811,7 +811,7 @@ export default function HomePage() {
                 onClick={() => toggleFAQ(4)}
                 className="w-full px-6 py-4 text-left flex items-center justify-between bg-gray-100 hover:bg-gray-200 transition-colors rounded-lg"
               >
-                <span className="text-lg font-semibold text-black">
+                <span className="text-lg font-semibold text-black dark:text-gray-100">
                   Who is this website for?
                 </span>
                 {openFAQ === 4 ? (
@@ -821,7 +821,7 @@ export default function HomePage() {
                 )}
               </button>
               {openFAQ === 4 && (
-                <div className="px-6 py-4 bg-white text-black">
+                <div className="px-6 py-4 bg-white dark:bg-gray-800 text-black dark:text-gray-100">
                   <p>
                     Frustrated apprenticeship applicants, recent graduates
                     wanting to pursue dream roles, career switchers wanting to
@@ -838,7 +838,7 @@ export default function HomePage() {
                 onClick={() => toggleFAQ(5)}
                 className="w-full px-6 py-4 text-left flex items-center justify-between bg-gray-100 hover:bg-gray-200 transition-colors rounded-lg"
               >
-                <span className="text-lg font-semibold text-black">
+                <span className="text-lg font-semibold text-black dark:text-gray-100">
                   What makes this better than interview courses?
                 </span>
                 {openFAQ === 5 ? (
@@ -848,7 +848,7 @@ export default function HomePage() {
                 )}
               </button>
               {openFAQ === 5 && (
-                <div className="px-6 py-4 bg-white text-black">
+                <div className="px-6 py-4 bg-white dark:bg-gray-800 text-black dark:text-gray-100">
                   <p>
                     InterviewIQ is interactive, personalised, and on-demand. You
                     practice in real time, get instant coaching, and improve
