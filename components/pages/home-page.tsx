@@ -191,30 +191,35 @@ export default function HomePage() {
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-8">
-              <button
-                onClick={() => router.push("/hub")}
-                className="text-gray-300 hover:text-white transition-colors"
-              >
-                Find Jobs
-              </button>
-              <button
-                onClick={() => router.push("/about")}
-                className="text-gray-300 hover:text-white transition-colors"
-              >
-                About
-              </button>
-              <button
-                onClick={() => router.push("/pricing")}
-                className="text-gray-300 hover:text-white transition-colors"
-              >
-                Pricing
-              </button>
+
+            <nav className="hidden md:flex flex-col items-end space-y-0.5 mr-2">
+              <div className="flex items-center space-x-8">
+                <button
+                  onClick={() => router.push("/hub")}
+                  className="text-gray-300 hover:text-white transition-colors"
+                >
+                  Find Jobs
+                </button>
+                <button
+                  onClick={() => router.push("/about")}
+                  className="text-gray-300 hover:text-white transition-colors"
+                >
+                  About
+                </button>
+                <button
+                  onClick={() => router.push("/pricing")}
+                  className="text-gray-300 hover:text-white transition-colors"
+                >
+                  Pricing
+                </button>
+              </div>
+              <div className="flex justify-end w-full mt-1">
+                <DarkModeToggle />
+              </div>
             </nav>
 
             {/* Auth Buttons & Dark Mode Toggle */}
             <div className="hidden md:flex items-center space-x-3">
-              <DarkModeToggle />
               {user ? (
                 <Button
                   variant="ghost"
