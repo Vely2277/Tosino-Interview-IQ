@@ -262,7 +262,9 @@ export default function CvPage() {
               <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
                 Our AI-powered CV optimizer analyzes your resume and provides
                 personalized recommendations to improve your chances of landing
-                interviews.
+                interviews.<br>
+Please paste text for faster load time.
+</br>
               </p>
             </div>
 
