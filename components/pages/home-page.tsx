@@ -290,8 +290,8 @@ export default function HomePage() {
                 >
                   Pricing
                 </button>
-                <div className="flex flex-row justify-end px-3">
-                  <DarkModeToggle />
+                <div className="flex flex-row justify-start px-3">
+                  <DarkModeToggle className="scale-125" />
                 </div>
                 <div className="flex space-x-3 px-3 pt-3 border-t border-blue-800">
                   {user ? (
