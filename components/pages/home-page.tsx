@@ -214,6 +214,7 @@ export default function HomePage() {
 
             {/* Auth Buttons & Dark Mode Toggle */}
             <div className="hidden md:flex items-center space-x-3">
+              <DarkModeToggle />
               {user ? (
                 <Button
                   variant="ghost"
@@ -242,8 +243,6 @@ export default function HomePage() {
                   </Button>
                 </>
               )}
-              {/* Dark Mode Toggle */}
-              <DarkModeToggle />
             </div>
 
 
