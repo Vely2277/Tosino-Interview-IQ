@@ -262,9 +262,7 @@ export default function CvPage() {
               <p className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
                 Our AI-powered CV optimizer analyzes your resume and provides
                 personalized recommendations to improve your chances of landing
-                interviews.<br>
-Please paste text for faster load time.
-</br>
+                interviews.
               </p>
             </div>
 
@@ -277,7 +275,7 @@ Please paste text for faster load time.
               </CardHeader>
               <CardContent className="pt-6">
                 <div className="space-y-2">
-                  <Label htmlFor="cvText">Paste your CV text here</Label>
+                  <Label htmlFor="cvText">Paste your CV text here for faster load time</Label>
                   <Textarea
                     id="cvText"
                     placeholder="Paste your CV content here..."
