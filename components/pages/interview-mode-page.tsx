@@ -187,7 +187,7 @@ export default function InterviewModePage() {
       {/* Main Content */}
   <section className="py-12 bg-[#f0efe1] dark:bg-gray-900 w-full">
         <div className="container mx-auto w-full">
-          <div className="flex flex-row w-full">
+          <div className="flex flex-col gap-8 w-full">
             {/* Voice Interview Card */}
             <Card
               className="w-full cursor-pointer hover:shadow-xl transition-all transform hover:scale-105 bg-white dark:bg-gray-800 shadow-lg border-0"

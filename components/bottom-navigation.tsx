@@ -59,8 +59,8 @@ export default function BottomNavigation() {
   };
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 safe-area-pb">
-      <div className="grid grid-cols-6 h-16">
+  <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-[#23263a] border-t border-gray-200 dark:border-blue-900 z-50 safe-area-pb">
+  <div className="grid grid-cols-6 h-16">
         {navigationItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.path);
@@ -69,14 +69,14 @@ export default function BottomNavigation() {
             <button
               key={item.path}
               onClick={() => router.push(item.path)}
-              className={`flex flex-col items-center justify-center p-2 transition-all duration-200 ${
+              className={`flex flex-col items-center justify-center p-2 transition-all duration-200 rounded-lg ${
                 active
-                  ? `${item.color} bg-gray-50`
-                  : "text-gray-400 hover:text-gray-600"
+                  ? `${item.color} dark:text-blue-300 bg-gray-50 dark:bg-blue-900`
+                  : "text-gray-400 dark:text-blue-200 hover:text-gray-600 dark:hover:text-blue-400"
               }`}
             >
-              <Icon className={`h-5 w-5 mb-1 ${active ? "scale-110" : ""}`} />
-              <span className={`text-xs font-medium ${active ? "font-semibold" : ""}`}>
+              <Icon className={`h-5 w-5 mb-1 ${active ? "scale-110" : ""} ${active ? "" : "dark:text-blue-200"}`} />
+              <span className={`text-xs font-medium ${active ? "font-semibold" : ""} ${active ? "dark:text-blue-100" : "dark:text-blue-200"}`}>
                 {item.label}
               </span>
             </button>

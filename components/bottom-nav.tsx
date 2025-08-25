@@ -31,8 +31,8 @@ export default function BottomNav({ currentPage }: BottomNavProps) {
   }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-4 py-2">
-      <div className="flex justify-around items-center max-w-md mx-auto">
+  <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-[#23263a] border-t border-gray-200 dark:border-blue-900 px-4 py-2">
+  <div className="flex justify-around items-center max-w-md mx-auto">
         {navItems.map((item) => {
           const Icon = item.icon
           const isActive = getCurrentPage() === item.id
@@ -41,11 +41,13 @@ export default function BottomNav({ currentPage }: BottomNavProps) {
               key={item.id}
               onClick={() => handleNavigate(item.path)}
               className={`flex flex-col items-center py-2 px-3 rounded-lg transition-colors ${
-                isActive ? "text-blue-600 bg-blue-50" : "text-gray-600 hover:text-gray-900"
+                isActive
+                  ? "text-blue-600 dark:text-blue-300 bg-blue-50 dark:bg-blue-900"
+                  : "text-gray-600 dark:text-blue-200 hover:text-gray-900 dark:hover:text-blue-400"
               }`}
             >
-              <Icon size={20} />
-              <span className="text-xs mt-1">{item.label}</span>
+              <Icon size={20} className={isActive ? "" : "dark:text-blue-200"} />
+              <span className={`text-xs mt-1 ${isActive ? "dark:text-blue-100" : "dark:text-blue-200"}`}>{item.label}</span>
             </button>
           )
         })}

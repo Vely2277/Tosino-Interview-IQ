@@ -207,12 +207,6 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* Video Section (replaces slideshow) */}
-  <section className="py-8 bg-[#f0efe1] dark:bg-gray-900">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        </div>
-      </section>
-
       {/* Main Content */}
   <section className="py-12 bg-[#f0efe1] dark:bg-gray-900">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
