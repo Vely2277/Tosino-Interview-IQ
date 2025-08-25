@@ -230,43 +230,43 @@ export default function ProgressPage() {
       ];
 
   return (
-    <div className="min-h-screen bg-[#f0efe1]">
+  <div className="min-h-screen bg-[#f0efe1] dark:bg-[#181a20]">
       {/* Header Navigation */}
-      <header className="bg-blue-900 text-white sticky top-0 z-50">
+  <header className="bg-blue-900 dark:bg-[#23263a] text-white sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center space-x-3">
-              <div className="bg-blue-600 p-2 rounded-lg">
+              <div className="bg-blue-600 dark:bg-blue-800 p-2 rounded-lg">
                 <img
                   src="/interview-IQ-logo.jpg"
                   alt="InterviewIQ"
                   className="h-8 w-8 object-cover rounded"
                 />
               </div>
-              <span className="text-xl font-bold">InterviewIQ</span>
+              <span className="text-xl font-bold dark:text-blue-100">InterviewIQ</span>
             </div>
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center space-x-8">
               <button
                 onClick={() => router.push("/")}
-                className="text-gray-300 hover:text-white transition-colors"
+                className="text-gray-300 dark:text-blue-200 hover:text-white transition-colors"
               >
                 Home
               </button>
               <button
                 onClick={() => router.push("/practice")}
-                className="text-gray-300 hover:text-white transition-colors"
+                className="text-gray-300 dark:text-blue-200 hover:text-white transition-colors"
               >
                 Practice
               </button>
-              <a href="#" className="text-white font-semibold">
+              <a href="#" className="text-white dark:text-blue-100 font-semibold">
                 Progress
               </a>
               <button
                 onClick={() => router.push("/hub")}
-                className="text-gray-300 hover:text-white transition-colors"
+                className="text-gray-300 dark:text-blue-200 hover:text-white transition-colors"
               >
                 Find Jobs
               </button>
@@ -277,7 +277,7 @@ export default function ProgressPage() {
               {user ? (
                 <Button
                   variant="ghost"
-                  className="bg-white text-blue-600 hover:bg-gray-100"
+                  className="bg-white dark:bg-blue-900 dark:text-blue-200 text-blue-600 hover:bg-gray-100 dark:hover:bg-blue-800"
                   size="sm"
                   onClick={signOut}
                 >
@@ -287,14 +287,14 @@ export default function ProgressPage() {
                 <>
                   <Button
                     variant="ghost"
-                    className="text-white hover:bg-blue-800"
+                    className="text-white dark:text-blue-200 hover:bg-blue-800 dark:hover:bg-blue-900"
                     size="sm"
                     onClick={() => router.push("/auth/login")}
                   >
                     Sign In
                   </Button>
                   <Button
-                    className="bg-white text-blue-600 hover:bg-gray-100"
+                    className="bg-white dark:bg-blue-900 dark:text-blue-200 text-blue-600 hover:bg-gray-100 dark:hover:bg-blue-800"
                     size="sm"
                     onClick={() => router.push("/auth/signup")}
                   >
@@ -307,7 +307,7 @@ export default function ProgressPage() {
             {/* Mobile menu button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-md text-gray-300 hover:text-white hover:bg-blue-800"
+              className="md:hidden p-2 rounded-md text-gray-300 dark:text-blue-200 hover:text-white hover:bg-blue-800 dark:hover:bg-blue-900"
             >
               {mobileMenuOpen ? (
                 <X className="h-6 w-6" />
@@ -319,34 +319,34 @@ export default function ProgressPage() {
 
           {/* Mobile Navigation */}
           {mobileMenuOpen && (
-            <div className="md:hidden py-4 border-t border-blue-800">
+            <div className="md:hidden py-4 border-t border-blue-800 dark:border-blue-900">
               <div className="flex flex-col space-y-3">
                 <button
                   onClick={() => router.push("/")}
-                  className="text-gray-300 hover:text-white px-3 py-2 text-left"
+                  className="text-gray-300 dark:text-blue-200 hover:text-white px-3 py-2 text-left"
                 >
                   Home
                 </button>
                 <button
                   onClick={() => router.push("/practice")}
-                  className="text-gray-300 hover:text-white px-3 py-2 text-left"
+                  className="text-gray-300 dark:text-blue-200 hover:text-white px-3 py-2 text-left"
                 >
                   Practice
                 </button>
-                <a href="#" className="text-white font-semibold px-3 py-2">
+                <a href="#" className="text-white dark:text-blue-100 font-semibold px-3 py-2">
                   Progress
                 </a>
                 <button
                   onClick={() => router.push("/hub")}
-                  className="text-gray-300 hover:text-white px-3 py-2 text-left"
+                  className="text-gray-300 dark:text-blue-200 hover:text-white px-3 py-2 text-left"
                 >
                   Find Jobs
                 </button>
-                <div className="flex space-x-3 px-3 pt-3 border-t border-blue-800">
+                <div className="flex space-x-3 px-3 pt-3 border-t border-blue-800 dark:border-blue-900">
                   {user ? (
                     <Button
                       variant="ghost"
-                      className="bg-white text-blue-600 hover:bg-gray-100"
+                      className="bg-white dark:bg-blue-900 dark:text-blue-200 text-blue-600 hover:bg-gray-100 dark:hover:bg-blue-800"
                       size="sm"
                       onClick={signOut}
                     >
@@ -356,14 +356,14 @@ export default function ProgressPage() {
                     <>
                       <Button
                         variant="ghost"
-                        className="text-white hover:bg-blue-800"
+                        className="text-white dark:text-blue-200 hover:bg-blue-800 dark:hover:bg-blue-900"
                         size="sm"
                         onClick={() => router.push("/auth/login")}
                       >
                         Sign In
                       </Button>
                       <Button
-                        className="bg-white text-blue-600 hover:bg-gray-100"
+                        className="bg-white dark:bg-blue-900 dark:text-blue-200 text-blue-600 hover:bg-gray-100 dark:hover:bg-blue-800"
                         size="sm"
                         onClick={() => router.push("/auth/signup")}
                       >
@@ -379,15 +379,15 @@ export default function ProgressPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative h-96 overflow-hidden">
+  <section className="relative h-96 overflow-hidden">
         <Image
           src="/image16.jpg"
           alt="Progress Background"
           fill
-          className="object-cover"
+          className="object-cover dark:opacity-70"
           priority
         />
-        <div className="absolute inset-0 bg-black/40"></div>
+        <div className="absolute inset-0 bg-black/40 dark:bg-black/70"></div>
         <div className="relative h-full flex items-center justify-center">
           <div className="text-center space-y-4 text-white">
             <div className="flex items-center justify-center space-x-2 mb-4">
@@ -412,10 +412,10 @@ export default function ProgressPage() {
       </section>
 
       {/* Welcome Section */}
-      <section className="py-6 bg-[#f0efe1]">
+  <section className="py-6 bg-[#f0efe1] dark:bg-[#181a20]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-2xl font-bold text-gray-900 dark:text-blue-100">
               {loading ? (
                 <span className="animate-pulse">Welcome back...</span>
               ) : (
@@ -427,22 +427,22 @@ export default function ProgressPage() {
       </section>
 
       {/* Main Content */}
-      <section className="py-12 bg-[#f0efe1]">
+  <section className="py-12 bg-[#f0efe1] dark:bg-[#181a20]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-8">
             {/* Error Display */}
             {error && (
-              <Card className="border-red-200 bg-red-50">
+              <Card className="border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950">
                 <CardContent className="p-6">
                   <div className="flex items-center space-x-3">
                     <AlertCircle className="h-6 w-6 text-red-600" />
                     <div>
-                      <h3 className="text-lg font-semibold text-red-800">Error Loading Data</h3>
-                      <p className="text-red-600">{error}</p>
+                      <h3 className="text-lg font-semibold text-red-800 dark:text-red-200">Error Loading Data</h3>
+                      <p className="text-red-600 dark:text-red-200">{error}</p>
                       <Button
                         onClick={() => window.location.reload()}
                         variant="outline"
-                        className="mt-3 border-red-300 text-red-600 hover:bg-red-100"
+                        className="mt-3 border-red-300 dark:border-red-700 text-red-600 dark:text-red-200 hover:bg-red-100 dark:hover:bg-red-900"
                         size="sm"
                       >
                         Try Again
@@ -454,9 +454,9 @@ export default function ProgressPage() {
             )}
 
             {/* User Profile Card */}
-            <Card className="shadow-xl border-0 bg-white">
-              <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-                <CardTitle className="text-2xl font-bold text-center">User Profile</CardTitle>
+            <Card className="shadow-xl border-0 bg-white dark:bg-[#23263a]">
+              <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 dark:from-[#23263a] dark:to-[#23263a] text-white">
+                <CardTitle className="text-2xl font-bold text-center dark:text-blue-100">User Profile</CardTitle>
               </CardHeader>
               <CardContent className="p-8 text-center">
                 {loading ? (
@@ -476,8 +476,8 @@ export default function ProgressPage() {
                           className="w-24 h-24 rounded-full object-cover border-4 border-blue-200"
                         />
                       ) : (
-                        <div className="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center border-4 border-blue-200 cursor-pointer">
-                          <span className="text-blue-500 font-semibold text-center text-xs">
+                        <div className="w-24 h-24 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center border-4 border-blue-200 dark:border-blue-700 cursor-pointer">
+                          <span className="text-blue-500 dark:text-blue-200 font-semibold text-center text-xs">
                             Tap to upload image
                           </span>
                         </div>
@@ -493,12 +493,12 @@ export default function ProgressPage() {
                     </div>
                     
                     {/* User Name */}
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2">
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-blue-100 mb-2">
                       {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
                     </h3>
                     
                     {/* Join Date */}
-                    <p className="text-gray-600 text-lg">
+                    <p className="text-gray-600 dark:text-blue-200 text-lg">
                       Joined {formatJoinDate(user?.created_at)}
                     </p>
                   </>
@@ -513,18 +513,18 @@ export default function ProgressPage() {
                 return (
                   <Card
                     key={index}
-                    className="bg-white shadow-lg border-0 hover:shadow-xl transition-shadow"
+                    className="bg-white dark:bg-[#23263a] shadow-lg border-0 hover:shadow-xl transition-shadow"
                   >
                     <CardContent className="p-4 text-center">
                       <div
-                        className={`${stat.bgColor} w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3`}
+                        className={`${stat.bgColor} dark:${stat.bgColor.replace('100', '900')} w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-3`}
                       >
-                        <Icon className={`h-8 w-8 text-${stat.color}-600`} />
+                        <Icon className={`h-8 w-8 text-${stat.color}-600 dark:text-${stat.color}-400`} />
                       </div>
-                      <p className="text-2xl font-extrabold text-gray-900 mb-1">
+                      <p className="text-2xl font-extrabold text-gray-900 dark:text-blue-100 mb-1">
                         {stat.value}
                       </p>
-                      <p className="text-sm font-semibold text-gray-600 leading-tight">
+                      <p className="text-sm font-semibold text-gray-600 dark:text-blue-200 leading-tight">
                         {stat.label}
                       </p>
                     </CardContent>
@@ -534,9 +534,9 @@ export default function ProgressPage() {
             </div>
 
             {/* Performance Chart */}
-            <Card className="shadow-xl border-0 bg-white">
-              <CardHeader className="bg-gradient-to-r from-green-600 to-blue-600 text-white">
-                <CardTitle className="text-2xl font-bold flex items-center space-x-3">
+            <Card className="shadow-xl border-0 bg-white dark:bg-[#23263a]">
+              <CardHeader className="bg-gradient-to-r from-green-600 to-blue-600 dark:from-[#23263a] dark:to-[#23263a] text-white">
+                <CardTitle className="text-2xl font-bold flex items-center space-x-3 dark:text-blue-100">
                   <TrendingUp className="h-8 w-8" />
                   <span>Performance Over Time</span>
                 </CardTitle>
@@ -544,13 +544,13 @@ export default function ProgressPage() {
               <CardContent className="p-8">
                 {loading ? (
                   <div className="animate-pulse">
-                    <div className="h-64 bg-gray-200 rounded"></div>
+                    <div className="h-64 bg-gray-200 dark:bg-gray-800 rounded"></div>
                   </div>
                 ) : chartData.length === 1 && chartData[0].score === 0 ? (
                   <div className="text-center py-16">
-                    <TrendingUp className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-gray-600 mb-2">No Performance Data</h3>
-                    <p className="text-gray-500">Complete more interviews to see your progress chart</p>
+                    <TrendingUp className="h-16 w-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-gray-600 dark:text-blue-200 mb-2">No Performance Data</h3>
+                    <p className="text-gray-500 dark:text-blue-200">Complete more interviews to see your progress chart</p>
                   </div>
                 ) : (
                   <div className="relative h-64">
@@ -658,9 +658,9 @@ export default function ProgressPage() {
             </Card>
 
             {/* Job History */}
-            <Card className="shadow-xl border-0 bg-white">
-              <CardHeader className="bg-gradient-to-r from-purple-600 to-blue-600 text-white">
-                <CardTitle className="text-2xl font-bold">
+            <Card className="shadow-xl border-0 bg-white dark:bg-[#23263a]">
+              <CardHeader className="bg-gradient-to-r from-purple-600 to-blue-600 dark:from-[#23263a] dark:to-[#23263a] text-white">
+                <CardTitle className="text-2xl font-bold dark:text-blue-100">
                   Interview History
                 </CardTitle>
               </CardHeader>
@@ -668,26 +668,26 @@ export default function ProgressPage() {
                 {loading ? (
                   <div className="animate-pulse space-y-4">
                     {[1, 2].map((i) => (
-                      <div key={i} className="flex justify-between items-center p-6 bg-gray-100 rounded-xl">
+                      <div key={i} className="flex justify-between items-center p-6 bg-gray-100 dark:bg-gray-800 rounded-xl">
                         <div className="space-y-2">
-                          <div className="h-6 bg-gray-300 rounded w-32"></div>
-                          <div className="h-4 bg-gray-300 rounded w-20"></div>
+                          <div className="h-6 bg-gray-300 dark:bg-gray-700 rounded w-32"></div>
+                          <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-20"></div>
                         </div>
                         <div className="text-right space-y-2">
-                          <div className="h-6 bg-gray-300 rounded w-16"></div>
-                          <div className="h-4 bg-gray-300 rounded w-12"></div>
+                          <div className="h-6 bg-gray-300 dark:bg-gray-700 rounded w-16"></div>
+                          <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-12"></div>
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : jobHistory.length === 0 ? (
                   <div className="text-center py-12">
-                    <Clock className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-gray-600 mb-2">No Interviews Yet</h3>
-                    <p className="text-gray-500 mb-6">Start your first interview to see your history here</p>
+                    <Clock className="h-16 w-16 text-gray-400 dark:text-gray-600 mx-auto mb-4" />
+                    <h3 className="text-xl font-semibold text-gray-600 dark:text-blue-200 mb-2">No Interviews Yet</h3>
+                    <p className="text-gray-500 dark:text-blue-200 mb-6">Start your first interview to see your history here</p>
                     <Button 
                       onClick={() => router.push('/practice')}
-                      className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                      className="bg-gradient-to-r from-purple-600 to-blue-600 dark:from-purple-900 dark:to-blue-900 hover:from-purple-700 hover:to-blue-700 dark:hover:from-purple-800 dark:hover:to-blue-800"
                     >
                       Start First Interview
                     </Button>
@@ -696,22 +696,22 @@ export default function ProgressPage() {
                   jobHistory.map((job: any, index: number) => (
                     <div
                       key={job.id || index}
-                      className="flex justify-between items-center p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl border-l-4 border-blue-500 hover:shadow-lg transition-all hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100"
+                      className="flex justify-between items-center p-6 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-[#23263a] dark:to-[#23263a] rounded-xl border-l-4 border-blue-500 dark:border-blue-700 hover:shadow-lg transition-all hover:bg-gradient-to-r hover:from-blue-100 hover:to-purple-100 dark:hover:from-blue-900 dark:hover:to-purple-900"
                     >
                       <div className="space-y-1">
-                        <span className="text-xl font-bold text-gray-900">
+                        <span className="text-xl font-bold text-gray-900 dark:text-blue-100">
                           {job.title}
                         </span>
-                        <p className="text-sm text-gray-600">{job.date}</p>
-                        <p className="text-xs text-blue-600 font-medium">
+                        <p className="text-sm text-gray-600 dark:text-blue-200">{job.date}</p>
+                        <p className="text-xs text-blue-600 dark:text-blue-300 font-medium">
                           {job.status === 'completed' ? 'Completed' : 'In Progress'}
                         </p>
                       </div>
                       <div className="text-right space-y-1">
-                        <div className={`text-2xl font-bold ${job.score !== 'In Progress' ? 'text-green-600' : 'text-orange-600'}`}>
+                        <div className={`text-2xl font-bold ${job.score !== 'In Progress' ? 'text-green-600 dark:text-green-400' : 'text-orange-600 dark:text-orange-400'}`}>
                           {job.score}
                         </div>
-                        <div className="text-sm text-gray-600">
+                        <div className="text-sm text-gray-600 dark:text-blue-200">
                           {job.sessions} session{job.sessions !== 1 ? 's' : ''}
                         </div>
                         {/* Removed review link and click functionality */}
@@ -725,7 +725,7 @@ export default function ProgressPage() {
             {/* Motivational Section */}
             <div className="text-center space-y-4">
               <div className="relative w-full max-w-2xl mx-auto">
-                <h2 className="text-3xl font-bold text-gray-900 mt-2">
+                <h2 className="text-3xl font-bold text-gray-900 dark:text-blue-100 mt-2">
                   We will get there!
                 </h2>
                 <br></br>
@@ -734,7 +734,7 @@ export default function ProgressPage() {
                   alt="Motivational Image"
                   width={800}
                   height={400}
-                  className="rounded-2xl shadow-2xl w-full h-auto"
+                  className="rounded-2xl shadow-2xl w-full h-auto dark:opacity-80"
                 />
               </div>
             </div>

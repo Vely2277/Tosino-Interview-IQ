@@ -210,16 +210,6 @@ export default function AboutPage() {
       {/* Video Section (replaces slideshow) */}
   <section className="py-8 bg-[#f0efe1] dark:bg-gray-900">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="rounded-2xl shadow-2xl overflow-hidden bg-black relative" style={{ aspectRatio: '16/9', minHeight: 200 }}>
-            <iframe
-              id="about-video"
-              src="https://www.youtube.com/embed/rpx0fSSdkWA?si=BXO1swAk97rMwEbe&enablejsapi=1&rel=0&showinfo=0"
-              title="Interview Coaching Video"
-              allow="autoplay; encrypted-media"
-              allowFullScreen
-              className="w-full h-full min-h-[200px]"
-            ></iframe>
-          </div>
         </div>
       </section>
 

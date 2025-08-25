@@ -17,9 +17,9 @@ export default function InterviewModePage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#f0efe1]">
+  <div className="min-h-screen bg-[#f0efe1] dark:bg-gray-900">
       {/* Header Navigation */}
-      <header className="bg-blue-900 text-white sticky top-0 z-50 w-full">
+  <header className="bg-blue-900 text-white dark:bg-gray-950 dark:text-gray-100 sticky top-0 z-50 w-full">
         <div className="container mx-auto w-full">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -151,7 +151,7 @@ export default function InterviewModePage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative h-96 overflow-hidden w-full">
+  <section className="relative h-96 overflow-hidden w-full">
         <Image
           src="/image2.jpg"
           alt="Interview Mode Background"
@@ -161,7 +161,7 @@ export default function InterviewModePage() {
         />
         <div className="absolute inset-0 bg-black/40"></div>
         <div className="relative h-full flex items-center justify-center">
-          <div className="text-center space-y-4 text-white">
+          <div className="text-center space-y-4 text-white dark:text-gray-100">
             <div className="flex items-center justify-center space-x-2 mb-4">
               <Button
                 onClick={() => router.push("/practice")}
@@ -185,15 +185,15 @@ export default function InterviewModePage() {
       </section>
 
       {/* Main Content */}
-      <section className="py-12 bg-[#f0efe1] w-full">
+  <section className="py-12 bg-[#f0efe1] dark:bg-gray-900 w-full">
         <div className="container mx-auto w-full">
           <div className="flex flex-row w-full">
             {/* Voice Interview Card */}
             <Card
-              className="w-full cursor-pointer hover:shadow-xl transition-all transform hover:scale-105 bg-white shadow-lg border-0"
+              className="w-full cursor-pointer hover:shadow-xl transition-all transform hover:scale-105 bg-white dark:bg-gray-800 shadow-lg border-0"
               onClick={() => router.push("/voice-interview")}
             >
-              <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white w-full">
+              <CardHeader className="bg-gradient-to-r from-blue-600 to-blue-700 text-white dark:bg-gray-900 w-full">
                 <CardTitle className="flex items-center space-x-3 text-2xl w-full">
                   <div className="bg-blue-500 p-3 rounded-full">
                     <Mic className="h-8 w-8 text-white" />
@@ -201,21 +201,21 @@ export default function InterviewModePage() {
                   <span>Start Interview with Voice</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-8 bg-gradient-to-br from-white to-blue-50 w-full">
-                <p className="text-gray-700 text-lg mb-4">
+              <CardContent className="p-8 bg-gradient-to-br from-white to-blue-50 dark:from-gray-800 dark:to-blue-900 w-full">
+                <p className="text-gray-700 dark:text-gray-200 text-lg mb-4">
                   Mic-enabled interaction with voice responses from AI interviewer
                 </p>
-                <ul className="space-y-2 text-gray-600">
+                <ul className="space-y-2 text-gray-600 dark:text-gray-300">
                   <li className="flex items-center space-x-2">
-                    <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                    <span className="w-2 h-2 bg-blue-500 dark:bg-blue-300 rounded-full"></span>
                     <span>Uses speech recognition</span>
                   </li>
                   <li className="flex items-center space-x-2">
-                    <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                    <span className="w-2 h-2 bg-blue-500 dark:bg-blue-300 rounded-full"></span>
                     <span>AI speaks back to you</span>
                   </li>
                   <li className="flex items-center space-x-2">
-                    <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                    <span className="w-2 h-2 bg-blue-500 dark:bg-blue-300 rounded-full"></span>
                     <span>More realistic experience</span>
                   </li>
                 </ul>
@@ -224,10 +224,10 @@ export default function InterviewModePage() {
 
             {/* Text Interview Card */}
             <Card
-              className="w-full cursor-pointer hover:shadow-xl transition-all transform hover:scale-105 bg-white shadow-lg border-0"
+              className="w-full cursor-pointer hover:shadow-xl transition-all transform hover:scale-105 bg-white dark:bg-gray-800 shadow-lg border-0"
               onClick={() => router.push("/text-interview")}
             >
-              <CardHeader className="bg-gradient-to-r from-green-600 to-green-700 text-white w-full">
+              <CardHeader className="bg-gradient-to-r from-green-600 to-green-700 text-white dark:bg-gray-900 w-full">
                 <CardTitle className="flex items-center space-x-3 text-2xl w-full">
                   <div className="bg-green-500 p-3 rounded-full">
                     <MessageCircle className="h-8 w-8 text-white" />
@@ -235,21 +235,21 @@ export default function InterviewModePage() {
                   <span>Start Interview with Text</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="p-8 bg-gradient-to-br from-white to-green-50 w-full">
-                <p className="text-gray-700 text-lg mb-4">
+              <CardContent className="p-8 bg-gradient-to-br from-white to-green-50 dark:from-gray-800 dark:to-green-900 w-full">
+                <p className="text-gray-700 dark:text-gray-200 text-lg mb-4">
                   Chat interface with text-based responses
                 </p>
-                <ul className="space-y-2 text-gray-600">
+                <ul className="space-y-2 text-gray-600 dark:text-gray-300">
                   <li className="flex items-center space-x-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                    <span className="w-2 h-2 bg-green-500 dark:bg-green-300 rounded-full"></span>
                     <span>Type your responses</span>
                   </li>
                   <li className="flex items-center space-x-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                    <span className="w-2 h-2 bg-green-500 dark:bg-green-300 rounded-full"></span>
                     <span>Read AI feedback</span>
                   </li>
                   <li className="flex items-center space-x-2">
-                    <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                    <span className="w-2 h-2 bg-green-500 dark:bg-green-300 rounded-full"></span>
                     <span>Great for quiet environments</span>
                   </li>
                 </ul>
