@@ -3,6 +3,7 @@
 import type React from "react";
 
 import { useState } from "react";
+import { useAuth } from "@/contexts/auth-context";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,12 +27,11 @@ import Image from "next/image";
 
 export default function CvPage() {
   const router = useRouter();
+  const { user, signOut } = useAuth();
   const [cvText, setCvText] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isOptimizing, setIsOptimizing] = useState(false);
-  const [optimizationResult, setOptimizationResult] = useState<string | null>(
-    null
-  );
+  const [optimizationResult, setOptimizationResult] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -113,14 +113,34 @@ export default function CvPage() {
 
             {/* Auth Buttons */}
             <div className="hidden md:flex items-center space-x-3">
-              <Button
-                variant="ghost"
-                className="bg-white text-blue-600 hover:bg-gray-100"
-                size="sm"
-                onClick={() => {/* sign out logic here, or pass signOut if available */}}
-              >
-                Sign Out
-              </Button>
+              {user ? (
+                <Button
+                  variant="ghost"
+                  className="bg-white text-blue-600 hover:bg-gray-100"
+                  size="sm"
+                  onClick={signOut}
+                >
+                  Sign Out
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    variant="ghost"
+                    className="text-white hover:bg-blue-800"
+                    size="sm"
+                    onClick={() => router.push("/auth/login")}
+                  >
+                    Sign In
+                  </Button>
+                  <Button
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    size="sm"
+                    onClick={() => router.push("/auth/signup")}
+                  >
+                    Sign Up
+                  </Button>
+                </>
+              )}
             </div>
 
             {/* Mobile menu button */}
@@ -162,19 +182,34 @@ export default function CvPage() {
                   Contact
                 </a>
                 <div className="flex space-x-3 px-3 pt-3 border-t border-blue-800">
-                  <Button
-                    variant="ghost"
-                    className="text-white hover:bg-blue-800"
-                    size="sm"
-                  >
-                    Sign In
-                  </Button>
-                  <Button
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
-                    size="sm"
-                  >
-                    Sign Up
-                  </Button>
+                  {user ? (
+                    <Button
+                      variant="ghost"
+                      className="bg-white text-blue-600 hover:bg-gray-100"
+                      size="sm"
+                      onClick={signOut}
+                    >
+                      Sign Out
+                    </Button>
+                  ) : (
+                    <>
+                      <Button
+                        variant="ghost"
+                        className="text-white hover:bg-blue-800"
+                        size="sm"
+                        onClick={() => router.push("/auth/login")}
+                      >
+                        Sign In
+                      </Button>
+                      <Button
+                        className="bg-blue-600 hover:bg-blue-700 text-white"
+                        size="sm"
+                        onClick={() => router.push("/auth/signup")}
+                      >
+                        Sign Up
+                      </Button>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
