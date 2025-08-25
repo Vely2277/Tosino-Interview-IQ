@@ -538,9 +538,9 @@ export default function HubPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f0efe1]">
+  <div className="min-h-screen bg-[#f0efe1] dark:bg-gray-900">
       {/* Header Navigation */}
-      <header className="bg-blue-900 text-white sticky top-0 z-50">
+  <header className="bg-blue-900 text-white dark:bg-gray-950 dark:text-gray-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -672,7 +672,7 @@ export default function HubPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="relative h-96 overflow-hidden">
+  <section className="relative h-96 overflow-hidden">
         <Image
           src="/image24.jpg"
           alt="Career Hub Background"
@@ -682,7 +682,7 @@ export default function HubPage() {
         />
         <div className="absolute inset-0 bg-black/40"></div>
         <div className="relative h-full flex items-center justify-center">
-          <div className="text-center space-y-4 text-white">
+          <div className="text-center space-y-4 text-white dark:text-gray-100">
             <div className="flex items-center justify-center space-x-2 mb-4">
               <Button
                 onClick={() => router.push("/")}
@@ -708,11 +708,11 @@ export default function HubPage() {
       </section>
 
       {/* Main Content */}
-      <section className="py-12 bg-[#f0efe1]">
+  <section className="py-12 bg-[#f0efe1] dark:bg-gray-900">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-8">
             {/* Search Card */}
-            <Card className="bg-white shadow-lg border-0">
+            <Card className="bg-white dark:bg-gray-800 shadow-lg border-0">
               <CardContent className="p-4">
                 <div className="flex space-x-3">
                   <div className="relative flex-1">
@@ -728,14 +728,14 @@ export default function HubPage() {
                       className="w-full text-lg py-3 border-2 border-gray-300 focus:border-blue-500"
                     />
                     {showAutocomplete && filteredCareers.length > 0 && (
-                      <div className="absolute left-0 right-0 mt-1 bg-white border border-gray-200 rounded shadow-lg z-20 max-h-56 overflow-y-auto">
+                      <div className="absolute left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded shadow-lg z-20 max-h-56 overflow-y-auto">
                         {filteredCareers.map((career) => (
                           <div
                             key={career}
                             className="px-4 py-2 cursor-pointer hover:bg-blue-100 flex items-center justify-between"
                             onMouseDown={() => handleAutocompleteSelect(career)}
                           >
-                            <span>{career}</span>
+                            <span className="text-gray-900 dark:text-gray-100">{career}</span>
                             <TrendingUp className="h-4 w-4 text-green-500 ml-2" />
                           </div>
                         ))}
@@ -775,7 +775,7 @@ export default function HubPage() {
             {isLoading && (
               <Card>
                 <CardContent className="p-6 text-center">
-                  <p className="text-gray-600">
+                  <p className="text-gray-600 dark:text-gray-300">
                     Fetching career insights and job listings...
                   </p>
                 </CardContent>
@@ -785,37 +785,37 @@ export default function HubPage() {
             {error && (
               <Card>
                 <CardContent className="p-6 text-center">
-                  <p className="text-red-600">{error}</p>
+                  <p className="text-red-600 dark:text-red-400">{error}</p>
                 </CardContent>
               </Card>
             )}
 
             {insights && (
               <div className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <TrendingUp className="h-5 w-5 text-green-600" />
+                <Card className="bg-white dark:bg-gray-800">
+                  <CardHeader className="bg-white dark:bg-gray-900">
+                    <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-gray-100">
+                      <TrendingUp className="h-5 w-5 text-green-600 dark:text-green-400" />
                       <span>Market Overview: {insights.role}</span>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="grid grid-cols-2 gap-4 mb-4">
-                      <div className="text-center p-3 bg-green-50 rounded-lg">
-                        <Users className="h-6 w-6 mx-auto mb-2 text-green-600" />
-                        <p className="font-semibold text-green-800">
+                      <div className="text-center p-3 bg-green-50 dark:bg-green-900 rounded-lg">
+                        <Users className="h-6 w-6 mx-auto mb-2 text-green-600 dark:text-green-300" />
+                        <p className="font-semibold text-green-800 dark:text-green-200">
                           Market Demand
                         </p>
-                        <p className="text-green-600">
+                        <p className="text-green-600 dark:text-green-300">
                           {insights.marketDemand}
                         </p>
                       </div>
-                      <div className="text-center p-3 bg-blue-50 rounded-lg">
-                        <DollarSign className="h-6 w-6 mx-auto mb-2 text-blue-600" />
-                        <p className="font-semibold text-blue-800">
+                      <div className="text-center p-3 bg-blue-50 dark:bg-blue-900 rounded-lg">
+                        <DollarSign className="h-6 w-6 mx-auto mb-2 text-blue-600 dark:text-blue-300" />
+                        <p className="font-semibold text-blue-800 dark:text-blue-200">
                           Salary Range
                         </p>
-                        <p className="text-blue-600 text-sm">
+                        <p className="text-blue-600 dark:text-blue-300 text-sm">
                           {insights.averageSalary}
                         </p>
                       </div>
@@ -829,9 +829,9 @@ export default function HubPage() {
                   </CardContent>
                 </Card>
 
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Common Requirements</CardTitle>
+                <Card className="bg-white dark:bg-gray-800">
+                  <CardHeader className="bg-white dark:bg-gray-900">
+                    <CardTitle className="text-gray-900 dark:text-gray-100">Common Requirements</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2">
@@ -841,8 +841,8 @@ export default function HubPage() {
                             key={index}
                             className="flex items-center space-x-2"
                           >
-                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                            <span className="text-gray-700">{req}</span>
+                            <div className="w-2 h-2 bg-blue-500 dark:bg-blue-300 rounded-full"></div>
+                            <span className="text-gray-700 dark:text-gray-200">{req}</span>
                           </div>
                         )
                       )}
@@ -854,10 +854,10 @@ export default function HubPage() {
 
             {jobResults.length > 0 && (
               <div className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <Briefcase className="h-5 w-5 text-purple-600" />
+                <Card className="bg-white dark:bg-gray-800">
+                  <CardHeader className="bg-white dark:bg-gray-900">
+                    <CardTitle className="flex items-center space-x-2 text-gray-900 dark:text-gray-100">
+                      <Briefcase className="h-5 w-5 text-purple-600 dark:text-purple-300" />
                       <span>Job Listings for "{searchQuery}"</span>
                     </CardTitle>
                   </CardHeader>
@@ -871,24 +871,24 @@ export default function HubPage() {
                       return (
                         <div
                           key={index}
-                          className="border rounded-lg p-4 space-y-2"
+                          className="border rounded-lg p-4 space-y-2 border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
                         >
-                          <h2 className="text-xl font-bold text-gray-900">
+                          <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">
                             {job.title}
                           </h2>
 
-                          <p className="text-gray-800 font-semibold">
+                          <p className="text-gray-800 dark:text-gray-200 font-semibold">
                             {job.company} &bull; {job.location}
                           </p>
 
                           {job.salary && (
-                            <p className="text-blue-600 font-medium">
+                            <p className="text-blue-600 dark:text-blue-300 font-medium">
                               {job.salary}
                             </p>
                           )}
 
                           {safeDescription && (
-                            <p className="text-gray-700 text-sm">
+                            <p className="text-gray-700 dark:text-gray-300 text-sm">
                               {safeDescription.slice(0, 150)}
                               {safeDescription.length > 150 ? "…" : ""}
                             </p>

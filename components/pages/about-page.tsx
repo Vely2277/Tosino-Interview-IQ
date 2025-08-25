@@ -17,9 +17,9 @@ export default function AboutPage() {
 
 
   return (
-    <div className="min-h-screen bg-[#f0efe1]">
+  <div className="min-h-screen bg-[#f0efe1] dark:bg-gray-900">
       {/* Header Navigation */}
-      <header className="bg-blue-900 text-white sticky top-0 z-50">
+  <header className="bg-blue-900 text-white dark:bg-gray-950 dark:text-gray-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -199,16 +199,16 @@ export default function AboutPage() {
       </section>
 
       {/* Success Priority Text */}
-      <section className="py-8 bg-[#f0efe1]">
+  <section className="py-8 bg-[#f0efe1] dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">
+          <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100">
             Your success is our priority...
           </h2>
         </div>
       </section>
 
       {/* Video Section (replaces slideshow) */}
-      <section className="py-8 bg-[#f0efe1]">
+  <section className="py-8 bg-[#f0efe1] dark:bg-gray-900">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="rounded-2xl shadow-2xl overflow-hidden bg-black relative" style={{ aspectRatio: '16/9', minHeight: 200 }}>
             <iframe
@@ -224,20 +224,20 @@ export default function AboutPage() {
       </section>
 
       {/* Main Content */}
-      <section className="py-12 bg-[#f0efe1]">
+  <section className="py-12 bg-[#f0efe1] dark:bg-gray-900">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             
             {/* Who are we? Card */}
-            <Card className="bg-white shadow-lg border-0 hover:shadow-xl transition-shadow">
-              <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white">
+            <Card className="bg-white dark:bg-gray-800 shadow-lg border-0 hover:shadow-xl transition-shadow">
+              <CardHeader className="bg-gradient-to-r from-blue-600 to-purple-600 text-white dark:bg-gray-900">
                 <CardTitle className="flex items-center space-x-3">
                   <Users className="h-6 w-6" />
                   <span>Who are we?</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
-                <ul className="text-gray-600 leading-relaxed space-y-3 list-disc list-inside">
+                <ul className="text-gray-600 dark:text-gray-300 leading-relaxed space-y-3 list-disc list-inside">
                   <li>AI-powered platform revolutionizing interview preparation</li>
                   <li>Team of passionate developers, career coaches, and industry experts</li>
                   <li>Understanding modern job hunting challenges</li>
@@ -249,15 +249,15 @@ export default function AboutPage() {
             </Card>
 
             {/* What do we do? Card */}
-            <Card className="bg-white shadow-lg border-0 hover:shadow-xl transition-shadow">
-              <CardHeader className="bg-gradient-to-r from-green-600 to-blue-600 text-white">
+            <Card className="bg-white dark:bg-gray-800 shadow-lg border-0 hover:shadow-xl transition-shadow">
+              <CardHeader className="bg-gradient-to-r from-green-600 to-blue-600 text-white dark:bg-gray-900">
                 <CardTitle className="flex items-center space-x-3">
                   <Target className="h-6 w-6" />
                   <span>What do we do?</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
-                <ul className="text-gray-600 leading-relaxed space-y-3 list-disc list-inside">
+                <ul className="text-gray-600 dark:text-gray-300 leading-relaxed space-y-3 list-disc list-inside">
                   <li>AI-powered mock interviews with personalized feedback</li>
                   <li>CV optimization and enhancement tools</li>
                   <li>Real-time job market insights and opportunities</li>
@@ -269,15 +269,15 @@ export default function AboutPage() {
             </Card>
 
             {/* Why choose us? Card */}
-            <Card className="bg-white shadow-lg border-0 hover:shadow-xl transition-shadow">
-              <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+            <Card className="bg-white dark:bg-gray-800 shadow-lg border-0 hover:shadow-xl transition-shadow">
+              <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white dark:bg-gray-900">
                 <CardTitle className="flex items-center space-x-3">
                   <Award className="h-6 w-6" />
                   <span>Why choose us?</span>
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-6">
-                <ul className="text-gray-600 leading-relaxed space-y-3 list-disc list-inside">
+                <ul className="text-gray-600 dark:text-gray-300 leading-relaxed space-y-3 list-disc list-inside">
                   <li>Core features completely free to access</li>
                   <li>Premium options available at incredibly low costs</li>
                   <li>AI technology provides personalized feedback</li>
@@ -294,7 +294,7 @@ export default function AboutPage() {
       </section>
 
       {/* Image and Success Text Section */}
-      <section className="py-12 bg-[#f0efe1]">
+  <section className="py-12 bg-[#f0efe1] dark:bg-gray-900">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <div className="space-y-8">
             <Image
@@ -304,7 +304,7 @@ export default function AboutPage() {
               height={400}
               className="rounded-lg shadow-lg mx-auto"
             />
-            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900">
+            <h2 className="text-3xl lg:text-4xl font-bold text-gray-900 dark:text-gray-100">
               We will make it happen...
             </h2>
           </div>

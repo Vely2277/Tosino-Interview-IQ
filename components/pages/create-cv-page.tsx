@@ -118,9 +118,9 @@ export default function CreateCvPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#f0efe1]">
+  <div className="min-h-screen bg-[#f0efe1] dark:bg-gray-900">
       {/* Header Navigation */}
-      <header className="bg-blue-900 text-white sticky top-0 z-50 w-full">
+  <header className="bg-blue-900 text-white dark:bg-gray-950 dark:text-gray-100 sticky top-0 z-50 w-full">
         <div className="w-full px-0">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
@@ -267,7 +267,7 @@ export default function CreateCvPage() {
       </header>
 
       {/* Hero Section - Editable Height */}
-      <section className="relative overflow-hidden w-full" style={{ height: "250px" }}>
+  <section className="relative overflow-hidden w-full" style={{ height: "250px" }}>
         <Image
           src="/image2.jpg"
           alt="Create CV Background"
@@ -275,9 +275,9 @@ export default function CreateCvPage() {
           className="object-cover"
           priority
         />
-        <div className="absolute inset-0 bg-black/40"></div>
+  <div className="absolute inset-0 bg-black/40"></div>
         <div className="relative h-full flex items-center justify-center">
-          <div className="text-center space-y-4 text-white">
+          <div className="text-center space-y-4 text-white dark:text-gray-100">
             <div className="flex items-center justify-center space-x-2 mb-4">
               <Button
                 onClick={() => router.push("/cv")}
@@ -304,9 +304,9 @@ export default function CreateCvPage() {
         <div className="w-full">
           {!generatedCV ? (
             <>
-              <Card className="border-gray-200 shadow-sm">
-                <CardHeader className="bg-blue-50 border-b">
-                  <CardTitle className="flex items-center space-x-2 text-blue-900">
+              <Card className="border-gray-200 shadow-sm bg-white dark:bg-gray-800">
+                <CardHeader className="bg-blue-50 dark:bg-gray-900 border-b">
+                  <CardTitle className="flex items-center space-x-2 text-blue-900 dark:text-blue-200">
                     <User className="h-5 w-5" />
                     <span>Personal Information</span>
                   </CardTitle>
@@ -339,9 +339,9 @@ export default function CreateCvPage() {
                 </CardContent>
               </Card>
 
-              <Card className="border-gray-200 shadow-sm">
-                <CardHeader className="bg-green-50 border-b">
-                  <CardTitle className="flex items-center space-x-2 text-green-900">
+              <Card className="border-gray-200 shadow-sm bg-white dark:bg-gray-800">
+                <CardHeader className="bg-green-50 dark:bg-gray-900 border-b">
+                  <CardTitle className="flex items-center space-x-2 text-green-900 dark:text-green-200">
                     <Briefcase className="h-5 w-5" />
                     <span>Professional Details</span>
                   </CardTitle>
@@ -415,7 +415,7 @@ export default function CreateCvPage() {
               <Button
                 onClick={handleGenerateCV}
                 disabled={isGenerating}
-                className="w-full bg-gradient-to-r from-purple-300 to-white hover:from-purple-400 hover:to-gray-100 text-purple-900 border-purple-200 shadow-md"
+                className="w-full bg-gradient-to-r from-purple-300 to-white hover:from-purple-400 hover:to-gray-100 text-purple-900 dark:text-purple-200 border-purple-200 shadow-md"
                 size="lg"
               >
                 <Sparkles className="mr-2 h-5 w-5" />
@@ -424,15 +424,15 @@ export default function CreateCvPage() {
             </>
           ) : (
             <>
-              <Card>
-                <CardHeader>
-                  <CardTitle>
+              <Card className="bg-white dark:bg-gray-800">
+                <CardHeader className="bg-gray-50 dark:bg-gray-900">
+                  <CardTitle className="dark:text-gray-100">
                     Generated CV<br></br>
                     <br></br>Tap generated CV to edit
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="bg-gray-50 p-4 rounded-lg">
+                  <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
                     <div
                       id="editable-cv"
                       className="prose dark:prose-invert max-w-none"
