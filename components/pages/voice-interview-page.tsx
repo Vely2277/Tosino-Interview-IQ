@@ -89,6 +89,7 @@ export default function VoiceInterviewPage() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const sessionIdRef = useRef<string | null>(null);
   const [endDisabled, setEndDisabled] = useState(false);
+  const [showEndConfirm, setShowEndConfirm] = useState(false);
   const [summary, setSummary] = useState("");
   const [chatHistory, setChatHistory] = useState<
     {
@@ -288,6 +289,7 @@ const toggleListening = async () => {
   const handleEndInterview = async () => {
     if (!sessionId || endDisabled) return;
     setEndDisabled(true);
+    setShowEndConfirm(false);
     setIsLoading(true);
     try {
       const data = await interviewAPI.end(sessionId);
@@ -713,13 +715,39 @@ const toggleListening = async () => {
           )}
 
           <Button
-            onClick={handleEndInterview}
+            onClick={() => setShowEndConfirm(true)}
             className="w-full bg-gradient-to-r from-red-500 to-red-600 dark:from-red-900 dark:to-red-900 hover:from-red-600 hover:to-red-700 dark:hover:from-red-800 dark:hover:to-red-800 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition-all duration-200 transform hover:scale-[1.02]"
             size="lg"
-            disabled={endDisabled || isLoading}
+            disabled={
+              endDisabled || isLoading || !chatHistory.some((msg) => msg.from === "user")
+            }
           >
             End Interview
           </Button>
+
+          {/* Confirmation Popup */}
+          {showEndConfirm && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+              <div className="bg-white dark:bg-[#23263a] rounded-lg shadow-lg p-6 w-full max-w-sm">
+                <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-blue-100">Are you sure you want to end the interview?</h2>
+                <div className="flex justify-end space-x-3">
+                  <Button
+                    variant="outline"
+                    className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-blue-100"
+                    onClick={() => setShowEndConfirm(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    className="bg-red-600 hover:bg-red-700 text-white"
+                    onClick={handleEndInterview}
+                  >
+                    Yes, End
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
