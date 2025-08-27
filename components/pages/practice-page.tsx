@@ -33,6 +33,21 @@ export default function PracticePage() {
   const [typewriterText, setTypewriterText] = useState("");
   const [showCursor, setShowCursor] = useState(true);
 
+  // On mount, check for unfinished interview session in localStorage
+  useEffect(() => {
+    const savedVoice = localStorage.getItem("voiceInterviewSession");
+    if (savedVoice) {
+      // Optionally, you can check for a 'completed' flag in the session object
+      router.push("/voice-interview");
+      return;
+    }
+    const savedText = localStorage.getItem("textInterviewSession");
+    if (savedText) {
+      router.push("/text-interview");
+      return;
+    }
+  }, [router]);
+
   // Slideshow images - create extended array for seamless loop
   const slides = [
     "/image1.jpg",
