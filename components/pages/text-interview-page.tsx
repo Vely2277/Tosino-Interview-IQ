@@ -41,6 +41,7 @@ export default function TextInterviewPage() {
       reasoning?: string | null;
     }[]
   >([]);
+  const [showEndConfirm, setShowEndConfirm] = useState(false);
   const [currentMessage, setCurrentMessage] = useState("");
 
   // Initialize the interview session STARTING THE INTERVIEW
@@ -103,14 +104,14 @@ export default function TextInterviewPage() {
 
   // End the interview session
   const handleEndInterview = async () => {
-    if (isButtonDisabled) return; //end buttons can only run once
+    if (isButtonDisabled) return;
     if (!sessionId) return;
-    setIsButtonDisabled(true); //disable buttons after first click
-
+    setIsButtonDisabled(true);
+    setShowEndConfirm(false);
     setIsLoading(true);
     try {
       const data = await interviewAPI.end(sessionId);
-      setSummary(data.summary); // Store the summary in state
+      setSummary(data.summary);
     } catch (error) {
       console.error("Error ending interview:", error);
     } finally {
@@ -449,13 +450,40 @@ export default function TextInterviewPage() {
 
           <div className="mt-6">
             <Button
-              onClick={handleEndInterview}
+              onClick={() => setShowEndConfirm(true)}
               variant="outline"
               className="w-full bg-gradient-to-r from-red-500 to-pink-500 dark:from-red-900 dark:to-pink-900 hover:from-red-600 hover:to-pink-600 dark:hover:from-red-800 dark:hover:to-pink-800 text-white border-0 py-3 text-lg shadow-lg transform hover:scale-105 transition-all duration-200"
-              disabled={isButtonDisabled}
+              disabled={
+                isButtonDisabled ||
+                !chatHistory.some((msg) => msg.from === "user")
+              }
             >
               {isButtonDisabled ? "Interview Ended" : "End Interview"}
             </Button>
+
+            {/* Confirmation Popup */}
+            {showEndConfirm && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+                <div className="bg-white dark:bg-[#23263a] rounded-lg shadow-lg p-6 w-full max-w-sm">
+                  <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-blue-100">Are you sure you want to end the interview?</h2>
+                  <div className="flex justify-end space-x-3">
+                    <Button
+                      variant="outline"
+                      className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-blue-100"
+                      onClick={() => setShowEndConfirm(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      className="bg-red-600 hover:bg-red-700 text-white"
+                      onClick={handleEndInterview}
+                    >
+                      Yes, End
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>
