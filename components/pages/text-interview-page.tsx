@@ -346,7 +346,7 @@ export default function TextInterviewPage() {
                     {!isAI && (
                       <div className="relative ml-2 group">
                         <span className="text-sm cursor-pointer">ℹ️</span>
-                        <div className="absolute bottom-full mb-2 right-0 w-52 bg-white border border-gray-300 text-gray-800 text-xs p-2 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20">
+                        <div className="absolute bottom-full mb-2 right-0 w-52 bg-white dark:bg-gray-900 border border-gray-300 dark:border-blue-800 text-gray-800 dark:text-blue-100 text-xs p-2 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20">
                           {msg.grade == null ? (
                             <p>NULL</p>
                           ) : (
