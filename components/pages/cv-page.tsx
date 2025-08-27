@@ -275,7 +275,7 @@ export default function CvPage() {
               </CardHeader>
               <CardContent className="pt-6">
                 <div className="space-y-2">
-                  <Label htmlFor="cvText">Paste your CV text here</Label>
+                  <Label htmlFor="cvText">Paste your CV text here for faster load time</Label>
                   <Textarea
                     id="cvText"
                     placeholder="Paste your CV content here..."
