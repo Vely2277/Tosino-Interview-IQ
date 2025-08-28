@@ -67,6 +67,39 @@ export default function TextInterviewPage() {
     }
   };
 
+  // Save session to localStorage whenever relevant state changes
+  useEffect(() => {
+    if (!sessionId) return;
+    // Only save if not ended
+    if (!isButtonDisabled) {
+      const sessionData = {
+        sessionId,
+        chatHistory,
+        interviewData,
+        aiResponse,
+        currentMessage,
+      };
+      localStorage.setItem("textInterviewSession", JSON.stringify(sessionData));
+    }
+  }, [sessionId, chatHistory, interviewData, aiResponse, currentMessage, isButtonDisabled]);
+
+  // On mount, restore session if present
+  useEffect(() => {
+    const saved = localStorage.getItem("textInterviewSession");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.sessionId) setSessionId(parsed.sessionId);
+        if (parsed.chatHistory) setChatHistory(parsed.chatHistory);
+        if (parsed.interviewData) {
+          // Optionally setInterviewData(parsed.interviewData);
+        }
+        if (parsed.aiResponse) setAiResponse(parsed.aiResponse);
+        if (parsed.currentMessage) setCurrentMessage(parsed.currentMessage);
+      } catch {}
+    }
+  }, []);
+
   const handleRespond = async (userResponse: string) => {
 
     setIsLoading(true);
@@ -112,6 +145,8 @@ export default function TextInterviewPage() {
     try {
       const data = await interviewAPI.end(sessionId);
       setSummary(data.summary);
+      // Clear session from localStorage after ending
+      localStorage.removeItem("textInterviewSession");
     } catch (error) {
       console.error("Error ending interview:", error);
     } finally {

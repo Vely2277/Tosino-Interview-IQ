@@ -116,7 +116,6 @@ export default function VoiceInterviewPage() {
       }
   // Initialize the interview session: fetch start message audio from backend (using interviewAPI.start)
   const initializeInterview = async () => {
-  // [INIT] Fetching initial AI audio message from backend
     setIsLoading(true);
     try {
       const data = await interviewAPI.start(
@@ -141,13 +140,42 @@ export default function VoiceInterviewPage() {
         ]);
         speakResponse(data.audioBase64, data.initialMessage, undefined, data.file_present);
       }
-  // [INIT] Initial AI audio message loaded
     } catch (error) {
       console.error("[INIT] Error fetching initial AI audio:", error);
     } finally {
       setIsLoading(false);
     }
   };
+
+  // Save session to localStorage whenever relevant state changes
+  useEffect(() => {
+    if (!sessionId) return;
+    if (!endDisabled) {
+      const sessionData = {
+        sessionId,
+        chatHistory,
+        interviewData,
+        currentlyPlayingIdx,
+      };
+      localStorage.setItem("voiceInterviewSession", JSON.stringify(sessionData));
+    }
+  }, [sessionId, chatHistory, interviewData, currentlyPlayingIdx, endDisabled]);
+
+  // On mount, restore session if present
+  useEffect(() => {
+    const saved = localStorage.getItem("voiceInterviewSession");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.sessionId) setSessionId(parsed.sessionId);
+        if (parsed.chatHistory) setChatHistory(parsed.chatHistory);
+        if (parsed.interviewData) {
+          // Optionally setInterviewData(parsed.interviewData);
+        }
+        if (parsed.currentlyPlayingIdx !== undefined) setCurrentlyPlayingIdx(parsed.currentlyPlayingIdx);
+      } catch {}
+    }
+  }, []);
 
   // Respond to the interview: send user audio to backend (using interviewAPI.respond)
   const handleRespond = async (userResponse: string, userDataUrl?: string) => {
@@ -303,6 +331,8 @@ const toggleListening = async () => {
         audioStream.getTracks().forEach((track) => track.stop());
         setAudioStream(null);
       }
+      // Clear session from localStorage after ending
+      localStorage.removeItem("voiceInterviewSession");
     } catch (error) {
       setEndDisabled(false);
     } finally {
