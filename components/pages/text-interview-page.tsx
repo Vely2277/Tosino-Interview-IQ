@@ -394,7 +394,7 @@ export default function TextInterviewPage() {
                       <div className="relative ml-2 group flex items-center justify-center">
                         <span className="text-sm cursor-pointer">ℹ️</span>
                         <div
-                          className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-64 max-w-xs bg-white dark:bg-gray-900 border border-gray-300 dark:border-blue-800 text-gray-800 dark:text-blue-100 text-xs p-2 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20 text-center break-words"
+                          className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 sm:w-80 w-64 max-w-full bg-white dark:bg-gray-900 border border-gray-300 dark:border-blue-800 text-gray-800 dark:text-blue-100 text-xs p-2 rounded shadow-md opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-20 text-center break-words overflow-x-auto"
                           style={{ wordBreak: 'break-word', whiteSpace: 'pre-line' }}
                         >
                           {msg.grade == null ? (
