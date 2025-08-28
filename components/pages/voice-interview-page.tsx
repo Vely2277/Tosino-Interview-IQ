@@ -159,6 +159,8 @@ export default function VoiceInterviewPage() {
       };
       try {
         const str = JSON.stringify(sessionData);
+        // Log the full object before saving
+        console.log('[VOICE][SAVE][FULL_OBJECT]', sessionData);
         localStorage.setItem("voiceInterviewSession", str);
         // Debug logs for diagnosing quota issues
         console.log('[VOICE][SAVE] chatHistory length:', chatHistory.length);
