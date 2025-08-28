@@ -44,22 +44,22 @@ export default function TextInterviewPage() {
   const [showEndConfirm, setShowEndConfirm] = useState(false);
   const [currentMessage, setCurrentMessage] = useState("");
 
-  // Initialize the interview session STARTING THE INTERVIEW
+  // Initialize the interview session: fetch start message from backend (using interviewAPI.start)
   const initializeInterview = async () => {
     setIsLoading(true);
     try {
       const data = await interviewAPI.start(
-        interviewData.jobTitle,
-        interviewData.company,
+        interviewData.jobTitle || '',
+        interviewData.company || '',
         "text"
       );
+      if (!data.sessionId) {
+        throw new Error("No sessionId returned from API");
+      }
       setSessionId(data.sessionId);
       sessionIdRef.current = data.sessionId;
-      setAiResponse(data.initialMessage); // Set the initial AI message
-      setChatHistory((prev) => [
-        ...prev,
-        { from: "ai", text: data.initialMessage },
-      ]);
+      setAiResponse(data.initialMessage);
+      setChatHistory([{ from: "ai", text: data.initialMessage }]);
     } catch (error) {
       console.error("Error starting interview:", error);
     } finally {
@@ -70,7 +70,6 @@ export default function TextInterviewPage() {
   // Save session to localStorage whenever relevant state changes
   useEffect(() => {
     if (!sessionId) return;
-    // Only save if not ended
     if (!isButtonDisabled) {
       const sessionData = {
         sessionId,
@@ -79,11 +78,15 @@ export default function TextInterviewPage() {
         aiResponse,
         currentMessage,
       };
-      localStorage.setItem("textInterviewSession", JSON.stringify(sessionData));
+      try {
+        localStorage.setItem("textInterviewSession", JSON.stringify(sessionData));
+      } catch (e) {
+        // Ignore quota errors
+      }
     }
   }, [sessionId, chatHistory, interviewData, aiResponse, currentMessage, isButtonDisabled]);
 
-  // On mount, restore session if present, otherwise start a new one (match voice page logic)
+  // On mount, restore session if present, otherwise start a new one
   useEffect(() => {
     const saved = localStorage.getItem("textInterviewSession");
     if (saved) {
@@ -101,8 +104,6 @@ export default function TextInterviewPage() {
     }
     initializeInterview(); // Only start a new session if nothing to restore
   }, []);
-
-  // Remove duplicate initializeInterview on mount (was causing multiple starts)
 
   const handleRespond = async (userResponse: string) => {
 
@@ -158,10 +159,7 @@ export default function TextInterviewPage() {
     }
   };
 
-  // Initialize interview when the component mounts
-  useEffect(() => {
-    initializeInterview();
-  }, []);
+  // (Removed duplicate initializeInterview useEffect to prevent double API calls)
 
   return (
   <div className="min-h-screen bg-[#f0efe1] dark:bg-[#181a20]">
