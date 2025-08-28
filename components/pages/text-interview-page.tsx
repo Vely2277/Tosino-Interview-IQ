@@ -30,7 +30,7 @@ export default function TextInterviewPage() {
   const [aiResponse, setAiResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const sessionIdRef = useRef<string | null>(null); // Declare a ref for sessionId
+  const sessionIdRef = useRef<string | null>(null);
   const [summary, setSummary] = useState("");
   const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [chatHistory, setChatHistory] = useState<
@@ -66,6 +66,11 @@ export default function TextInterviewPage() {
       setIsLoading(false);
     }
   };
+
+  // Always keep sessionIdRef in sync with sessionId (like in voice page)
+  useEffect(() => {
+    sessionIdRef.current = sessionId;
+  }, [sessionId]);
 
   // Save session to localStorage whenever relevant state changes
   useEffect(() => {
@@ -106,16 +111,17 @@ export default function TextInterviewPage() {
   }, []);
 
   const handleRespond = async (userResponse: string) => {
-
     setIsLoading(true);
-
     try {
+      const sid = sessionIdRef.current || sessionId;
+      if (!sid) {
+        throw new Error("No sessionId available for response!");
+      }
       const data = await interviewAPI.respond(
-        sessionIdRef.current!,
+        sid,
         userResponse,
         "text"
       );
-
       setChatHistory((prev) => [
         ...prev,
         {
@@ -129,9 +135,13 @@ export default function TextInterviewPage() {
           text: data.aiResponse,
         },
       ]);
-
       setAiResponse(data.aiResponse);
       setCurrentMessage(""); // Reset the current message after responding
+      // If backend returns a new sessionId, update it (parity with voice page)
+      if (data.sessionId) {
+        setSessionId(data.sessionId);
+        sessionIdRef.current = data.sessionId;
+      }
     } catch (error) {
       console.error("Error in handleRespond:", error);
       setAiResponse("Hmm... I couldn't process that. Try again?");
