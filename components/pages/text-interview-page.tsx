@@ -391,32 +391,26 @@ export default function TextInterviewPage() {
                     } items-center gap-2`}
                   >
                     {!isAI && (
-                      <div className="relative ml-2 group flex flex-col items-center">
+                      <div className="relative ml-2 group">
                         <span className="text-sm cursor-pointer">ℹ️</span>
+                        {/* Centered tooltip for grading info */}
                         <div
-                          className="fixed left-1/2 bottom-24 sm:static sm:left-auto sm:bottom-auto z-50 group-hover:opacity-100 opacity-0 transition-opacity duration-200"
+                          className="fixed left-1/2 top-1/2 z-50 max-w-[90vw] w-[90vw] sm:w-96 -translate-x-1/2 -translate-y-1/2 bg-white dark:bg-gray-900 border border-gray-300 dark:border-blue-800 text-gray-800 dark:text-blue-100 text-xs p-4 rounded shadow-xl opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200"
                           style={{
-                            transform: 'translateX(-50%)',
-                            minWidth: '220px',
-                            maxWidth: '90vw',
-                            width: 'auto',
-                            background: 'var(--tw-bg-opacity,1) #fff',
-                            borderRadius: '0.5rem',
-                            boxShadow: '0 4px 24px rgba(0,0,0,0.12)',
-                            padding: '0.75rem',
-                            border: '1px solid #cbd5e1',
-                            color: '#222',
+                            wordBreak: 'break-word',
                             textAlign: 'left',
+                            maxHeight: '70vh',
+                            overflowY: 'auto',
                           }}
                         >
                           {msg.grade == null ? (
                             <p>NULL</p>
                           ) : (
                             <>
-                              <p style={{ fontWeight: 600 }}>
-                                Grade: {msg.grade}/10
+                              <p>
+                                <strong>Grade:</strong> {msg.grade}/10
                               </p>
-                              <p style={{ wordBreak: 'break-word' }}>
+                              <p>
                                 <strong>Reason:</strong> {msg.reasoning}
                               </p>
                             </>
@@ -435,7 +429,6 @@ export default function TextInterviewPage() {
                           ? "bg-red-100 dark:bg-red-900 text-red-900 dark:text-red-200"
                           : "bg-green-100 dark:bg-green-900 text-green-900 dark:text-green-200"
                       }`}
-                      style={{ maxWidth: '90vw', minWidth: '120px', textAlign: 'left' }}
                     >
                       <div className="flex items-center justify-between mb-1">
                         <span className="text-sm font-semibold">
@@ -443,7 +436,7 @@ export default function TextInterviewPage() {
                         </span>
                       </div>
 
-                      <p className="text-base break-words" style={{ wordBreak: 'break-word' }}>{msg.text}</p>
+                      <p className="text-sm">{msg.text}</p>
                     </div>
                   </div>
                 );
