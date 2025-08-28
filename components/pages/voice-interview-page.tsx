@@ -151,19 +151,37 @@ export default function VoiceInterviewPage() {
   useEffect(() => {
     if (!sessionId) return;
     if (!endDisabled) {
+      // Only save the last user voice note and its corresponding AI response (if any)
+      let lastUserIdx = -1;
+      for (let i = chatHistory.length - 1; i >= 0; i--) {
+        if (chatHistory[i].from === 'user') {
+          lastUserIdx = i;
+          break;
+        }
+      }
+      let minimalChatHistory = [];
+      if (lastUserIdx !== -1) {
+        // Always include the last user message
+        minimalChatHistory.push(chatHistory[lastUserIdx]);
+        // If the next message is an AI response, include it too
+        if (chatHistory[lastUserIdx + 1] && chatHistory[lastUserIdx + 1].from === 'ai') {
+          minimalChatHistory.push(chatHistory[lastUserIdx + 1]);
+        }
+      } else if (chatHistory.length > 0) {
+        // If no user message, but there is an AI message (e.g. initial), include it
+        minimalChatHistory.push(chatHistory[0]);
+      }
       const sessionData = {
         sessionId,
-        chatHistory,
+        chatHistory: minimalChatHistory,
         interviewData,
         currentlyPlayingIdx,
       };
       try {
         const str = JSON.stringify(sessionData);
-        // Log the full object before saving
         console.log('[VOICE][SAVE][FULL_OBJECT]', sessionData);
         localStorage.setItem("voiceInterviewSession", str);
-        // Debug logs for diagnosing quota issues
-        console.log('[VOICE][SAVE] chatHistory length:', chatHistory.length);
+        console.log('[VOICE][SAVE] chatHistory length:', minimalChatHistory.length);
         console.log('[VOICE][SAVE] localStorage data size (bytes):', str.length);
       } catch (e) {
         console.error('[VOICE][SAVE] Error saving session to localStorage:', e);
