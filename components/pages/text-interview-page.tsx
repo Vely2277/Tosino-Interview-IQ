@@ -96,8 +96,10 @@ export default function TextInterviewPage() {
         }
         if (parsed.aiResponse) setAiResponse(parsed.aiResponse);
         if (parsed.currentMessage) setCurrentMessage(parsed.currentMessage);
+        return; // Do not start a new session if restoring
       } catch {}
     }
+    initializeInterview(); // Only start a new session if nothing to restore
   }, []);
 
   const handleRespond = async (userResponse: string) => {

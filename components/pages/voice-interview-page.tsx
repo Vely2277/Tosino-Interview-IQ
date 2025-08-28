@@ -151,7 +151,7 @@ export default function VoiceInterviewPage() {
   useEffect(() => {
     if (!sessionId) return;
     if (!endDisabled) {
-      // Only save the last user voice note and its corresponding AI response (if any)
+      // Only keep audioBase64 for the last user voice note
       let lastUserIdx = -1;
       for (let i = chatHistory.length - 1; i >= 0; i--) {
         if (chatHistory[i].from === 'user') {
@@ -159,30 +159,27 @@ export default function VoiceInterviewPage() {
           break;
         }
       }
-      let minimalChatHistory = [];
-      if (lastUserIdx !== -1) {
-        // Always include the last user message
-        minimalChatHistory.push(chatHistory[lastUserIdx]);
-        // If the next message is an AI response, include it too
-        if (chatHistory[lastUserIdx + 1] && chatHistory[lastUserIdx + 1].from === 'ai') {
-          minimalChatHistory.push(chatHistory[lastUserIdx + 1]);
+      const minimizedChatHistory = chatHistory.map((msg, idx) => {
+        if (msg.from === 'user') {
+          if (idx === lastUserIdx) {
+            return msg; // keep audioBase64 for last user note
+          } else {
+            // Remove audioBase64 for previous user notes
+            const { audioBase64, ...rest } = msg;
+            return rest;
+          }
         }
-      } else if (chatHistory.length > 0) {
-        // If no user message, but there is an AI message (e.g. initial), include it
-        minimalChatHistory.push(chatHistory[0]);
-      }
+        return msg; // AI messages unchanged
+      });
       const sessionData = {
         sessionId,
-        chatHistory: minimalChatHistory,
+        chatHistory: minimizedChatHistory,
         interviewData,
         currentlyPlayingIdx,
       };
       try {
         const str = JSON.stringify(sessionData);
-        console.log('[VOICE][SAVE][FULL_OBJECT]', sessionData);
         localStorage.setItem("voiceInterviewSession", str);
-        console.log('[VOICE][SAVE] chatHistory length:', minimalChatHistory.length);
-        console.log('[VOICE][SAVE] localStorage data size (bytes):', str.length);
       } catch (e) {
         console.error('[VOICE][SAVE] Error saving session to localStorage:', e);
       }
@@ -655,6 +652,8 @@ const toggleListening = async () => {
             <CardContent className="p-6 space-y-4">
               {chatHistory.map((msg, idx) => {
                 const isAI = msg.from === "ai";
+                // Only allow play for user voice note if it's the last one and has audioBase64
+                const isLastUser = !isAI && idx === [...chatHistory].map((m, i) => m.from === 'user' ? i : -1).filter(i => i !== -1).pop();
                 return (
                   <div
                     key={idx}
@@ -699,11 +698,16 @@ const toggleListening = async () => {
                               msg.audioBase64,
                               msg.text,
                               idx,
-                              isAI ? msg.file_present : true
+                              isAI ? msg.file_present : (isLastUser && msg.audioBase64 ? true : false)
                             )
                           }
                           title={isAI ? "Play AI voice note" : "Play your voice note"}
-                          disabled={recording || (currentlyPlayingIdx !== null && currentlyPlayingIdx !== idx)}
+                          disabled={
+                            recording ||
+                            (currentlyPlayingIdx !== null && currentlyPlayingIdx !== idx) ||
+                            (!isAI && !isLastUser) ||
+                            (!isAI && isLastUser && !msg.audioBase64)
+                          }
                         >
                           <Volume2 className={`w-6 h-6 ${currentlyPlayingIdx === idx ? 'text-blue-600 animate-pulse' : ''}`} />
                         </Button>
