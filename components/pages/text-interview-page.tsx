@@ -22,10 +22,11 @@ import { renderMarkdownToHTML } from "@/lib/markdown";
 import { interviewAPI } from "@/lib/api";
 import Image from "next/image";
 
+
 export default function TextInterviewPage() {
   const { user, signOut } = useAuth();
   const router = useRouter();
-  const { interviewData } = useInterview();
+  const { interviewData, setInterviewData } = useInterview();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [aiResponse, setAiResponse] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -83,7 +84,7 @@ export default function TextInterviewPage() {
     }
   }, [sessionId, chatHistory, interviewData, aiResponse, currentMessage, isButtonDisabled]);
 
-  // On mount, restore session if present
+  // On mount, restore session if present; otherwise, do nothing (let user start new session manually)
   useEffect(() => {
     const saved = localStorage.getItem("textInterviewSession");
     if (saved) {
@@ -91,13 +92,12 @@ export default function TextInterviewPage() {
         const parsed = JSON.parse(saved);
         if (parsed.sessionId) setSessionId(parsed.sessionId);
         if (parsed.chatHistory) setChatHistory(parsed.chatHistory);
-        if (parsed.interviewData) {
-          // Optionally setInterviewData(parsed.interviewData);
-        }
+        if (parsed.interviewData) setInterviewData(parsed.interviewData);
         if (parsed.aiResponse) setAiResponse(parsed.aiResponse);
         if (parsed.currentMessage) setCurrentMessage(parsed.currentMessage);
       } catch {}
     }
+    // If no saved session, do nothing; user will see job title/company form
   }, []);
 
   const handleRespond = async (userResponse: string) => {
@@ -154,10 +154,7 @@ export default function TextInterviewPage() {
     }
   };
 
-  // Initialize interview when the component mounts
-  useEffect(() => {
-    initializeInterview();
-  }, []);
+  // (No unconditional initializeInterview on mount; only restore if present)
 
   return (
   <div className="min-h-screen bg-[#f0efe1] dark:bg-[#181a20]">
