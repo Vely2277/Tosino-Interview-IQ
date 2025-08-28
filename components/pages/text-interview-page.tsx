@@ -83,7 +83,7 @@ export default function TextInterviewPage() {
     }
   }, [sessionId, chatHistory, interviewData, aiResponse, currentMessage, isButtonDisabled]);
 
-  // On mount, restore session if present
+  // On mount, restore session if present, otherwise start a new one (match voice page logic)
   useEffect(() => {
     const saved = localStorage.getItem("textInterviewSession");
     if (saved) {
@@ -101,6 +101,8 @@ export default function TextInterviewPage() {
     }
     initializeInterview(); // Only start a new session if nothing to restore
   }, []);
+
+  // Remove duplicate initializeInterview on mount (was causing multiple starts)
 
   const handleRespond = async (userResponse: string) => {
 
