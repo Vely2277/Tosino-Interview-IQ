@@ -254,6 +254,26 @@ export default function CvPage() {
   <section className="py-12 bg-[#f0efe1] dark:bg-gray-900">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="space-y-8">
+            {/* Optimized CV always comes first */}
+            {optimizationResult && (
+              <Card className="mt-8 shadow-lg border-0 bg-gradient-to-r from-purple-50 to-pink-50 dark:bg-gray-800 dark:bg-none">
+                <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white dark:bg-gray-900 dark:text-gray-100 rounded-t-lg">
+                  <CardTitle className="flex items-center space-x-2">
+                    <Star className="h-5 w-5" />
+                    <span>Optimization Result</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  <div
+                    className="prose dark:prose-invert max-w-none"
+                    dangerouslySetInnerHTML={{
+                      __html: renderMarkdownToHTML(optimizationResult || ""),
+                    }}
+                  />
+                </CardContent>
+              </Card>
+            )}
+
             {/* Enhanced CV Upload Section */}
             <div className="text-center space-y-4 mb-8">
               <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
@@ -336,25 +356,6 @@ export default function CvPage() {
                 Create New CV
               </Button>
             </div>
-
-            {optimizationResult && (
-              <Card className="mt-8 shadow-lg border-0 bg-gradient-to-r from-purple-50 to-pink-50 dark:bg-gray-800 dark:bg-none">
-                <CardHeader className="bg-gradient-to-r from-purple-600 to-pink-600 text-white dark:bg-gray-900 dark:text-gray-100 rounded-t-lg">
-                  <CardTitle className="flex items-center space-x-2">
-                    <Star className="h-5 w-5" />
-                    <span>Optimization Result</span>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="pt-6">
-                  <div
-                    className="prose dark:prose-invert max-w-none"
-                    dangerouslySetInnerHTML={{
-                      __html: renderMarkdownToHTML(optimizationResult || ""),
-                    }}
-                  />
-                </CardContent>
-              </Card>
-            )}
 
             {error && (
               <Card className="mt-8 shadow-lg border-0 bg-gradient-to-r from-red-50 to-orange-50 dark:bg-gray-800 dark:bg-none">
