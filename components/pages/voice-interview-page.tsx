@@ -157,7 +157,15 @@ export default function VoiceInterviewPage() {
         interviewData,
         currentlyPlayingIdx,
       };
-      localStorage.setItem("voiceInterviewSession", JSON.stringify(sessionData));
+      try {
+        const str = JSON.stringify(sessionData);
+        localStorage.setItem("voiceInterviewSession", str);
+        // Debug logs for diagnosing quota issues
+        console.log('[VOICE][SAVE] chatHistory length:', chatHistory.length);
+        console.log('[VOICE][SAVE] localStorage data size (bytes):', str.length);
+      } catch (e) {
+        console.error('[VOICE][SAVE] Error saving session to localStorage:', e);
+      }
     }
   }, [sessionId, chatHistory, interviewData, currentlyPlayingIdx, endDisabled]);
 
@@ -168,12 +176,19 @@ export default function VoiceInterviewPage() {
       try {
         const parsed = JSON.parse(saved);
         if (parsed.sessionId) setSessionId(parsed.sessionId);
+        // Always REPLACE chatHistory, never append/merge
         if (parsed.chatHistory) setChatHistory(parsed.chatHistory);
+        // Debug log for restore
+        if (parsed.chatHistory) {
+          console.log('[VOICE][RESTORE] chatHistory length:', parsed.chatHistory.length);
+        }
         if (parsed.interviewData) {
           // Optionally setInterviewData(parsed.interviewData);
         }
         if (parsed.currentlyPlayingIdx !== undefined) setCurrentlyPlayingIdx(parsed.currentlyPlayingIdx);
-      } catch {}
+      } catch (e) {
+        console.error('[VOICE][RESTORE] Error restoring session from localStorage:', e);
+      }
     }
   }, []);
 
