@@ -381,7 +381,7 @@ export default function HomePage() {
                 <div className="rounded-lg shadow-lg w-full h-auto overflow-hidden bg-black relative" style={{ aspectRatio: '16/9', minHeight: 200 }}>
                   <iframe
                     id="hero-video"
-                    src="https://youtu.be/tN3-fVomSOQ?si=FjpQWjXpUNQr46Pc"
+                    src="https://www.youtube.com/embed/tN3-fVomSOQ"
                     title="Interview Coaching Video"
                     allow="autoplay; encrypted-media"
                     allowFullScreen
