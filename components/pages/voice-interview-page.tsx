@@ -80,7 +80,7 @@ export default function VoiceInterviewPage() {
   }, []);
   const { user, signOut } = useAuth();
   const router = useRouter();
-  const { interviewData, setInterviewData } = useInterview();
+  const { interviewData } = useInterview();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isListening, setIsListening] = useState(false);
   const [micDisabled, setMicDisabled] = useState(false);
@@ -161,7 +161,7 @@ export default function VoiceInterviewPage() {
     }
   }, [sessionId, chatHistory, interviewData, currentlyPlayingIdx, endDisabled]);
 
-  // On mount, restore session if present; otherwise, do nothing (let user start new session manually)
+  // On mount, restore session if present
   useEffect(() => {
     const saved = localStorage.getItem("voiceInterviewSession");
     if (saved) {
@@ -169,11 +169,12 @@ export default function VoiceInterviewPage() {
         const parsed = JSON.parse(saved);
         if (parsed.sessionId) setSessionId(parsed.sessionId);
         if (parsed.chatHistory) setChatHistory(parsed.chatHistory);
-        if (parsed.interviewData) setInterviewData(parsed.interviewData);
+        if (parsed.interviewData) {
+          // Optionally setInterviewData(parsed.interviewData);
+        }
         if (parsed.currentlyPlayingIdx !== undefined) setCurrentlyPlayingIdx(parsed.currentlyPlayingIdx);
       } catch {}
     }
-    // If no saved session, do nothing; user will see job title/company form
   }, []);
 
   // Respond to the interview: send user audio to backend (using interviewAPI.respond)
@@ -403,9 +404,22 @@ const toggleListening = async () => {
 
 
 
-  // useEffect to start interview and speak initial AI message
+  // On mount, restore session if present, otherwise start a new one
   useEffect(() => {
-    initializeInterview();
+    const saved = localStorage.getItem("voiceInterviewSession");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed.sessionId) setSessionId(parsed.sessionId);
+        if (parsed.chatHistory) setChatHistory(parsed.chatHistory);
+        if (parsed.interviewData) {
+          // Optionally setInterviewData(parsed.interviewData);
+        }
+        if (parsed.currentlyPlayingIdx !== undefined) setCurrentlyPlayingIdx(parsed.currentlyPlayingIdx);
+        return; // Do not start a new session if restoring
+      } catch {}
+    }
+    initializeInterview(); // Only start a new session if nothing to restore
   }, []);
 
   return (
