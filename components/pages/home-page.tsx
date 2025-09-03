@@ -42,7 +42,13 @@ export default function HomePage() {
   // Call visit API on every homepage load
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      fetch('/api/visit');
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
+      if (backendUrl) {
+        fetch(`${backendUrl}/api/visit`);
+      } else {
+        // fallback for local/dev
+        fetch('/api/visit');
+      }
     }
   }, []);
   // Animated counter for "500+"
