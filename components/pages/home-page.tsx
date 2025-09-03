@@ -39,6 +39,14 @@ function DarkModeToggle({ className = "" }: { className?: string }) {
 }
 
 export default function HomePage() {
+  // Call visit API only once per user (per browser)
+  useEffect(() => {
+    if (typeof window !== 'undefined' && !localStorage.getItem('interviewiq_visit_logged')) {
+      fetch('/api/visit').then(() => {
+        localStorage.setItem('interviewiq_visit_logged', '1');
+      });
+    }
+  }, []);
   // Animated counter for "500+"
   const [counter, setCounter] = useState(0);
   useEffect(() => {
