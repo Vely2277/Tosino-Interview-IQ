@@ -30,20 +30,6 @@ export default function BottomNavigation() {
       bgColor: "bg-purple-100",
     },
     {
-      label: "CV",
-      icon: FileText,
-      path: "/cv",
-      color: "text-orange-600",
-      bgColor: "bg-orange-100",
-    },
-    {
-      label: "Hub",
-      icon: Users,
-      path: "/hub",
-      color: "text-teal-600",
-      bgColor: "bg-teal-100",
-    },
-    {
       label: "Pricing",
       icon: DollarSign,
       path: "/pricing",
@@ -60,7 +46,7 @@ export default function BottomNavigation() {
 
   return (
   <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-[#23263a] border-t border-gray-200 dark:border-blue-900 z-50 safe-area-pb">
-  <div className="grid grid-cols-6 h-16">
+  <div className="grid grid-cols-4 h-16">
         {navigationItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.path);

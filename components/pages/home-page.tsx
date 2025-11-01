@@ -207,12 +207,6 @@ export default function HomePage() {
             <nav className="hidden md:flex flex-col items-end space-y-0.5 mr-2">
               <div className="flex items-center space-x-8">
                 <button
-                  onClick={() => router.push("/hub")}
-                  className="text-gray-300 hover:text-white transition-colors"
-                >
-                  Find Jobs
-                </button>
-                <button
                   onClick={() => router.push("/about")}
                   className="text-gray-300 hover:text-white transition-colors"
                 >
@@ -284,12 +278,6 @@ export default function HomePage() {
           {mobileMenuOpen && (
             <div className="md:hidden py-4 border-t border-blue-800">
               <div className="flex flex-col space-y-3">
-                <button
-                  onClick={() => router.push("/hub")}
-                  className="text-gray-300 hover:text-white px-3 py-2 text-left"
-                >
-                  Find Jobs
-                </button>
                 <button
                   onClick={() => router.push("/about")}
                   className="text-gray-300 hover:text-white px-3 py-2 text-left"
@@ -484,9 +472,9 @@ export default function HomePage() {
                 <div className="bg-purple-100 dark:bg-purple-900 w-16 h-16 rounded-full flex items-center justify-center mx-auto">
                   <Award className="h-8 w-8 text-purple-600 dark:text-purple-300" />
                 </div>
-                <h3 className="text-xl font-semibold text-center dark:text-gray-100">CV Suggestions That Matter</h3>
+                <h3 className="text-xl font-semibold text-center dark:text-gray-100">Performance Analytics</h3>
                 <p className="text-gray-600 dark:text-gray-300 text-center">
-                  Receive targeted edits to your existing CV — plus a better version, role-matched
+                  Track your progress with detailed performance metrics and scoring
                 </p>
               </CardContent>
             </Card>
@@ -615,13 +603,13 @@ export default function HomePage() {
                     <div className="flex items-center space-x-3">
                       <div className="w-3 h-3 bg-green-500 dark:bg-green-400 rounded-full"></div>
                       <span className="text-gray-700 dark:text-gray-200">
-                        CV optimization tools
+                        Performance tracking and analytics
                       </span>
                     </div>
                     <div className="flex items-center space-x-3">
                       <div className="w-3 h-3 bg-green-500 dark:bg-green-400 rounded-full"></div>
                       <span className="text-gray-700 dark:text-gray-200">
-                        Career insights and tips
+                        Interview coaching and tips
                       </span>
                     </div>
                   </div>
@@ -737,7 +725,7 @@ export default function HomePage() {
                 <div className="px-6 py-4 bg-white dark:bg-gray-800 text-black dark:text-gray-100">
                   <p>
                     No. While ChatGPT gives generic answers, InterviewIQ is
-                    focused on you — your role, your CV, and your actual
+                    focused on you — your role, your goals, and your actual
                     responses. It gives structured feedback, realistic scoring,
                     and tailored coaching from your tone, to choosing your
                     preferred AI interview avatar, and more......
@@ -790,8 +778,8 @@ export default function HomePage() {
               {openFAQ === 2 && (
                 <div className="px-6 py-4 bg-white dark:bg-gray-800 text-black dark:text-gray-100">
                   <p>
-                    Yes, you even get full career insights, how to start, what
-                    to do and real times jobs on our hub page.
+                    Yes, you get comprehensive interview analytics, performance tracking,
+                    and personalized coaching to help you improve with every session.
                   </p>
                 </div>
               )}
@@ -922,17 +910,6 @@ export default function HomePage() {
                       <span>100s are already ahead — don't fall behind again</span>
                     </div>
                   </div>
-
-                  {user && (
-                    <div className="pt-6">
-                      <Button 
-                        onClick={() => router.push("/hub")}
-                        className="bg-gradient-to-r from-teal-400 to-blue-500 hover:from-teal-500 hover:to-blue-600 text-white px-12 py-4 text-lg font-semibold rounded-full shadow-lg hover:shadow-xl transition-transform"
-                      >
-                        Get Career Insights
-                      </Button>
-                    </div>
-                  )}
                 </div>
               </div>
             </CardContent>

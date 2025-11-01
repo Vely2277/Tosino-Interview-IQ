@@ -15,8 +15,6 @@ export default function BottomNav({ currentPage }: BottomNavProps) {
     { id: "home", icon: Home, label: "Home", path: "/" },
     { id: "practice", icon: Mic, label: "Practice", path: "/practice" },
     { id: "progress", icon: TrendingUp, label: "Progress", path: "/progress" },
-    { id: "cv", icon: FileText, label: "CV", path: "/cv" },
-    { id: "hub", icon: Sprout, label: "Hub", path: "/hub" },
     { id: "pricing", icon: Receipt, label: "Pricing", path: "/pricing" },
   ]
 

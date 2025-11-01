@@ -82,6 +82,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signUp = async (email: string, password: string, fullName?: string) => {
     try {
       const supabase = createSupabaseClient();
+      
+      console.log('Attempting signup with:', { email, hasPassword: !!password, fullName });
+      console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
+      
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -92,8 +96,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           },
         },
       });
+      
+      console.log('Signup response:', { data, error });
       return { data, error };
     } catch (error) {
+      console.error('Signup error:', error);
       return { data: null, error: { message: 'Authentication not configured' } };
     }
   };
