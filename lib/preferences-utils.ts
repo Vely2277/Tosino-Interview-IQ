@@ -63,8 +63,13 @@ export async function checkUserNeedsPreferences(): Promise<{
       return { needsPreferences: false, userPreferences };
     }
 
-    // Check if user skipped recently (within 12 hours)
-    if (data?.preferences_skipped_at) {
+    // If preferences_completed is false (user cancelled/left page), always show preferences
+    if (data?.preferences_completed === false) {
+      return { needsPreferences: true, userPreferences };
+    }
+
+    // Check if user skipped recently (within 12 hours) - only if they haven't cancelled
+    if (data?.preferences_skipped_at && data?.preferences_completed !== false) {
       const skippedAt = new Date(data.preferences_skipped_at);
       const now = new Date();
       const twelveHoursAgo = new Date(now.getTime() - 12 * 60 * 60 * 1000);

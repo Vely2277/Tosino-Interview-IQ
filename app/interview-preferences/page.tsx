@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
@@ -21,6 +21,27 @@ export default function InterviewPreferencesPage() {
 
   // Get today's date in YYYY-MM-DD format for min date
   const today = new Date().toISOString().split('T')[0];
+
+  // Mark user as having visited the preferences page (they didn't complete it yet)
+  useEffect(() => {
+    const markPreferencesAsIncomplete = async () => {
+      try {
+        await fetch('/api/users/preferences', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            action: 'mark_incomplete'
+          }),
+        });
+      } catch (error) {
+        console.error('Error marking preferences as incomplete:', error);
+      }
+    };
+
+    markPreferencesAsIncomplete();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

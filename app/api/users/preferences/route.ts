@@ -4,8 +4,86 @@ import { cookies } from 'next/headers';
 
 export async function POST(request: NextRequest) {
   try {
-    const { interviewDate, interviewFrequency } = await request.json();
+    const { interviewDate, interviewFrequency, action } = await request.json();
     
+    // Create Supabase client
+    const cookieStore = await cookies()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+        },
+      }
+    );
+
+    // Get current user
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: 'User not authenticated' },
+        { status: 401 }
+      );
+    }
+
+    // Handle skip action
+    if (action === 'skip') {
+      const { error } = await supabase
+        .from('users')
+        .upsert({
+          id: user.id,
+          email: user.email,
+          full_name: user.user_metadata?.full_name,
+          preferences_skipped_at: new Date().toISOString(),
+          preferences_completed: null, // Reset to null when skipped
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
+
+      if (error) {
+        console.error('Database error:', error);
+        return NextResponse.json(
+          { error: 'Failed to save skip status' },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json({
+        message: 'Preferences skipped successfully'
+      });
+    }
+
+    // Handle mark incomplete action (user visited the page but didn't complete)
+    if (action === 'mark_incomplete') {
+      const { error } = await supabase
+        .from('users')
+        .upsert({
+          id: user.id,
+          email: user.email,
+          full_name: user.user_metadata?.full_name,
+          preferences_completed: false,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
+
+      if (error) {
+        console.error('Database error:', error);
+        return NextResponse.json(
+          { error: 'Failed to mark preferences as incomplete' },
+          { status: 500 }
+        );
+      }
+
+      return NextResponse.json({
+        message: 'Preferences marked as incomplete'
+      });
+    }
+
+    // Handle setting preferences (normal flow)
     // Validate input
     if (!interviewDate || !interviewFrequency) {
       return NextResponse.json(
@@ -44,30 +122,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Create Supabase client
-    const cookieStore = await cookies()
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value
-          },
-        },
-      }
-    );
-
-    // Get current user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
-    if (authError || !user) {
-      return NextResponse.json(
-        { error: 'User not authenticated' },
-        { status: 401 }
-      );
-    }
-
     // Update user preferences in database (or create if user doesn't exist)
     const { data, error } = await supabase
       .from('users')
@@ -77,6 +131,8 @@ export async function POST(request: NextRequest) {
         full_name: user.user_metadata?.full_name,
         interview_date: interviewDate,
         interview_frequency: interviewFrequency,
+        preferences_completed: true,
+        preferences_skipped_at: null, // Clear skip timestamp when preferences are set
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
       })
@@ -133,7 +189,7 @@ export async function GET(request: NextRequest) {
     // Get user preferences from database
     const { data, error } = await supabase
       .from('users')
-      .select('interview_date, interview_frequency')
+      .select('interview_date, interview_frequency, preferences_completed, preferences_skipped_at')
       .eq('id', user.id)
       .single();
 
@@ -147,7 +203,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       interviewDate: data?.interview_date,
-      interviewFrequency: data?.interview_frequency
+      interviewFrequency: data?.interview_frequency,
+      preferencesCompleted: data?.preferences_completed,
+      preferencesSkippedAt: data?.preferences_skipped_at
     });
 
   } catch (error) {
