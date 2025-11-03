@@ -48,6 +48,29 @@ export default function PracticePage() {
     }
   }, [router]);
 
+  // Check if user needs to set preferences before using practice page
+  useEffect(() => {
+    const checkPreferences = async () => {
+      if (!user) return; // Wait for user to be loaded
+
+      try {
+        const response = await fetch('/api/users/preferences/check-status');
+        if (response.ok) {
+          const { needsPreferences } = await response.json();
+          if (needsPreferences) {
+            // User needs to set preferences, redirect to preferences page
+            router.push('/interview-preferences');
+          }
+        }
+      } catch (error) {
+        console.error('Error checking preferences:', error);
+        // Continue anyway, don't block the user
+      }
+    };
+
+    checkPreferences();
+  }, [user, router]);
+
   // Slideshow images - create extended array for seamless loop
   const slides = [
     "/image1.jpg",
