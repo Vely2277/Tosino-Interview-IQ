@@ -45,9 +45,20 @@ export default function AuthCallbackPage() {
               router.push('/auth/reset-password');
               return;
             } else {
-              // Regular email confirmation - go to interview preferences
+              // Regular email confirmation - check if user needs preferences
+              const needsPreferencesResponse = await fetch('/api/users/preferences/check-status');
+              if (needsPreferencesResponse.ok) {
+                const { needsPreferences } = await needsPreferencesResponse.json();
+                if (needsPreferences) {
+                  setTimeout(() => {
+                    router.push('/interview-preferences');
+                  }, 1000);
+                  return;
+                }
+              }
+              // User doesn't need preferences, go to home
               setTimeout(() => {
-                router.push('/interview-preferences');
+                router.push('/home');
               }, 1000);
               return;
             }
@@ -64,8 +75,20 @@ export default function AuthCallbackPage() {
         }
 
         if (data.session) {
+          // Check if user needs preferences
+          const needsPreferencesResponse = await fetch('/api/users/preferences/check-status');
+          if (needsPreferencesResponse.ok) {
+            const { needsPreferences } = await needsPreferencesResponse.json();
+            if (needsPreferences) {
+              setTimeout(() => {
+                router.push('/interview-preferences');
+              }, 500);
+              return;
+            }
+          }
+          // User doesn't need preferences, go to home
           setTimeout(() => {
-            router.push('/interview-preferences');
+            router.push('/home');
           }, 500);
         } else {
           router.push('/auth/login?message=please_sign_in');

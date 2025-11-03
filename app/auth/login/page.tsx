@@ -35,7 +35,24 @@ export default function LoginPage() {
       if (error) {
         setError(error.message);
       } else {
-        router.push('/');
+        // Check if user needs to set preferences
+        try {
+          const response = await fetch('/api/users/preferences/check-status');
+          if (response.ok) {
+            const { needsPreferences } = await response.json();
+            if (needsPreferences) {
+              router.push('/interview-preferences');
+            } else {
+              router.push('/home');
+            }
+          } else {
+            // If API fails, default to home
+            router.push('/home');
+          }
+        } catch (apiError) {
+          console.error('Error checking preferences:', apiError);
+          router.push('/home');
+        }
       }
     } catch (err) {
       setError('An unexpected error occurred');

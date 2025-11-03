@@ -54,7 +54,7 @@ export default function InterviewPreferencesPage() {
       setSuccess(true);
       // Redirect to home after a short delay
       setTimeout(() => {
-        router.push('/');
+        router.push('/home');
       }, 2000);
 
     } catch (error) {
@@ -64,9 +64,34 @@ export default function InterviewPreferencesPage() {
     }
   };
 
-  const handleSkip = () => {
-    // Allow users to skip this step and go directly to home
-    router.push('/');
+  const handleSkip = async () => {
+    setLoading(true);
+    setError('');
+
+    try {
+      const response = await fetch('/api/users/preferences', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'skip'
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to skip preferences');
+      }
+
+      // Redirect to home after successful skip
+      router.push('/home');
+    } catch (error) {
+      setError(error instanceof Error ? error.message : 'An unexpected error occurred');
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (success) {
