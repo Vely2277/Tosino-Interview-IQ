@@ -45,9 +45,9 @@ export default function AuthCallbackPage() {
               router.push('/auth/reset-password');
               return;
             } else {
-              // Regular email confirmation - go to home page
+              // Regular email confirmation - go to interview preferences
               setTimeout(() => {
-                router.push('/');
+                router.push('/interview-preferences');
               }, 1000);
               return;
             }
@@ -65,7 +65,7 @@ export default function AuthCallbackPage() {
 
         if (data.session) {
           setTimeout(() => {
-            router.push('/');
+            router.push('/interview-preferences');
           }, 500);
         } else {
           router.push('/auth/login?message=please_sign_in');
